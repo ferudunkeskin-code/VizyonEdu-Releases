@@ -1,6 +1,6 @@
 {
-  "version": "1.01",
-  "download_url": "https://github.com/ferudunkeskin-code/VizyonEdu-Releases/releases/download/v1.01.1/VizyonEdu_v1.01.1_Setup.exe",
-  "sha256": "1fc4471df6ac8f7d9e8527ac749469389553affeb7eca5dcb38bd5accea4c351",
-  "notes": "GitHub tabanlı otomatik güncelleme altyapısının başlangıç sürümü."
+  "version": "1.01.2",
+  "download_url": "https://github.com/ferudunkeskin-code/VizyonEdu-Releases/releases/download/v1.01.2/VizyonEdu_v1.01.2_Setup.exe",
+  "sha256": "75dce7bf90985a2b499a779c631367c6c81099b585cb7b21dfeae46d712a488e",
+  "notes": "Öğrenci resmi görünürlük tercihi artık korunur. Resim açıksa öğrenci değiştirildiğinde yeni öğrencinin resmi otomatik gösterilir; kapatılırsa kapalı kalır."
 }
