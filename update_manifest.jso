@@ -1,0 +1,6 @@
+{
+  "version": "1.01",
+  "installer_url": "https://github.com/ferudunkeskin-code/VizyonEdu-Releases/releases/download/v1.01.1/VizyonEdu_v1.01.1_Setup.exe",
+  "sha256": "1fc4471df6ac8f7d9e8527ac749469389553affeb7eca5dcb38bd5accea4c351",
+  "notes": "GitHub tabanlı otomatik güncelleme altyapısının başlangıç sürümü."
+}
