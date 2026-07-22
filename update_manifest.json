@@ -1,6 +1,6 @@
 {
-  "version": "1.01.3",
-  "download_url": "https://github.com/ferudunkeskin-code/VizyonEdu-Releases/releases/download/v1.01.3/VizyonEdu_v1.01.3_Setup.exe",
-  "sha256": "246c293bee59faf31fa1dc98202b158df43011efd5abc36b941ba903ca395e44",
-  "notes": "Soru Havuzu menüsü ve bağlantıları yeniden eklendi. Öğrenci resmi tercihi, dinamik sürüm bilgisi ve otomatik güncelleme düzeltmeleri korundu."
+  "version": "1.01.4",
+  "download_url": "https://github.com/ferudunkeskin-code/VizyonEdu-Releases/releases/download/v1.01.4/VizyonEdu_v1.01.4_Setup.exe",
+  "sha256": "845aa76ef64236415adf75f70d4df3742669d9f8b98f339151285d6f25437e8a",
+  "notes": "Otomatik güncelleme kurulum akışı düzeltildi. Kurucu bağımsız Windows işlemi olarak başlatılıyor. Soru Havuzu menüsü ve önceki düzeltmeler korundu."
 }
