@@ -1,6 +1,6 @@
 {
-  "version": "1.01.5",
-  "download_url": "https://github.com/ferudunkeskin-code/VizyonEdu-Releases/releases/download/v1.01.5/VizyonEdu_v1.01.5_Setup.exe",
-  "sha256": "aa35afff66338d0326c814621e059a035d030a473a0c0229e23cd4b616730ed8",
-  "notes": "Bağımsız VizyonEdu Güncelleyici eklendi. Güncelleyici kurulumu izler, başarılı kurulumdan sonra VizyonEdu'yu yeniden açar ve işlem günlüğü oluşturur."
+  "version": "1.01.6",
+  "download_url": "https://github.com/ferudunkeskin-code/VizyonEdu-Releases/releases/download/v1.01.6/VizyonEdu_v1.01.6_Setup.exe",
+  "sha256": "1a3a9a65104d4503d1946c27b18bbdb2a380e307de87ac60add68de4f3aa81aa",
+  "notes": "Bağımsız güncelleyici geçici konumdan çalıştırılıyor. Kurulum günlüğü kaydediliyor ve başarılı güncellemeden sonra VizyonEdu otomatik yeniden başlatılıyor."
 }
