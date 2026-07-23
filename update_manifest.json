@@ -1,6 +1,6 @@
 {
   "version": "1.01.7",
   "download_url": "https://github.com/ferudunkeskin-code/VizyonEdu-Releases/releases/download/v1.01.7/VizyonEdu_v1.01.7_Setup.exe",
-  "sha256": "69003ecebedfd28b39b0c5f02b439c5154f633f01fdc29ca0801031226a759ec",
+  "sha256": "814b0ac494f24e1e5f752d8d32c42ca7a22f691b50438281ba3620fa70e3937d"
   "notes": "Kurulumun bağımsız güncelleyiciyi kapatması engellendi. Güncelleme tamamlandıktan sonra VizyonEdu'nun otomatik yeniden açılması düzeltildi."
 }
