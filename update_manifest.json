@@ -1,6 +1,6 @@
 {
   "version": "1.01.8",
   "download_url": "https://github.com/ferudunkeskin-code/VizyonEdu-Releases/releases/download/v1.01.8/VizyonEdu_v1.01.8_Setup.exe",
-  "sha256": "518d00dac043ef4f3f98873deb7ff1832bd588d745b9162b49fbb2c927275bf3",
+  "sha256:518c041e148e86c404efc9a86b2b292b7d05ce7cc7f8151e703d39e3d633e886",
   "notes": "Otomatik güncelleme mekanizması iyileştirildi ve kurulum sonrası yeniden açılma düzeltildi."
 }
