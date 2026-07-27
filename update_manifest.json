@@ -1,6 +1,6 @@
 {
-  "version": "1.02.3",
-  "installer_url": "https://github.com/ferudunkeskin-code/VizyonEdu-Releases/releases/download/v1.02.3/VizyonEdu_v1.02.3_Setup.exe",
-  "sha256": "c900bc02e9a16adab9d0abf9f304a0f3109414908848ad0a6fba3b25dee5a9cc",
-  "notes": "Kurumsal Google Drive bağlantısında yalnız vizyonkurumsaltrabzon@gmail.com hesabının kullanılmasını sağlayan güvenli yetkilendirme, daha açık iki adımlı bağlantı ekranı ve boyutlandırılabilir paylaşım pencereleri."
+  "version": "1.02.1",
+  "installer_url": "https://github.com/ferudunkeskin-code/VizyonEdu-Releases/releases/download/v1.02.1/VizyonEdu_v1.02.1_Setup.exe",
+  "sha256": "d823c2e9d75e4500364ebe02721d3af4a88413cabce9bc365f15847a19e4afb2",
+  "notes": "Kararlı sürüme dönüş. v1.02.3 geçici olarak yayından alındı."
 }
