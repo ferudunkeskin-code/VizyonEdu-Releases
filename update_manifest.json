@@ -1,6 +1,6 @@
 {
-  "version": "1.02.1",
-  "installer_url": "https://github.com/ferudunkeskin-code/VizyonEdu-Releases/releases/download/v1.02.1/VizyonEdu_v1.02.1_Setup.exe",
-  "sha256": "d823c2e9d75e4500364ebe02721d3af4a88413cabce9bc365f15847a19e4afb2",
-  "notes": "Kararlı sürüm. v1.02.2 ve v1.02.3 kurulum paketleri geçici olarak yayından alındı."
+  "version": "1.02.2",
+  "installer_url": "https://github.com/ferudunkeskin-code/VizyonEdu-Releases/releases/download/v1.02.2/VizyonEdu_v1.02.2_Setup.exe",
+  "sha256": "8943d18752fef8015171f1f4d7e1cfc2e8a87752acc5b11f1fe4158db41c454e",
+  "notes": "Drive veri paylaşımı (öğretmen kendi Gmail), kurum klasör rol ayrımı, Google Drive Ayarları Dosya menüsünde."
 }
