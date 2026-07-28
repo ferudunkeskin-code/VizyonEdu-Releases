@@ -1,4 +1,6 @@
 {
   "version": "1.02.4",
-  "installer_url": "https://github.com/ferudunkeskin-code/VizyonEdu-Releases/releases/download/v1.02.4/VizyonEdu_v1.02.4_Setup.exe"
+  "installer_url": "https://github.com/ferudunkeskin-code/VizyonEdu-Releases/releases/download/v1.02.4/VizyonEdu_v1.02.4_Setup.exe",
+  "sha256": "95B6CE487195F3CA6BB7239B490856D75758370ABB1B249AECF8E6CD3F6943C4",
+  "notes": "Sürüm 1.02.4 güncellemesi ve derleme altyapı düzeltmeleri."
 }
