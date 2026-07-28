@@ -1,6 +1,6 @@
 {
-  "version": "1.02.4",
-  "installer_url": "https://github.com/ferudunkeskin-code/VizyonEdu-Releases/releases/download/v1.02.4/VizyonEdu_v1.02.4_Setup.exe",
-  "sha256": "95B6CE487195F3CA6BB7239B490856D75758370ABB1B249AECF8E6CD3F6943C4",
-  "notes": "Sürüm 1.02.4 güncellemesi ve derleme altyapı düzeltmeleri."
+  "version": "1.02.5",
+  "installer_url": "https://github.com/ferudunkeskin-code/VizyonEdu-Releases/releases/download/v1.02.5/VizyonEdu_v1.02.5_Setup.exe",
+  "sha256": "E574189B0995187059F9C3F0AD0E31D2B1CBA867185A3F37288D069494DE3875",
+  "notes": "v1.02.5: Paylaşılan Google Drive klasör erişimi ve ders verisi senkronizasyon altyapısı düzeltildi."
 }
