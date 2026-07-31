@@ -1,6 +1,6 @@
 {
-  "version": "1.02.23",
-  "installer_url": "https://github.com/ferudunkeskin-code/VizyonEdu-Releases/releases/download/v1.02.23/VizyonEdu_v1.02.23_Setup.exe",
-  "sha256": "039E93D556D1DBC771EC222006C24E43DB2E22787B33466697E04FDEF1BAA872",
-  "notes": "Çok dersli Quiz/DAT işlemleri, merkezî DAT depolama, eksik Quiz bilgilerinin sonradan tamamlanabilmesi ve Quiz planlama yetki düzeltmeleri."
+  "version": "1.02.27",
+  "installer_url": "https://github.com/ferudunkeskin-code/VizyonEdu-Releases/releases/download/v1.02.27/VizyonEdu_v1.02.27_Setup.exe",
+  "sha256": "b00a2338a196319393f1295ae98bfb464d98104c61997fbca5b0d0dab78ee342",
+  "notes": "SI, HI ve Rehberlik için kendine özgü arayüz kabukları; Müdür ve HI’den öğretmen/birim arayüzlerine salt okunur gezinme; öğretmen tablosunda tek satır birleşik ders/sınıf görünümü."
 }
