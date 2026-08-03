@@ -1,6 +1,6 @@
 {
-  "version": "1.02.37",
-  "installer_url": "https://github.com/ferudunkeskin-code/VizyonEdu-Releases/releases/download/v1.02.37/VizyonEdu_v1.02.37_Setup.exe",
-  "sha256": "F388BD52227006517BE7101C431EA860EEE156C9C4426F4B2DD0AD5E35EAEA3C",
-  "notes": "Ödev/Onay işaretleri ile sınıf grubu bazlı Buradayız bilgilerinin artımlı senkronu düzeltildi. Daha yeni günlük kayıtlar uygulanıyor, daha eski paketlerin güncel yerel verinin üzerine yazması engelleniyor ve açık panel senkron sonrasında otomatik yenileniyor."
+  "version": "1.02.38",
+  "installer_url": "https://github.com/ferudunkeskin-code/VizyonEdu-Releases/releases/download/v1.02.38/VizyonEdu_v1.02.38_Setup.exe",
+  "sha256": "B9FAFC35CD643EB80699907EB6BB38D3E044D87D1FDCAAC09C4D2A0E859E315E",
+  "notes": "Rehberliğin Buradayız ve günlük işletim kayıtlarına öncelik verildi. Fiziksel VZEP paketine Ana Kazanım / Ödev-Onay Listesi ile Ödev / Onay İşaretleri seçimleri eklendi. Kapanış senkronu kaldırıldı, kurulumdaki eski VizyonEduData temizleme seçeneği geri getirildi ve eski quiz soru görsellerinin algılanması düzeltildi."
 }
