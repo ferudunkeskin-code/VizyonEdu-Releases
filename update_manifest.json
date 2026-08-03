@@ -1,6 +1,6 @@
 {
-  "version": "1.02.35",
-  "installer_url": "https://github.com/ferudunkeskin-code/VizyonEdu-Releases/releases/download/v1.02.35/VizyonEdu_v1.02.35_Setup.exe",
-  "sha256": "2DAF48FCF99F43F49050AF6E8F1B383FBF64DE1C37D52561344517D6A26A1303",
-  "notes": "Yayımla ve Merkezden Çek akışı kaldırıldı; günlük veriler yerel kayıtları koruyan artımlı senkronla gönderilip alınır hâle getirildi. Soru havuzu ve quiz soru içerikleri ayrı ders paketi akışında bırakıldı."
+  "version": "1.02.36",
+  "installer_url": "https://github.com/ferudunkeskin-code/VizyonEdu-Releases/releases/download/v1.02.36/VizyonEdu_v1.02.36_Setup.exe",
+  "sha256": "039D9AC4CB437842D9787A19294ECFE38E95DAEB5E078D0D5B86B5424C85E514",
+  "notes": "Öğretmene özel çalışma alanlarının artımlı veri alımı düzeltildi. Tüm veri grupları için fiziksel .vzep aktarımı geri getirildi; Soru Havuzu ve Öğrenci Bilgileri varsayılan seçimden çıkarıldı."
 }
