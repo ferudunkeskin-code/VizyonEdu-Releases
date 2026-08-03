@@ -1,6 +1,6 @@
 {
-  "version": "1.02.34",
-  "installer_url": "https://github.com/ferudunkeskin-code/VizyonEdu-Releases/releases/download/v1.02.34/VizyonEdu_v1.02.34_Setup.exe",
-  "sha256": "0BD741FB4786100F20F4A49BD065AD95CAC4CD186D0B0E5EBA714D7EAA275C4C",
-  "notes": "Otomatik artımlı senkron altyapısı ve güvenli VizyonEduData temizleme seçeneği eklendi; kullanıcı ders görünürlüğü ile Windows kurulum süreci düzeltildi."
+  "version": "1.02.35",
+  "installer_url": "https://github.com/ferudunkeskin-code/VizyonEdu-Releases/releases/download/v1.02.35/VizyonEdu_v1.02.35_Setup.exe",
+  "sha256": "2DAF48FCF99F43F49050AF6E8F1B383FBF64DE1C37D52561344517D6A26A1303",
+  "notes": "Yayımla ve Merkezden Çek akışı kaldırıldı; günlük veriler yerel kayıtları koruyan artımlı senkronla gönderilip alınır hâle getirildi. Soru havuzu ve quiz soru içerikleri ayrı ders paketi akışında bırakıldı."
 }
