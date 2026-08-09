@@ -1,5 +1,5 @@
 {
-  "version": "1.02.51",
+  "version": "v1.02.51",
   "installer_url": "https://github.com/ferudunkeskin-code/VizyonEdu-Releases/releases/download/v1.02.51/VizyonEdu_v1.02.51_Setup.exe",
   "sha256": "6139927CEBD8416729D365F6E4EA82F3E300C3C0D326ED15DBD77623C66C7BDD",
   "notes": "Öğretmen ilk kurulum ekranındaki gereksiz Sistem Yetkilisi PIN alanları kaldırıldı. Öğretmen yalnız kendi günlük PIN'ini belirler; kurum rol dosyasındaki şifrelenmiş SI PIN bilgisi korunur."
