@@ -1,6 +1,6 @@
 {
-  "version": "v1.02.52",
-  "installer_url": "https://github.com/ferudunkeskin-code/VizyonEdu-Releases/releases/download/v1.02.52/VizyonEdu_v1.02.52_Setup.exe",
-  "sha256": "CE19E3E05975F737F7586BAE0D4F8D1944BBC578FAE2D6EFBF935B751D1BCC46",
-  "notes": "İlk öğretmen kurulumunda kurum rol dosyasındaki ad, branş, kurum ve PIN bilgileri doğrudan kullanılır; gereksiz bilgi girişleri kaldırıldı. Aynı veri klasörünü kullanan iki VizyonEdu penceresinin eşzamanlı açılması engellendi."
+  "version": "v1.02.53",
+  "installer_url": "https://github.com/ferudunkeskin-code/VizyonEdu-Releases/releases/download/v1.02.53/VizyonEdu_v1.02.53_Setup.exe",
+  "sha256": "F8D7BB95F37C5D404541B0FCB0880508FE126A4467F3E51B5A374547E38F61D9",
+  "notes": "Kurum sınıf–ders–öğretmen atamalarının günlük veri akışından bağımsız aktarımı eklendi. Sistem Sorumlusu güncel kurum atamalarını yalnız gerektiğinde yayımlar; öğretmen Google Drive Ayarları üzerinden isteğe bağlı olarak alır. Normal Güncellemeleri Gönder/Al akışı değiştirilmedi."
 }
