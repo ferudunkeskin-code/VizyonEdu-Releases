@@ -1,5 +1,5 @@
 {
-  "version": "1.02.27",
+  "version": "v1.02.27",
   "installer_url": "https://github.com/ferudunkeskin-code/VizyonEdu-Releases/releases/download/v1.02.27/VizyonEdu_v1.02.27_Setup.exe",
   "sha256": "b00a2338a196319393f1295ae98bfb464d98104c61997fbca5b0d0dab78ee342",
   "notes": "SI, HI ve Rehberlik için kendine özgü arayüz kabukları; Müdür ve HI’den öğretmen/birim arayüzlerine salt okunur gezinme; öğretmen tablosunda tek satır birleşik ders/sınıf görünümü."
