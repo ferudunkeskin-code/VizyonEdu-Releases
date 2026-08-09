@@ -1,6 +1,6 @@
 {
-  "version": "v1.02.50",
-  "installer_url": "https://github.com/ferudunkeskin-code/VizyonEdu-Releases/releases/download/v1.02.50/VizyonEdu_v1.02.50_Setup.exe",
-  "sha256": "267B34F738DEA3787607A8C087B6E0E2353646789D81B46EDB25C6D838B275EB",
-  "notes": "Güncelleme sonrasında VizyonEdu'nun iki kez başlatılmasına ve SQLite database is locked hatasına yol açan süreç düzeltildi. Kurulum tamamlandığında uygulama artık tek kez ve otomatik açılır."
+  "version": "1.02.51",
+  "installer_url": "https://github.com/ferudunkeskin-code/VizyonEdu-Releases/releases/download/v1.02.51/VizyonEdu_v1.02.51_Setup.exe",
+  "sha256": "6139927CEBD8416729D365F6E4EA82F3E300C3C0D326ED15DBD77623C66C7BDD",
+  "notes": "Öğretmen ilk kurulum ekranındaki gereksiz Sistem Yetkilisi PIN alanları kaldırıldı. Öğretmen yalnız kendi günlük PIN'ini belirler; kurum rol dosyasındaki şifrelenmiş SI PIN bilgisi korunur."
 }
