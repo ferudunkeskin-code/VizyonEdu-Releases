@@ -1,6 +1,6 @@
 {
-  "version": "v1.02.39",
-  "installer_url": "https://github.com/ferudunkeskin-code/VizyonEdu-Releases/releases/download/v1.02.39/VizyonEdu_v1.02.39_Setup.exe",
-  "sha256": "B9FAFC35CD643EB80699907EB6BB38D3E044D87D1FDCAAC09C4D2A0E859E315E",
-  "notes": "Rehberliğin Buradayız ve günlük işletim kayıtlarına öncelik verildi. Fiziksel VZEP paketine Ana Kazanım / Ödev-Onay Listesi ile Ödev / Onay İşaretleri seçimleri eklendi. Kapanış senkronu kaldırıldı, kurulumdaki eski VizyonEduData temizleme seçeneği geri getirildi ve eski quiz soru görsellerinin algılanması düzeltildi."
+  "version": "1.02.48",
+  "installer_url": "https://github.com/ferudunkeskin-code/VizyonEdu-Releases/releases/download/v1.02.48/VizyonEdu_v1.02.48_Setup.exe",
+  "sha256": "C6506393FB5328FA02688CCBA9DA8CD2646C5E1A256E9A46A90E8518FE8A71A8",
+  "notes": "Kontrollü Drive Gönder/Al sistemi, kullanıcıya özel Google hesabı doğrulaması, otomatik klasör paylaşımı ve bulma, SI menü düzeni, öğretmen/ders bağlamı düzeltmeleri ve güncelleme paketlerinin 365 gün saklanması."
 }
