@@ -1,6 +1,6 @@
 {
-  "version": "1.02.48",
-  "installer_url": "https://github.com/ferudunkeskin-code/VizyonEdu-Releases/releases/download/v1.02.48/VizyonEdu_v1.02.48_Setup.exe",
-  "sha256": "C6506393FB5328FA02688CCBA9DA8CD2646C5E1A256E9A46A90E8518FE8A71A8",
-  "notes": "Kontrollü Drive Gönder/Al sistemi, kullanıcıya özel Google hesabı doğrulaması, otomatik klasör paylaşımı ve bulma, SI menü düzeni, öğretmen/ders bağlamı düzeltmeleri ve güncelleme paketlerinin 365 gün saklanması."
+  "version": "1.02.49",
+  "installer_url": "https://github.com/ferudunkeskin-code/VizyonEdu-Releases/releases/download/v1.02.49/VizyonEdu_v1.02.49_Setup.exe",
+  "sha256": "86FD40C4E7D70CB58678DE4E2F618EFA6BDDE2C096FBFB2C1382FF3CD5BDD09C",
+  "notes": "Açılışta güvenli otomatik güncelleme denetimi eklendi. Yeni sürüm bulunduğunda indirme ve kurulum kullanıcı onayıyla başlar. SI Güncelleme kontrolü bağlantısı düzeltildi ve Güncellemeleri Denetle seçeneği Dosya ile Yardım menülerinde erişilebilir hale getirildi."
 }
