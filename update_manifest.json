@@ -1,6 +1,6 @@
 {
-  "version": "v1.02.55",
-  "installer_url": "https://github.com/ferudunkeskin-code/VizyonEdu-Releases/releases/download/v1.02.55/VizyonEdu_v1.02.55_Setup.exe",
-  "sha256": "A3DE36E114428E17ADAED1A75FF25E649B4DA2BE06F756314182440D9D8E79A2",
-  "notes": "Müdür için ayrı ilk kurulum, doğrudan kullanıcının kendi arayüzünde açılması ve SI PIN doğrulamalı geçici Kod İşlemleri modu eklendi. Kod İşlemleri modunda kurum Drive bağlamı kullanılır; çıkışta başlangıç kullanıcısının hesabı ve Drive alanı geri yüklenir."
+  "version": "v1.02.57",
+  "installer_url": "https://github.com/ferudunkeskin-code/VizyonEdu-Releases/releases/download/v1.02.57/VizyonEdu_v1.02.57_Setup.exe",
+  "sha256": "339D63372E797629105521FB4C3F1E04310A5595051E1758EDB5E3A7C9CEB780",
+  "notes": "Tek örnek kilidi güçlendirildi (çift tıklama/kurucu yarışı engeli, yeniden başlatmada kilit bırakma). Kod İşlemleri girişinde önceki öğretmen ders ailesi ve çalışma alanı temizlenerek SI ile aynı nötr kurumsal bağlama geçilir; çıkışta başlangıç kullanıcısına nötr dönüş yapılır."
 }
