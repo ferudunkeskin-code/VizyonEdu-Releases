@@ -1,6 +1,1 @@
-{
-  "version": "v1.02.53",
-  "installer_url": "https://github.com/ferudunkeskin-code/VizyonEdu-Releases/releases/download/v1.02.57/VizyonEdu_v1.02.53_Setup.exe",
-  "sha256": "339D63372E797629105521FB4C3F1E04310A5595051E1758EDB5E3A7C9CEB780",
-  "notes": "Tek örnek kilidi güçlendirildi (çift tıklama/kurucu yarışı engeli, yeniden başlatmada kilit bırakma). Kod İşlemleri girişinde önceki öğretmen ders ailesi ve çalışma alanı temizlenerek SI ile aynı nötr kurumsal bağlama geçilir; çıkışta başlangıç kullanıcısına nötr dönüş yapılır."
-}
+
