@@ -1,6 +1,6 @@
 {
-  "version": "1.02.95",
-  "installer_url": "https://github.com/ferudunkeskin-code/VizyonEdu-Releases/releases/download/v1.02.95/VizyonEdu_v1.02.95_Setup.exe",
+  "version": "1.02.97",
+  "installer_url": "https://github.com/ferudunkeskin-code/VizyonEdu-Releases/releases/download/v1.02.95/VizyonEdu_v1.02.97_Setup.exe",
   "sha256": "9c4f907bfee18c3a954c5918934ce319af6d3a2b68c8edec7fbfb8377e9b0b2e",
   "notes": "Öğretmen, Rehberlik ve SI arayüzlerinde yeni panel düzenleri; haftalık rutin takip ve ders çalışma programı geliştirmeleri; Öğrenci Ödevleri ve Öğretmen Kontrolü için Drive/fiziksel paket alımı; ilk tarihli kayıtları koruyan veri birleştirme mantığı; Quiz ve otomatik test düzeltmeleri."
 }
