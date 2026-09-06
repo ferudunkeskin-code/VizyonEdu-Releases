@@ -2,5 +2,5 @@
   "version": "1.03.04",
   "installer_url": "https://github.com/ferudunkeskin-code/VizyonEdu-Releases/releases/download/v1.03.04/VizyonEdu_v1.03.04_Setup.exe",
   "sha256": "1A31BDF2952293DDC78EBF6643C390DEBDEAB29886BD3DCB341CA8A429D39F44",
-  "notes": "Menü ve arayüz düzenlemeleri, veri aktarım yetkileri ve kararlılık düzeltmeleri."
+  "notes": "Menü ve arayüz düzenlemeleri; Quiz Soru Taleplerini Al ve Bulut Paket Denetleyici menüleri; veri aktarım yetkileri ve kararlılık düzeltmeleri."
 }
