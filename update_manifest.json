@@ -1,6 +1,6 @@
 {
   "version": "1.03.05",
   "installer_url": "https://github.com/ferudunkeskin-code/VizyonEdu-Releases/releases/download/v1.03.05/VizyonEdu_v1.03.05_Setup.exe",
-  "sha256": "B7F7CCED49E3CC6E61CDCF500C8C3838B38EBC9CCB421FEB803BAD65A0649631",
-  "notes": "Quiz Soru Taleplerini Al menüsü ile Öğretmen ve PDR için Bulut Paket Denetleyici erişimi eklendi."
+  "sha256": "6577284D5EA8342BEFB7B77639DEE4B7E15518A9075DE864DF063A6DCC50BFA5",
+  "notes": "Soru havuzu kararlılık düzeltmeleri, test ve derleme süreci iyileştirmeleri."
 }
