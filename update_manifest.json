@@ -1,6 +1,6 @@
 {
-  "version": "1.03.05",
-  "installer_url": "https://github.com/ferudunkeskin-code/VizyonEdu-Releases/releases/download/v1.03.05/VizyonEdu_v1.03.05_Setup.exe",
-  "sha256": "6577284D5EA8342BEFB7B77639DEE4B7E15518A9075DE864DF063A6DCC50BFA5",
-  "notes": "Soru havuzu kararlılık düzeltmeleri, test ve derleme süreci iyileştirmeleri."
+  "version": "1.03.07",
+  "installer_url": "https://github.com/ferudunkeskin-code/VizyonEdu-Releases/releases/download/v1.03.07/VizyonEdu_v1.03.07_Setup.exe",
+  "sha256": "594E5160756D125B66300C2ED87F2D3119053535F7E0D0C70FE4F8794944E85A",
+  "notes": "Öğrenci Genel Durumu kurumsal rollere eklendi. Auto-Bulut aktarımı geliştirildi; Müdür için kurum genelinde yalnız veri alma desteği ve güvenli Sistem Veri menüsü eklendi."
 }
