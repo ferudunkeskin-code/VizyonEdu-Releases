@@ -1,6 +1,6 @@
 {
-  "version": "1.03.24",
-  "installer_url": "https://github.com/ferudunkeskin-code/VizyonEdu-Releases/releases/download/v1.03.24/VizyonEdu_v1.03.24_Setup.exe",
-  "sha256": "EEBE3C930582032480569BE7939ABD7BE97BA7ACE885E6A7D1CEF08348A09100",
-  "notes": "SI Ödev/Kontrol onarım istisnası (hatalı parafsız kaydı ezebilir); mobil↔masaüstü senkron ve paket denetimi iyileştirmeleri."
+  "version": "1.03.25",
+  "installer_url": "https://github.com/ferudunkeskin-code/VizyonEdu-Releases/releases/download/v1.03.25/VizyonEdu_v1.03.25_Setup.exe",
+  "sha256": "8DF659F83ECF0EDE54431003A9425FEEE372BDF49A7AD47E9409FD15C72731A7",
+  "notes": "Drive Paket Denetleyici: tarih/adet/gönderen filtreleri, arka plan silme kuyruğu; SI ödev/kontrol parafsız kayıt silme; denetleyici test uyumu."
 }
