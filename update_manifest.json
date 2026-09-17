@@ -1,6 +1,6 @@
 {
-  "version": "1.03.23",
-  "installer_url": "https://github.com/ferudunkeskin-code/VizyonEdu-Releases/releases/download/v1.03.23/VizyonEdu_v1.03.23_Setup.exe",
-  "sha256": "EF7E21F0801E67E3C514E047E2D91AB345415529BF5D67CFFF39DE4C6B8D5DCC",
-  "notes": "Mobil ↔ masaüstü senkron düzeltmeleri: kendi mobil paket alımı, Ödev/Kontrol paraf aktarımı, SQLite kilit ve paket yeniden tarama."
+  "version": "1.03.24",
+  "installer_url": "https://github.com/ferudunkeskin-code/VizyonEdu-Releases/releases/download/v1.03.24/VizyonEdu_v1.03.24_Setup.exe",
+  "sha256": "EEBE3C930582032480569BE7939ABD7BE97BA7ACE885E6A7D1CEF08348A09100",
+  "notes": "SI Ödev/Kontrol onarım istisnası (hatalı parafsız kaydı ezebilir); mobil↔masaüstü senkron ve paket denetimi iyileştirmeleri."
 }
