@@ -1,33 +1,677 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="tr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
-  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#173f67">
   <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="VizyonEdu Müdür">
   <title>VizyonEdu Müdür</title>
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    html, body {
-      height: 100%;
-      height: 100dvh;
-      overflow: hidden;
-      background: #f8fafc;
-    }
-    iframe {
-      border: none;
-      width: 100%;
-      height: 100%;
-      display: block;
-    }
-  </style>
+  <style>:root{--navy:#173f67;--ink:#18324a;--muted:#607285;--line:#dbe5ee;--bg:#f4f7fa;--white:#fff;--blue:#2f80ed;--green:#27ae60;--orange:#f2994a;--purple:#9b51e0;--red:#eb5757}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.42 system-ui,-apple-system,"Segoe UI",sans-serif}.topbar{padding:18px max(18px,env(safe-area-inset-left));padding-top:max(18px,env(safe-area-inset-top));background:linear-gradient(135deg,#173f67,#245f8e);color:#fff;display:flex;align-items:center;justify-content:space-between;gap:12px;box-shadow:0 5px 20px #173f6730}.topbar small,.panel-title small,.intro-card small{letter-spacing:.12em;font-size:.66rem;font-weight:800;opacity:.78}.topbar h1{font-size:1.28rem;margin:2px 0}.topbar p{margin:0;font-size:.82rem;opacity:.82}.readonly{font-size:.62rem;font-weight:800;border:1px solid #ffffff60;border-radius:999px;padding:7px 9px}main{max-width:980px;margin:auto;padding:14px 12px 50px}.login-card,.panel,.intro-card{background:#fff;border:1px solid var(--line);border-radius:15px;box-shadow:0 6px 18px #173f670b}.login-card{max-width:480px;margin:34px auto;padding:24px}.brand-mark{width:48px;height:48px;border-radius:14px;display:grid;place-items:center;background:var(--navy);color:#fff;font-size:1.5rem;font-weight:900}.login-card h2{margin:14px 0 3px}.login-card p{color:var(--muted);margin:0 0 16px}label{display:flex;flex-direction:column;gap:6px;font-size:.78rem;font-weight:750;color:#486581;margin:12px 0}input,select{width:100%;border:1px solid #cbd8e3;border-radius:10px;background:#fff;color:var(--ink);font:inherit;min-height:45px;padding:9px 11px}button{border:0;border-radius:10px;background:var(--navy);color:#fff;min-height:44px;padding:10px 14px;font:750 .9rem/1.2 inherit;cursor:pointer}button:disabled{opacity:.5}.login-card button{width:100%;margin-top:8px}.secondary{background:#eef4f8;color:var(--navy);border:1px solid #cfdae5}.intro-card{margin-bottom:12px;padding:13px 15px;display:flex;align-items:center;justify-content:space-between}.intro-card strong{display:block;margin-top:3px}.intro-card button{min-height:38px}.sync-progress{background:#fff;border:1px solid #cbdceb;border-radius:14px;padding:13px 15px;margin:-2px 0 12px;box-shadow:0 6px 18px #173f670b}.sync-progress.error{border-color:#e4b6ae;background:#fff8f6}.sync-progress-head{display:flex;align-items:center;gap:10px}.sync-progress-head div{display:flex;flex-direction:column}.sync-progress-head small{color:var(--muted)}.spinner{width:22px;height:22px;border:3px solid #d9e6f0;border-top-color:var(--blue);border-radius:50%;animation:spin .8s linear infinite}.sync-progress.done .spinner{animation:none;border:0;background:#27ae60;color:#fff;display:grid;place-items:center}.sync-progress.done .spinner:after{content:'✓';font-weight:900}.sync-progress.error .spinner{animation:none;border:0;background:#eb5757}.sync-progress.error .spinner:after{content:'!';color:#fff;display:grid;place-items:center;font-weight:900}.sync-progress>p{margin:8px 0;color:#486581;font-size:.8rem}.sync-steps{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px}.sync-step{font-size:.72rem;color:#7890a5;padding:6px 8px;border-radius:8px;background:#f5f8fb}.sync-step.done{background:#edf8f2;color:#187647;font-weight:700}.sync-step.done:before{content:'✓ ';font-weight:900}@keyframes spin{to{transform:rotate(360deg)}}.metric-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:12px}.metric{background:#fff;border:1px solid var(--line);border-left:5px solid;border-radius:13px;padding:13px;min-width:0}.metric span{display:block;color:var(--muted);font-size:.68rem;text-transform:uppercase;font-weight:800}.metric strong{display:block;font-size:1.65rem;margin-top:3px}.metric.blue{border-left-color:var(--blue)}.metric.green{border-left-color:var(--green)}.metric.orange{border-left-color:var(--orange)}.metric.purple{border-left-color:var(--purple)}.panel{padding:15px;margin:12px 0}.panel-title{display:flex;justify-content:space-between;align-items:center}.panel-title h2{font-size:1.03rem;margin:2px 0 8px}.filter-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.filter-grid label{margin:2px 0}.monitor-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.monitor-card{background:#fff;border:1px solid var(--line);border-top:4px solid var(--accent,#2f80ed);border-radius:13px;padding:13px;display:flex;flex-direction:column;min-height:156px}.monitor-card h3{font-size:.78rem;color:var(--muted);margin:0;min-height:35px}.monitor-card strong{font-size:1.6rem;margin:5px 0}.monitor-card p{font-size:.72rem;color:var(--muted);margin:0 0 10px}.monitor-card button{margin-top:auto;min-height:36px;background:#eef4f8;color:var(--navy)}.report-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}.report-btn{background:#f8fbfd;color:var(--ink);border:1px solid var(--line);text-align:left;display:grid;grid-template-columns:30px 1fr;grid-template-rows:auto auto;padding:13px}.report-btn span{grid-row:1/3;font-size:1.2rem}.report-btn b{font-size:.82rem}.report-btn small{color:var(--muted);font-weight:500}.system-panel p{margin:5px 0;color:#486581}.safe-note{padding:10px;background:#edf8f2;border-radius:10px;color:#187647!important;font-size:.78rem}.logout{display:block;margin:18px auto;background:transparent;color:#7a3840;border:1px solid #e6cbd0}.modal{position:fixed;inset:0;z-index:2000;background:#10283d99;display:flex;align-items:flex-end;justify-content:center;padding-top:40px}.modal[hidden]{display:none}.modal-sheet{background:#fff;width:min(100%,980px);max-height:92vh;overflow:auto;border-radius:18px 18px 0 0;padding:16px;box-shadow:0 -10px 35px #0003}.modal-head{position:sticky;top:-16px;background:#fff;z-index:2;display:flex;justify-content:space-between;align-items:flex-start;border-bottom:1px solid var(--line);padding:4px 0 12px;margin-bottom:12px}.modal-head h2{font-size:1.08rem;margin:2px 0}.modal-head p{font-size:.75rem;color:var(--muted);margin:2px 0}.modal-head button{border-radius:50%;width:38px;height:38px;min-height:38px;padding:0;background:#eef4f8;color:var(--navy);font-size:1.4rem}.table-wrap{overflow:auto}table{border-collapse:collapse;width:100%;font-size:.76rem}th,td{border-bottom:1px solid #e6edf3;padding:9px 8px;text-align:left;vertical-align:top;white-space:nowrap}th{position:sticky;top:56px;background:#f4f7fa;color:#486581}.empty{text-align:center;color:var(--muted);padding:25px}.student-list{display:flex;flex-direction:column;gap:7px;margin-top:12px}.student-row{display:grid;grid-template-columns:52px 1fr auto;gap:9px;align-items:center;background:#f8fbfd;border:1px solid var(--line);border-radius:11px;padding:10px;color:var(--ink);text-align:left}.student-row .class{font-size:.7rem;font-weight:800;color:var(--navy)}.student-row b{font-size:.83rem}.student-row small{display:block;color:var(--muted)}.student-row .arrow{color:var(--navy)}.timeline{display:flex;flex-direction:column;gap:9px}.timeline article{border-left:4px solid var(--blue);background:#f8fbfd;border-radius:10px;padding:10px}.timeline h3{font-size:.8rem;margin:0}.timeline p{font-size:.76rem;margin:4px 0}.timeline small{color:var(--muted)}#status{position:fixed;left:12px;right:12px;top:max(10px,env(safe-area-inset-top));z-index:5000;transform:translateY(-150%);transition:.2s;background:#174e78;color:#fff;border-radius:10px;padding:11px 13px;box-shadow:0 7px 25px #0004;font-size:.82rem;font-weight:700}#status.show{transform:translateY(0)}#status.error{background:#a13b25}#status.ok{background:#187647}@media(max-width:720px){.metric-grid{grid-template-columns:repeat(2,1fr)}.monitor-grid{grid-template-columns:repeat(2,1fr)}.filter-grid,.report-grid{grid-template-columns:1fr}.topbar h1{font-size:1.08rem}.readonly{display:none}}@media(max-width:430px){.monitor-grid{grid-template-columns:1fr}.metric strong{font-size:1.42rem}.modal-sheet{padding:13px}.sync-steps{grid-template-columns:1fr}}
+</style>
 </head>
 <body>
-  <iframe
-    src="https://script.google.com/macros/s/AKfycbyQMRl__AbxTccropfdMou8lNT6pYzIeEAT1kewkrPZW8BJGPjYi6ZzrXAYoDCHi1U/exec?portal=manager"
-    allow="fullscreen"
-    loading="eager"
-    title="VizyonEdu Müdür">
-  </iframe>
+  <div id="status" role="status" aria-live="polite"></div>
+  <header class="topbar">
+    <div>
+      <small>VİZYONEDU</small>
+      <h1>Kurum İzleme Merkezi</h1>
+      <p id="managerLine">Müdür mobil portalı · Salt okunur</p>
+    </div>
+    <span class="readonly">GÖRÜNTÜLEME</span>
+  </header>
+
+  <main>
+    <section class="login-card" id="loginCard">
+      <div class="brand-mark">V</div>
+      <h2>Müdür Girişi</h2>
+      <p>Kurum verilerini salt okunur görüntülemek için bilgilerinizi girin.</p>
+      <label>Kurum PIN
+        <input id="pin" type="password" inputmode="numeric" autocomplete="current-password">
+      </label>
+      <button id="btnLoadManagers" type="button">Müdür Hesabını Getir</button>
+      <div id="managerFields" hidden>
+        <label>Müdür
+          <select id="managerId"><option value="">— seçin —</option></select>
+        </label>
+        <label>Müdür şifresi
+          <input id="managerPassword" type="password" inputmode="numeric" autocomplete="current-password">
+        </label>
+        <button id="btnLogin" type="button">Kurum Bilgilerini Gör</button>
+      </div>
+    </section>
+
+    <div id="dashboard" hidden>
+      <section class="intro-card">
+        <div>
+          <small>SON GÜNCELLEME</small>
+          <strong id="updatedAt">—</strong>
+        </div>
+        <button id="btnRefresh" type="button" class="secondary">Yenile</button>
+      </section>
+
+      <section class="sync-progress" id="syncProgress" hidden aria-live="polite">
+        <div class="sync-progress-head">
+          <span class="spinner" id="syncSpinner"></span>
+          <div><strong id="syncTitle">Kurum verileri hazırlanıyor…</strong><small id="syncElapsed">0 sn</small></div>
+        </div>
+        <p id="syncCurrent">Drive bağlantısı kuruluyor…</p>
+        <div id="syncSteps" class="sync-steps"></div>
+      </section>
+
+      <section class="metric-grid" aria-label="Kurum özeti">
+        <article class="metric blue"><span>Aktif öğrenci</span><strong id="countStudents">—</strong></article>
+        <article class="metric green"><span>Aktif sınıf</span><strong id="countClasses">—</strong></article>
+        <article class="metric orange"><span>Ders öğretmeni</span><strong id="countTeachers">—</strong></article>
+        <article class="metric purple"><span>Aktif ders</span><strong id="countSubjects">—</strong></article>
+      </section>
+
+      <section class="panel filters">
+        <div class="panel-title"><div><small>FİLTRELER</small><h2>Çalışma ve Veri Durumu</h2></div></div>
+        <div class="filter-grid">
+          <label>Dönem<select id="period"><option value="7">Son 7 gün</option><option value="30">Son 30 gün</option><option value="0">Tüm dönem</option></select></label>
+          <label>Sınıf<select id="classFilter"><option value="">Tüm sınıflar</option></select></label>
+          <label>Ders<select id="subjectFilter"><option value="">Tüm dersler</option></select></label>
+        </div>
+      </section>
+
+      <section class="monitor-grid" id="monitorGrid"></section>
+
+      <section class="panel">
+        <div class="panel-title"><div><small>RAPORLAR</small><h2>Kurum Raporları</h2></div></div>
+        <div class="report-grid">
+          <button type="button" id="btnStudents" class="report-btn"><span>👤</span><b>Öğrenci Genel Durumu</b><small>Öğrenci ara ve kayıtlarını görüntüle</small></button>
+          <button type="button" id="btnStatusAnalysis" class="report-btn"><span>▥</span><b>Öğrenci Durum Analizi</b><small>Sınıf ve ders göstergeleri</small></button>
+          <button type="button" id="btnQuizResults" class="report-btn"><span>▤</span><b>Tüm Quiz Sonuçları</b><small>Kurum quiz kapsamı</small></button>
+        </div>
+      </section>
+
+      <section class="panel system-panel">
+        <div class="panel-title"><div><small>SİSTEM</small><h2>Veri Güncelliği</h2></div></div>
+        <p id="systemStatus">—</p>
+        <p class="safe-note">Bu portal kayıt eklemez, değiştirmez, silmez veya Drive’a paket göndermez.</p>
+      </section>
+
+      <button id="btnLogout" type="button" class="logout">Oturumu Kapat</button>
+    </div>
+  </main>
+
+  <div class="modal" id="detailModal" hidden>
+    <div class="modal-sheet">
+      <div class="modal-head"><div><small id="detailSubtitle">AYRINTI</small><h2 id="detailTitle">—</h2></div><button type="button" data-close="detailModal">×</button></div>
+      <div class="table-wrap"><table><thead id="detailHead"></thead><tbody id="detailBody"></tbody></table></div>
+      <p class="empty" id="detailEmpty" hidden>Kayıt bulunamadı.</p>
+    </div>
+  </div>
+
+  <div class="modal" id="studentModal" hidden>
+    <div class="modal-sheet">
+      <div class="modal-head"><div><small>RAPOR</small><h2>Öğrenci Genel Durumu</h2></div><button type="button" data-close="studentModal">×</button></div>
+      <input id="studentSearch" type="search" placeholder="Öğrenci adı, numarası veya sınıfı…">
+      <div id="studentList" class="student-list"></div>
+    </div>
+  </div>
+
+  <div class="modal" id="studentDetailModal" hidden>
+    <div class="modal-sheet">
+      <div class="modal-head"><div><small>ÖĞRENCİ</small><h2 id="studentDetailTitle">—</h2><p id="studentDetailLine">—</p></div><button type="button" data-close="studentDetailModal">×</button></div>
+      <div id="studentDetailRows" class="timeline"></div>
+    </div>
+  </div>
+
+  <script>window.VIZYONEDU_API_URL = "https://script.google.com/macros/s/AKfycbyQMRl__AbxTccropfdMou8lNT6pYzIeEAT1kewkrPZW8BJGPjYi6ZzrXAYoDCHi1U/exec";</script>
+  <script>(function () {
+  'use strict';
+  var $ = function (id) { return document.getElementById(id); };
+  var KEY = 'vizyonedu_manager_v1';
+  var managers = {};
+  var snapshot = null;
+  var activeManager = null, mobileSession = null;
+  var statusTimer = null;
+  var progressTimer = null;
+  var progressStarted = 0;
+  var progressIndex = 0;
+  var accents = ['#eb5757', '#f2994a', '#2f80ed', '#9b51e0', '#eb5757', '#27ae60'];
+
+  // Önce kritik metrikler (ekran dolsun), sonra ikincil
+  var STAGE_PRIMARY = [
+    ['current_gain_missing', 'Güncel ana kazanım kayıtları'],
+    ['main_gain_missing', 'Ana kazanım listeleri'],
+    ['homework_control', 'Ödev ve öğretmen kontrolü']
+  ];
+  var STAGE_SECONDARY = [
+    ['quiz_gain_incomplete', 'Quiz kazanım kontrolleri'],
+    ['student_tracking', 'Öğretmen–öğrenci çalışmaları'],
+    ['quiz_coverage', 'Quiz sonucu kapsamı']
+  ];
+  var progressLabels = [
+    'Öğretmen listesi',
+    'Öğretmen atamaları (tek tek)',
+    'Güncel ana kazanım kayıtları',
+    'Ana kazanım listeleri',
+    'Ödev ve öğretmen kontrolü',
+    'Quiz kazanım kontrolleri',
+    'Öğretmen–öğrenci çalışmaları',
+    'Quiz sonucu kapsamı'
+  ];
+
+  function notify(message, type) {
+    var box = $('status');
+    box.textContent = message;
+    box.className = 'show ' + (type || '');
+    clearTimeout(statusTimer);
+    statusTimer = setTimeout(function () { box.className = ''; }, 4200);
+  }
+
+  async function api(body) {
+    body = Object.assign({},body,{pin:$('pin').value.trim(),session_token:mobileSession && mobileSession.session_token || ''});
+    var reply;
+    if (window.google && google.script && google.script.run) {
+      reply = await new Promise(function (resolve, reject) {
+        google.script.run.withSuccessHandler(resolve).withFailureHandler(reject).invoke(body);
+      });
+    } else {
+      // GitHub Pages: Apps Script yalnız veri uç noktası olarak kullanılır (banner çıkmaz).
+      var url = String(window.VIZYONEDU_API_URL || '').trim();
+      if (!url) throw new Error('Bağlantı adresi bulunamadı. Uygulamayı verilen linkten açın.');
+      var res;
+      try {
+        res = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(body) });
+      } catch (e) {
+        throw new Error('Ağ bağlantısı yok veya sunucuya erişilemiyor.');
+      }
+      var text = await res.text();
+      try { reply = JSON.parse(text); } catch (e) { throw new Error('Beklenmeyen yanıt: ' + text.slice(0, 200)); }
+    }
+    if (!reply || !reply.ok) { var err = new Error((reply && reply.error) || 'İşlem başarısız'); err.code = reply && reply.code; throw err; }
+    return reply;
+  }
+
+  function escapeHtml(value) {
+    return String(value == null ? '' : value)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  function formatDate(value) {
+    if (!value) return '—';
+    try {
+      return new Date(value).toLocaleString('tr-TR');
+    } catch (e) {
+      return String(value);
+    }
+  }
+
+  function startProgress() {
+    clearInterval(progressTimer);
+    progressStarted = Date.now();
+    progressIndex = 0;
+    $('syncProgress').hidden = false;
+    $('syncProgress').className = 'sync-progress';
+    $('syncTitle').textContent = 'Kurum verileri hazırlanıyor…';
+    $('syncCurrent').textContent = 'Drive bağlantısı kuruluyor…';
+    $('syncElapsed').textContent = '0 sn';
+    $('syncSteps').innerHTML = progressLabels.map(function (label) {
+      return '<span class="sync-step">' + escapeHtml(label) + '</span>';
+    }).join('');
+    progressTimer = setInterval(function () {
+      var seconds = Math.floor((Date.now() - progressStarted) / 1000);
+      $('syncElapsed').textContent = seconds + ' sn';
+      if (seconds >= 25) {
+        $('syncCurrent').textContent =
+          ($('syncCurrent').dataset.label || 'Veri alınıyor') +
+          ' · İnternet bağlantısına göre bu adım biraz sürebilir.';
+      }
+    }, 1000);
+  }
+
+  function markStep(index, state) {
+    var steps = $('syncSteps').querySelectorAll('.sync-step');
+    if (steps[index]) {
+      steps[index].className = 'sync-step' + (state ? ' ' + state : '');
+    }
+  }
+
+  function finishProgress(operations, failed) {
+    clearInterval(progressTimer);
+    var elapsed = Math.max(1, Math.round((Date.now() - progressStarted) / 1000));
+    $('syncProgress').className = 'sync-progress ' + (failed ? 'error' : 'done');
+    $('syncTitle').textContent = failed ? 'Kurum verileri kısmen hazır' : 'Kurum verileri hazır';
+    $('syncCurrent').textContent = failed
+      ? (failed + ' bölüm alınamadı; diğer sonuçlar kullanılabilir.')
+      : 'Bütün kontroller tamamlandı.';
+    $('syncElapsed').textContent = elapsed + ' sn';
+    $('syncSteps').innerHTML = (operations || []).map(function (item) {
+      return '<span class="sync-step ' + (item.ok ? 'done' : 'fail') + '">' +
+        escapeHtml(item.label) +
+        (item.detail ? ' · ' + escapeHtml(item.detail) : '') +
+        '</span>';
+    }).join('');
+  }
+
+  function failProgress(error) {
+    clearInterval(progressTimer);
+    $('syncProgress').className = 'sync-progress error';
+    $('syncTitle').textContent = 'Kurum verileri alınamadı';
+    $('syncCurrent').textContent = (error && error.message) || 'Ağ bağlantısı kesildi';
+  }
+
+  async function stageApi(request, label) {
+    $('syncCurrent').textContent = label + ' alınıyor…';
+    $('syncCurrent').dataset.label = label;
+    try {
+      return await api(request);
+    } catch (firstError) {
+      $('syncCurrent').textContent = label + ' — bir kez daha deneniyor…';
+      await new Promise(function (resolve) { setTimeout(resolve, 1200); });
+      return api(request);
+    }
+  }
+
+  function saveSession() {
+    try {
+      localStorage.setItem(KEY, JSON.stringify({
+        pin: $('pin').value.trim(),
+        managerId: activeManager && activeManager.user_id
+      }));
+    } catch (ignore) {}
+  }
+
+  async function authenticateMobileUser(user, password) {
+    if (!user || !window.crypto || !window.crypto.subtle) throw new Error('Güvenli şifre doğrulama kullanılamıyor.');
+    if (!/^\d{4,12}$/.test(String(password || '').trim())) throw new Error('Şifre 4–12 haneli rakam olmalıdır.');
+    var uid = user.user_id;
+    var challenge = await api({action:'auth_challenge',user_id:uid});
+    var salt = new Uint8Array(challenge.salt.match(/../g).map(function(b){return parseInt(b,16);}));
+    var key = await crypto.subtle.importKey('raw',new TextEncoder().encode(String(password).trim()),'PBKDF2',false,['deriveBits']);
+    var derived = await crypto.subtle.deriveBits({name:'PBKDF2',hash:'SHA-256',salt:salt,iterations:challenge.iterations},key,256);
+    function hex(buf){return Array.from(new Uint8Array(buf)).map(function(b){return ('0'+b.toString(16)).slice(-2);}).join('');}
+    var signingKey = await crypto.subtle.importKey('raw',new TextEncoder().encode(hex(derived)),{name:'HMAC',hash:'SHA-256'},false,['sign']);
+    var proof = hex(await crypto.subtle.sign('HMAC',signingKey,new TextEncoder().encode(challenge.challenge)));
+    return api({action:'auth_login',user_id:uid,challenge_id:challenge.challenge_id,proof:proof});
+  }
+  async function loadManagers() {
+    notify('Müdür hesapları alınıyor…');
+    var data = await api({ action: 'teachers' });
+    var list = (data.teachers || []).filter(function (u) {
+      return String(u.role || '').toLowerCase() === 'admin';
+    });
+    managers = {};
+    $('managerId').innerHTML = '<option value="">— seçin —</option>';
+    list.forEach(function (u) {
+      managers[u.user_id] = u;
+      var o = document.createElement('option');
+      o.value = u.user_id;
+      o.textContent = u.display_name || u.user_id;
+      $('managerId').appendChild(o);
+    });
+    $('managerFields').hidden = !list.length;
+    if (!list.length) throw new Error('Müdür (admin) hesabı bulunamadı.');
+    notify(list.length + ' müdür hesabı listelendi.', 'ok');
+  }
+
+  async function login() {
+    var user = managers[$('managerId').value];
+    if (!user) throw new Error('Müdür hesabını seçin.');
+    notify('Müdür şifresi doğrulanıyor…');
+    var session = await authenticateMobileUser(user, $('managerPassword').value);
+    if ($('managerId').value !== user.user_id) return;
+    mobileSession = session;
+    activeManager = user;
+    saveSession();
+    $('managerLine').textContent = user.display_name + ' · Müdür · Salt okunur';
+    $('loginCard').hidden = true;
+    $('dashboard').hidden = false;
+    $('managerPassword').value = '';
+    await refresh({ forceContext: true });
+  }
+
+  function logout() {
+    if (activeManager && mobileSession) api({action:'auth_logout',user_id:activeManager.user_id}).catch(function(){});
+    mobileSession = null;
+    activeManager = null;
+    snapshot = null;
+    $('dashboard').hidden = true;
+    $('loginCard').hidden = false;
+    $('managerLine').textContent = 'Müdür mobil portalı · Salt okunur';
+    try { localStorage.removeItem(KEY); } catch (ignore) {}
+    try { sessionStorage.removeItem(KEY); } catch (ignore2) {}
+  }
+
+  function commonBody(extra) {
+    var body = {
+      action: 'manager_dashboard',
+      user_id: activeManager.user_id,
+      period_days: $('period').value,
+      class_code: $('classFilter').value,
+      subject_code: $('subjectFilter').value
+    };
+    if (extra) {
+      Object.keys(extra).forEach(function (k) { body[k] = extra[k]; });
+    }
+    return body;
+  }
+
+  async function runStages(stages, operations, startIndex) {
+    var failed = 0;
+    for (var i = 0; i < stages.length; i++) {
+      var key = stages[i][0];
+      var label = stages[i][1];
+      var stepIndex = startIndex + i;
+      progressIndex = stepIndex;
+      markStep(stepIndex, 'active');
+      try {
+        var part = await stageApi(commonBody({ stage: key }), label);
+        snapshot.metrics = (snapshot.metrics || []).filter(function (m) {
+          return m.key !== key;
+        });
+        snapshot.metrics.push(part.metric);
+        operations.push({ label: label, detail: String(part.metric.value), ok: true });
+        markStep(stepIndex, 'done');
+        render(snapshot);
+        notify(label + ' tamamlandı.', 'ok');
+      } catch (error) {
+        failed++;
+        operations.push({ label: label, detail: 'Alınamadı', ok: false });
+        markStep(stepIndex, 'fail');
+        snapshot.metrics = (snapshot.metrics || []).filter(function (m) {
+          return m.key !== key;
+        });
+        snapshot.metrics.push({
+          key: key,
+          title: label,
+          value: '—',
+          subtitle: 'Bağlantı hatası · Yenile ile tekrar deneyin',
+          headers: [],
+          rows: []
+        });
+        render(snapshot);
+        notify(label + ' alınamadı; diğer işlemlere devam ediliyor.', 'error');
+      }
+    }
+    return failed;
+  }
+
+  /**
+   * options.forceContext: atama context'ini sunucuda yenile (ilk giriş / Yenile)
+   */
+  async function refresh(options) {
+    options = options || {};
+    if (!activeManager) throw new Error('Müdür oturumu bulunamadı.');
+    startProgress();
+    notify('Öğretmen listesi alınıyor…');
+    markStep(0, 'active');
+
+    var base;
+    try {
+      base = await stageApi(
+        commonBody({
+          stage: 'base',
+          refresh_context: options.forceContext ? 1 : 0
+        }),
+        'Öğretmen listesi'
+      );
+    } catch (error) {
+      failProgress(error);
+      throw error;
+    }
+
+    snapshot = Object.assign({}, base, { metrics: [], students: [] });
+    render(snapshot);
+    markStep(0, 'done');
+
+    var teachers = base.teachers || [];
+    var operations = [{
+      label: 'Öğretmen listesi',
+      detail: teachers.length + ' öğretmen' +
+        (base.context_cached || (base.system && base.system.context_from_cache) ? ' · önbellek' : ''),
+      ok: true
+    }];
+
+    // 1) Her öğretmenin ataması ayrı istek — zaman aşımını önler
+    markStep(1, 'active');
+    var teacherFailed = 0;
+    for (var ti = 0; ti < teachers.length; ti++) {
+      var teacher = teachers[ti];
+      var tLabel = (teacher.display_name || teacher.user_id || 'Öğretmen') +
+        ' (' + (ti + 1) + '/' + teachers.length + ')';
+      if ($('syncCurrent')) {
+        $('syncCurrent').textContent = 'Atama yükleniyor: ' + tLabel;
+      }
+      try {
+        var part = await stageApi(
+          commonBody({
+            stage: 'teacher_assign',
+            teacher_id: teacher.user_id,
+            refresh_context: options.forceContext ? 1 : 0
+          }),
+          tLabel
+        );
+        snapshot.counts = part.counts || snapshot.counts;
+        snapshot.filters = part.filters || snapshot.filters;
+        snapshot.students = part.students || snapshot.students;
+        snapshot.system = part.system || snapshot.system;
+        snapshot.teachers_loaded = part.teachers_loaded;
+        render(snapshot);
+        operations.push({
+          label: 'Atama: ' + (teacher.display_name || teacher.user_id),
+          detail: (part.counts && part.counts.students != null ? part.counts.students + ' öğrenci birikmiş' : 'tamam') +
+            (part.context_cached ? ' · önbellek' : ''),
+          ok: true
+        });
+      } catch (errT) {
+        teacherFailed++;
+        operations.push({
+          label: 'Atama: ' + (teacher.display_name || teacher.user_id),
+          detail: 'Alınamadı',
+          ok: false
+        });
+        notify(tLabel + ' ataması alınamadı; devam ediliyor.', 'error');
+      }
+    }
+    markStep(1, teacherFailed ? 'fail' : 'done');
+
+    // 2) Kritik metrikler
+    var failed = teacherFailed;
+    failed += await runStages(STAGE_PRIMARY, operations, 2);
+    // 3) İkincil metrikler
+    failed += await runStages(STAGE_SECONDARY, operations, 2 + STAGE_PRIMARY.length);
+
+    finishProgress(operations, failed);
+    if (failed) {
+      notify('Kurum sayfası açıldı; ' + failed + ' adımda hata oluştu.', 'error');
+    } else {
+      notify('Tüm öğretmen verileri yüklendi. Sonraki girişte önbellek kullanılır.', 'ok');
+    }
+  }
+
+  function refillSelect(select, items, valueFn, label) {
+    var old = select.value;
+    select.innerHTML = '<option value="">' + label + '</option>';
+    (items || []).forEach(function (item) {
+      var option = document.createElement('option');
+      option.value = valueFn(item);
+      option.textContent = item.name || item;
+      select.appendChild(option);
+    });
+    select.value = old;
+  }
+
+  function render(data) {
+    $('updatedAt').textContent = formatDate(data.generated_at);
+    $('countStudents').textContent = data.counts.students;
+    $('countClasses').textContent = data.counts.classes;
+    $('countTeachers').textContent = data.counts.teachers;
+    $('countSubjects').textContent = data.counts.subjects;
+    refillSelect($('classFilter'), data.filters.classes, function (x) { return x; }, 'Tüm sınıflar');
+    refillSelect($('subjectFilter'), data.filters.subjects, function (x) { return x.code; }, 'Tüm dersler');
+    $('monitorGrid').innerHTML = '';
+    (data.metrics || []).forEach(function (metric, index) {
+      var card = document.createElement('article');
+      card.className = 'monitor-card';
+      card.style.setProperty('--accent', accents[index % accents.length]);
+      card.innerHTML =
+        '<h3>' + escapeHtml(metric.title) + '</h3>' +
+        '<strong>' + escapeHtml(metric.value) + '</strong>' +
+        '<p>' + escapeHtml(metric.subtitle) + '</p>' +
+        '<button type="button">Ayrıntıları Gör</button>';
+      card.querySelector('button').onclick = function () { openMetric(metric); };
+      $('monitorGrid').appendChild(card);
+    });
+    $('systemStatus').textContent =
+      (data.system && data.system.mode ? data.system.mode : 'Salt okunur') +
+      ' · ' + (data.system && data.system.assignment_users != null ? data.system.assignment_users : '—') +
+      ' öğretmen ataması · ' + formatDate(data.system && data.system.last_refresh);
+  }
+
+  function openMetric(metric) {
+    $('detailTitle').textContent = metric.title || '—';
+    $('detailSubtitle').textContent = metric.subtitle || 'AYRINTI';
+    var head = $('detailHead');
+    var body = $('detailBody');
+    head.innerHTML = '';
+    body.innerHTML = '';
+    var headers = metric.headers || [];
+    if (headers.length) {
+      var tr = document.createElement('tr');
+      headers.forEach(function (h) {
+        var th = document.createElement('th');
+        th.textContent = h;
+        tr.appendChild(th);
+      });
+      head.appendChild(tr);
+    }
+    (metric.rows || []).forEach(function (row) {
+      var tr = document.createElement('tr');
+      (row || []).forEach(function (cell) {
+        var td = document.createElement('td');
+        td.textContent = cell;
+        tr.appendChild(td);
+      });
+      body.appendChild(tr);
+    });
+    $('detailEmpty').hidden = !!(metric.rows && metric.rows.length);
+    $('detailModal').hidden = false;
+  }
+
+  function reportMetric(key) {
+    if (!snapshot || !snapshot.metrics) return;
+    for (var i = 0; i < snapshot.metrics.length; i++) {
+      if (snapshot.metrics[i].key === key) {
+        openMetric(snapshot.metrics[i]);
+        return;
+      }
+    }
+    notify('Bu gösterge henüz yüklenmedi. Yenile’ye basın.', 'error');
+  }
+
+  function renderStudents() {
+    var q = String(($('studentSearch') && $('studentSearch').value) || '').trim().toLowerCase();
+    var list = (snapshot && snapshot.students) || [];
+    var box = $('studentList');
+    box.innerHTML = '';
+    list.filter(function (s) {
+      if (!q) return true;
+      return (
+        String(s.student_name || '').toLowerCase().indexOf(q) >= 0 ||
+        String(s.student_no || '').toLowerCase().indexOf(q) >= 0 ||
+        String(s.class_code || '').toLowerCase().indexOf(q) >= 0
+      );
+    }).slice(0, 200).forEach(function (s) {
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'student-row';
+      btn.innerHTML =
+        '<strong>' + escapeHtml(s.student_name || '—') + '</strong>' +
+        '<span>' + escapeHtml(s.class_code || '') + ' · No ' + escapeHtml(s.student_no || '') + '</span>';
+      btn.onclick = function () { openStudentDetail(s); };
+      box.appendChild(btn);
+    });
+  }
+
+  async function openStudentDetail(student) {
+    $('studentDetailTitle').textContent = student.student_name || student.student_no;
+    $('studentDetailLine').textContent =
+      (student.class_code || '') + ' · No ' + (student.student_no || '');
+    $('studentDetailRows').innerHTML = '<p>Yükleniyor…</p>';
+    $('studentDetailModal').hidden = false;
+    try {
+      var data = await api({
+        action: 'manager_student_detail',
+        user_id: activeManager.user_id,
+        student_no: student.student_no
+      });
+      var rows = data.rows || [];
+      if (!rows.length) {
+        $('studentDetailRows').innerHTML = '<p class="empty">Kayıt yok.</p>';
+        return;
+      }
+      $('studentDetailRows').innerHTML = rows.map(function (r) {
+        return '<article class="timeline-item">' +
+          '<small>' + escapeHtml(r.channel || '') + ' · ' + escapeHtml(r.subject_code || '') + '</small>' +
+          '<strong>' + escapeHtml(r.description || '') + '</strong>' +
+          '<p>' + escapeHtml(r.value || '') + '</p>' +
+          '<span>' + escapeHtml(formatDate(r.updated_at)) + '</span>' +
+          '</article>';
+      }).join('');
+    } catch (e) {
+      $('studentDetailRows').innerHTML = '<p class="empty">' + escapeHtml(e.message || e) + '</p>';
+    }
+  }
+
+  function run(button, fn) {
+    if (button) button.disabled = true;
+    Promise.resolve()
+      .then(fn)
+      .catch(function (e) { notify(e.message || String(e), 'error'); })
+      .then(function () { if (button) button.disabled = false; });
+  }
+
+  $('btnLoadManagers').onclick = function () { run(this, loadManagers); };
+  $('btnLogin').onclick = function () { run(this, login); };
+  $('btnRefresh').onclick = function () {
+    run(this, function () { return refresh({ forceContext: true }); });
+  };
+  $('period').onchange = function () {
+    run(null, function () { return refresh({ forceContext: true }); });
+  };
+  $('classFilter').onchange = function () {
+    run(null, function () { return refresh({ forceContext: true }); });
+  };
+  $('subjectFilter').onchange = function () {
+    run(null, function () { return refresh({ forceContext: true }); });
+  };
+  $('btnStudents').onclick = function () {
+    $('studentModal').hidden = false;
+    renderStudents();
+  };
+  $('studentSearch').oninput = renderStudents;
+  $('btnStatusAnalysis').onclick = function () { reportMetric('homework_control'); };
+  $('btnQuizResults').onclick = function () { reportMetric('quiz_coverage'); };
+  $('btnLogout').onclick = logout;
+  Array.prototype.forEach.call(document.querySelectorAll('[data-close]'), function (button) {
+    button.onclick = function () { $(button.getAttribute('data-close')).hidden = true; };
+  });
+  Array.prototype.forEach.call(document.querySelectorAll('.modal'), function (modal) {
+    modal.addEventListener('click', function (event) {
+      if (event.target === modal) modal.hidden = true;
+    });
+  });
+
+  try {
+    var saved = {};
+    try { saved = JSON.parse(localStorage.getItem(KEY) || sessionStorage.getItem(KEY) || '{}'); } catch (ignore) { saved = {}; }
+    if (saved.pin) {
+      $('pin').value = saved.pin;
+      loadManagers().then(function () {
+        if (saved.managerId && managers[saved.managerId]) {
+          $('managerId').value = saved.managerId;
+        }
+      }).catch(function () {});
+    }
+  } catch (ignore) {}
+})();
+</script>
 </body>
 </html>
