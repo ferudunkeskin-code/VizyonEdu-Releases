@@ -1,33 +1,773 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="tr">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
-  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#173d62">
   <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="VizyonEdu Veli">
   <title>VizyonEdu Veli</title>
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    html, body {
-      height: 100%;
-      height: 100dvh;
-      overflow: hidden;
-      background: #f8fafc;
-    }
-    iframe {
-      border: none;
-      width: 100%;
-      height: 100%;
-      display: block;
-    }
-  </style>
+  <style>:root{
+  --navy:#173d62;--ink:#203248;--muted:#596776;--line:#d5e0ea;--bg:#f3f6f9;--white:#fff;
+  --green:#1e7a46;--amber:#9a6700;--red:#a13b25;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;background:var(--bg);color:var(--ink);
+  font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  padding-bottom:env(safe-area-inset-bottom);
+}
+.topbar{
+  padding:16px max(14px,env(safe-area-inset-left));
+  padding-top:max(16px,env(safe-area-inset-top));
+  background:linear-gradient(135deg,#173d62,#2a5f8f);color:#fff;
+  box-shadow:0 4px 16px #173d6230;
+}
+.topbar small{letter-spacing:.12em;font-size:.65rem;font-weight:800;opacity:.8}
+.topbar h1{margin:2px 0 0;font-size:1.2rem}
+.topbar p{margin:4px 0 0;font-size:.8rem;opacity:.88}
+main{max-width:640px;margin:0 auto;padding:14px 12px 40px}
+.card{
+  background:#fff;border:1px solid var(--line);border-radius:14px;
+  box-shadow:0 4px 14px #173d620a;padding:16px;margin:0 0 12px;
+}
+.card h2{margin:0 0 8px;font-size:1.05rem;color:var(--navy)}
+.hint{color:var(--muted);font-size:.82rem;margin:0 0 12px}
+label{display:flex;flex-direction:column;gap:6px;font-size:.78rem;font-weight:750;color:#486581;margin:10px 0}
+input,select{
+  width:100%;border:1px solid #cbd8e3;border-radius:10px;background:#fff;
+  font:inherit;min-height:46px;padding:10px 12px;color:var(--ink);
+}
+button{
+  border:0;border-radius:10px;background:var(--navy);color:#fff;
+  min-height:46px;padding:11px 14px;font:750 .92rem/1.2 inherit;cursor:pointer;width:100%;margin:6px 0 0;
+}
+button:disabled{opacity:.45}
+button.secondary{background:#eef3f8;color:var(--navy)}
+.brand-mark{
+  width:48px;height:48px;border-radius:14px;display:grid;place-items:center;
+  background:var(--navy);color:#fff;font-size:1.4rem;font-weight:900;margin-bottom:10px;
+}
+.login-card{max-width:420px;margin:28px auto}
+.student-switch{display:flex;flex-direction:column;gap:8px;margin:10px 0}
+.student-chip{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  text-align:left;background:#f7fafc;border:1.5px solid var(--line);border-radius:12px;
+  padding:12px 14px;color:var(--ink);width:100%;margin:0;
+}
+.student-chip.active{border-color:#4da3ff;background:#eef6fc;box-shadow:0 0 0 2px #4da3ff30}
+.student-chip b{display:block;font-size:.95rem}
+.student-chip small{color:var(--muted);font-size:.75rem}
+.meta-row{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 12px}
+.badge{
+  display:inline-block;font-size:.72rem;font-weight:800;padding:5px 9px;border-radius:999px;
+  background:#edf4fa;color:var(--navy);
+}
+.badge.warn{background:#fff4e0;color:var(--amber)}
+.badge.ok{background:#e6f4ea;color:var(--green)}
+.section{margin:16px 0 8px}
+.section h3{margin:0 0 6px;font-size:.95rem;color:var(--navy)}
+.section .note{font-size:.78rem;color:var(--muted);margin:0 0 8px}
+.section .warning{font-size:.8rem;color:var(--amber);margin:0 0 8px}
+.table-wrap{overflow:auto;border:1px solid var(--line);border-radius:10px}
+table{width:100%;border-collapse:collapse;font-size:.8rem}
+th,td{padding:8px 9px;border-bottom:1px solid #e8eef3;text-align:left;vertical-align:top}
+th{background:#edf4fa;color:#486581;font-weight:750;white-space:nowrap}
+.empty-state{text-align:center;padding:28px 12px;color:var(--muted)}
+.empty-state strong{display:block;color:var(--navy);margin-bottom:6px}
+#status{
+  position:fixed;left:12px;right:12px;top:max(10px,env(safe-area-inset-top));z-index:5000;
+  transform:translateY(-150%);transition:.2s;background:#174e78;color:#fff;border-radius:10px;
+  padding:11px 13px;box-shadow:0 7px 25px #0004;font-size:.82rem;font-weight:700;
+}
+#status.show{transform:translateY(0)}
+#status.err{background:#a13b25}
+#status.ok{background:#187647}
+.logout-row{margin-top:18px}
+footer{text-align:center;padding:8px;color:var(--muted);font-size:.72rem}
+
+.table-wrap.exam-scroll{
+  overflow-x:auto;-webkit-overflow-scrolling:touch;
+  margin:8px 0 4px;border:1px solid var(--line);border-radius:10px;
+  max-width:100%;
+}
+.exam-table{min-width:720px;font-size:.72rem}
+.exam-table th.subj-head{text-align:center;background:#dceaf6;font-size:.7rem}
+.exam-table th.subh{text-align:center;background:#e8f1f8;font-size:.65rem;padding:4px 5px}
+.exam-table td.num{text-align:center;white-space:nowrap;font-variant-numeric:tabular-nums}
+.exam-table td.net,.exam-table td.total-net{font-weight:700;color:var(--navy)}
+.exam-table td.absent{text-align:center;color:var(--amber);font-weight:800}
+.exam-table td.exam-name{font-weight:700;max-width:140px}
+.exam-table td.exam-date{white-space:nowrap;font-size:.68rem;color:var(--muted)}
+.scroll-hint{font-size:.72rem;color:var(--muted);margin:0 0 10px}
+.exam-cards{display:none;flex-direction:column;gap:10px;margin-top:8px}
+.exam-card{
+  border:1px solid var(--line);border-radius:12px;padding:12px;background:#fafcfe;
+}
+.exam-card-title{font-weight:800;color:var(--navy);margin-bottom:4px}
+.exam-card-meta{font-size:.78rem;color:var(--muted);margin-bottom:8px}
+.subj-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.subj-chip{
+  background:#fff;border:1px solid #e2eaf1;border-radius:10px;padding:8px 10px;
+}
+.subj-name{font-size:.72rem;font-weight:800;color:#486581;margin-bottom:2px}
+.subj-stats{font-size:.78rem;line-height:1.35}
+@media (max-width:640px){
+  .exam-scroll{display:none}
+  .exam-cards{display:flex}
+  .scroll-hint{display:none}
+}
+@media (min-width:641px){
+  .exam-cards{display:none}
+}
+</style>
 </head>
 <body>
-  <iframe
-    src="https://script.google.com/macros/s/AKfycbyQMRl__AbxTccropfdMou8lNT6pYzIeEAT1kewkrPZW8BJGPjYi6ZzrXAYoDCHi1U/exec?portal=parent"
-    allow="fullscreen"
-    loading="eager"
-    title="VizyonEdu Veli">
-  </iframe>
+  <div id="status" role="status" aria-live="polite"></div>
+
+  <header class="topbar">
+    <div>
+      <small>VİZYONEDU</small>
+      <h1>Veli Portalı</h1>
+      <p id="headerSub">Yalnız kendi öğrencinizin raporu</p>
+    </div>
+  </header>
+
+  <main>
+    <!-- Giriş -->
+    <section class="card login-card" id="loginCard">
+      <div class="brand-mark">V</div>
+      <h2>Veli girişi</h2>
+      <p class="hint">Erişim kodu bağlantıyla dolar; kurumda kayıtlı telefon numaranızı yazın. Kod ilk giriş yaptığınız telefona bağlanır.</p>
+      <label>Erişim kodu
+        <input id="parentCode" type="text" inputmode="text" autocomplete="one-time-code"
+               placeholder="Örn. V7K2M9" maxlength="16" autocapitalize="characters">
+      </label>
+      <label>Telefon numarası
+        <input id="parentPhone" type="tel" inputmode="tel" autocomplete="tel"
+               placeholder="05XX XXX XX XX" maxlength="20">
+      </label>
+      <button type="button" id="btnParentLogin">Giriş yap</button>
+    </section>
+
+    <!-- Oturum -->
+    <div id="sessionArea" hidden>
+      <section class="card" id="studentCard">
+        <h2>Öğrenciniz</h2>
+        <p class="hint" id="parentLabelLine">Bağlı öğrenciler arasında geçiş yapabilirsiniz.</p>
+        <div class="student-switch" id="studentSwitch"></div>
+      </section>
+
+      <section class="card" id="reportCard">
+        <h2>Veli raporu</h2>
+        <div class="meta-row" id="reportMeta"></div>
+        <div id="reportBody">
+          <div class="empty-state">
+            <strong>Öğrenci seçin</strong>
+            Rapor burada görünecek.
+          </div>
+        </div>
+        <button type="button" class="secondary" id="btnRefreshReport">Raporu yenile</button>
+      </section>
+
+      <div class="logout-row">
+        <button type="button" class="secondary" id="btnParentLogout">Çıkış yap</button>
+      </div>
+    </div>
+  </main>
+
+  <footer>Veriler yalnızca size bağlı öğrenci için gösterilir. İç öğretmen notları paylaşılmaz.</footer>
+  <script>window.VIZYONEDU_API_URL = "https://script.google.com/macros/s/AKfycbyQMRl__AbxTccropfdMou8lNT6pYzIeEAT1kewkrPZW8BJGPjYi6ZzrXAYoDCHi1U/exec";</script>
+  <script>(function () {
+  var KEY = 'vizyonedu_parent_session_v1';
+  var sessionVersion = 0;
+  var reportRequestId = 0;
+  var DEVICE_KEY = 'vizyonedu_parent_device_v1';
+  var state = {
+    parentCode: '',
+    sessionToken: '',
+    parentLabel: '',
+    students: [],
+    activeNo: '',
+    reportCache: {}
+  };
+
+  function $(id) { return document.getElementById(id); }
+
+  var statusTimer = null;
+  function log(msg, ok) {
+    var el = $('status');
+    if (!el) return;
+    el.textContent = typeof msg === 'string' ? msg : JSON.stringify(msg);
+    el.className = 'show ' + (ok === true ? 'ok' : ok === false ? 'err' : '');
+    if (statusTimer) clearTimeout(statusTimer);
+    statusTimer = setTimeout(function () { el.className = ''; }, ok === false ? 8000 : 4500);
+  }
+
+  function readState() {
+    try {
+      var raw = localStorage.getItem(KEY);
+      if (!raw) return;
+      var s = JSON.parse(raw);
+      state.parentCode = s.parentCode || '';
+      state.sessionToken = s.sessionToken || '';
+      state.parentLabel = s.parentLabel || '';
+      state.students = s.students || [];
+      state.activeNo = s.activeNo || '';
+      state.reportCache = s.reportCache || {};
+    } catch (e) {}
+  }
+
+  function writeState() {
+    try {
+      localStorage.setItem(KEY, JSON.stringify({
+        parentCode: state.parentCode,
+        sessionToken: state.sessionToken,
+        parentLabel: state.parentLabel,
+        students: state.students,
+        activeNo: state.activeNo,
+        reportCache: state.reportCache || {}
+      }));
+    } catch (e) {
+      try {
+        localStorage.setItem(KEY, JSON.stringify({
+          parentCode: state.parentCode,
+          sessionToken: state.sessionToken,
+          parentLabel: state.parentLabel,
+          students: state.students,
+          activeNo: state.activeNo,
+          reportCache: {}
+        }));
+      } catch (e2) {}
+    }
+  }
+
+  function clearState() {
+    sessionVersion += 1;
+    reportRequestId += 1;
+    if ($('reportBody')) $('reportBody').innerHTML = '';
+    if ($('reportMeta')) $('reportMeta').innerHTML = '';
+    if ($('studentSwitch')) $('studentSwitch').innerHTML = '';
+    state = { parentCode: '', sessionToken: '', parentLabel: '', students: [], activeNo: '', reportCache: {} };
+    try { localStorage.removeItem(KEY); } catch (e) {}
+  }
+
+  // Cihaz kimliği çıkışta silinmez; kod bu cihaza bağlanır.
+  function deviceId() {
+    try {
+      var id = localStorage.getItem(DEVICE_KEY);
+      if (id && /^[A-Za-z0-9_-]{16,80}$/.test(id)) return id;
+      var bytes = new Uint8Array(24);
+      (window.crypto || window.msCrypto).getRandomValues(bytes);
+      id = Array.prototype.map.call(bytes, function (b) { return ('0' + b.toString(16)).slice(-2); }).join('');
+      localStorage.setItem(DEVICE_KEY, id);
+      return id;
+    } catch (e) {
+      return '';
+    }
+  }
+
+  function apiUrl() {
+    var u = String(window.VIZYONEDU_API_URL || '').trim();
+    if (u) return u;
+    try {
+      if (/script\.google\.com/.test(window.location.href)) return window.location.href.split('?')[0];
+    } catch (ignore) {}
+    return '';
+  }
+
+  async function api(body) {
+    body = body || {};
+    body.parent_code = body.parent_code || state.parentCode || ($('parentCode') && $('parentCode').value) || '';
+    body.device_id = deviceId();
+    if (body.action !== 'parent_login') body.session_token = state.sessionToken || '';
+    var reply;
+    if (window.google && google.script && google.script.run) {
+      reply = await new Promise(function (resolve, reject) {
+        google.script.run.withSuccessHandler(resolve).withFailureHandler(reject).invoke(body);
+      });
+    } else {
+      var url = apiUrl();
+      if (!url) throw new Error('Bağlantı adresi bulunamadı. Uygulamayı verilen linkten açın.');
+      var res;
+      try {
+        res = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(body) });
+      } catch (e) {
+        throw new Error('Ağ bağlantısı yok veya sunucuya erişilemiyor.');
+      }
+      var text = await res.text();
+      try { reply = JSON.parse(text); } catch (e) { throw new Error('Beklenmeyen yanıt: ' + text.slice(0, 200)); }
+    }
+    if (!reply || !reply.ok) {
+      var err = new Error((reply && reply.error) || 'Hata');
+      err.code = reply && reply.code;
+      if (err.code === 'PARENT_AUTH' && body.action !== 'parent_login') {
+        clearState();
+        showLogin();
+      }
+      throw err;
+    }
+    return reply;
+  }
+
+  function showLogin() {
+    $('loginCard').hidden = false;
+    $('sessionArea').hidden = true;
+    $('headerSub').textContent = 'Yalnız kendi öğrencinizin raporu';
+  }
+
+  function showSession() {
+    $('loginCard').hidden = true;
+    $('sessionArea').hidden = false;
+    $('headerSub').textContent = state.parentLabel || 'Veli oturumu';
+    $('parentLabelLine').textContent = state.students.length > 1
+      ? 'Birden fazla öğrenciniz var; yalnız onlar arasında geçiş yapabilirsiniz.'
+      : 'Size bağlı öğrenci aşağıda listelenir.';
+    renderStudentSwitch();
+  }
+
+  function renderStudentSwitch() {
+    var box = $('studentSwitch');
+    box.innerHTML = '';
+    if (!state.students.length) {
+      box.innerHTML = '<p class="hint">Bu koda bağlı öğrenci bulunamadı. Kurumla iletişime geçin.</p>';
+      return;
+    }
+    state.students.forEach(function (st) {
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'student-chip' + (String(st.no) === String(state.activeNo) ? ' active' : '');
+      btn.innerHTML =
+        '<span><b>' + escapeHtml(st.name || ('Öğrenci ' + st.no)) + '</b>' +
+        '<small>No: ' + escapeHtml(st.no) + (st.class ? ' · ' + escapeHtml(st.class) : '') + '</small></span>' +
+        '<span aria-hidden="true">›</span>';
+      btn.addEventListener('click', function () {
+        state.activeNo = String(st.no);
+        writeState();
+        renderStudentSwitch();
+        loadReport(true);
+      });
+      box.appendChild(btn);
+    });
+  }
+
+  function escapeHtml(s) {
+    return String(s || '')
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  function formatDateLabel(iso) {
+    if (!iso) return '';
+    try {
+      var d = new Date(iso);
+      if (isNaN(d.getTime())) return String(iso);
+      var months = ['Oca','Şub','Mar','Nis','May','Haz','Tem','Ağu','Eyl','Eki','Kas','Ara'];
+      var pad = function (n) { return n < 10 ? '0' + n : '' + n; };
+      return d.getDate() + ' ' + months[d.getMonth()] + ' ' + d.getFullYear() +
+        ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes());
+    } catch (e) {
+      return String(iso);
+    }
+  }
+
+  function studentKey(value) {
+    var raw = String(value == null ? '' : value).trim().replace(/\s/g, '').replace(/\.0$/, '');
+    if (!/^\d+$/.test(raw)) return '';
+    raw = raw.replace(/^0+/, '');
+    return raw;
+  }
+
+  function validateReportIdentity(d, expectedNo) {
+    var expected = studentKey(expectedNo);
+    var allowed = state.students.filter(function (st) { return studentKey(st.no) === expected; });
+    if (!expected || allowed.length !== 1 || !d || studentKey(d.student && d.student.no) !== expected) {
+      throw new Error('Rapor öğrenci kimliği doğrulanamadı. Kurumla iletişime geçin.');
+    }
+    if (d.student_no != null && studentKey(d.student_no) !== expected) {
+      throw new Error('Rapor öğrenci kimliği uyuşmuyor. İçerik gösterilmedi.');
+    }
+    if (d.report && studentKey(d.report.student && d.report.student.no) !== expected) {
+      throw new Error('Rapor öğrenci kimliği uyuşmuyor. İçerik gösterilmedi.');
+    }
+    if (d.published && !d.report) {
+      throw new Error('Rapor içeriği eksik. İçerik gösterilmedi.');
+    }
+  }
+
+  async function loadReport(force) {
+    var no = studentKey(state.activeNo);
+    var parentCode = state.parentCode;
+    var session = sessionVersion;
+    var requestId = ++reportRequestId;
+    var cacheKey = parentCode + '|' + no;
+    var body = $('reportBody');
+    var meta = $('reportMeta');
+    function isCurrent() {
+      return session === sessionVersion && requestId === reportRequestId &&
+        parentCode === state.parentCode && no === studentKey(state.activeNo);
+    }
+    body.innerHTML = '';
+    meta.innerHTML = '';
+    if (!no) {
+      body.innerHTML = '<div class="empty-state"><strong>Öğrenci seçin</strong>Rapor burada görünecek.</div>';
+      return;
+    }
+    body.innerHTML = '<div class="empty-state"><strong>Yükleniyor…</strong>Rapor alınıyor.</div>';
+    try {
+      var fromCache = !force && state.reportCache[cacheKey];
+      var d = fromCache || null;
+      if (!d) d = await api({ action: 'parent_report', student_no: no, parent_code: parentCode });
+      if (!isCurrent()) return;
+      validateReportIdentity(d, no);
+      state.reportCache[cacheKey] = d;
+      writeState();
+      renderReport(d);
+      // Önbellekten gösterildiyse arka planda sessiz yenile
+      if (fromCache) {
+        api({ action: 'parent_report', student_no: no, parent_code: parentCode }).then(function (fresh) {
+          if (!isCurrent()) return;
+          try {
+            validateReportIdentity(fresh, no);
+            state.reportCache[cacheKey] = fresh;
+            writeState();
+            renderReport(fresh);
+          } catch (ignore) {}
+        }).catch(function () {});
+      }
+    } catch (e) {
+      if (!isCurrent()) return;
+      // Önbellekte varsa ağ hatasında onu göster
+      var cached = state.reportCache[cacheKey];
+      if (cached) {
+        try {
+          validateReportIdentity(cached, no);
+          renderReport(cached);
+          log('Çevrimdışı: kayıtlı rapor gösteriliyor.', true);
+          return;
+        } catch (ignore2) {}
+      }
+      delete state.reportCache[cacheKey];
+      writeState();
+      meta.innerHTML = '';
+      body.innerHTML = '<div class="empty-state"><strong>Rapor gösterilmedi</strong>' +
+        escapeHtml(e.message || String(e)) + '</div>';
+      log(e.message || String(e), false);
+    }
+  }
+
+  function renderReport(d) {
+    validateReportIdentity(d, state.activeNo);
+    var meta = $('reportMeta');
+    var body = $('reportBody');
+    var st = (d && d.student) || {};
+    meta.innerHTML = '';
+    if (d.published) {
+      var b1 = document.createElement('span');
+      b1.className = 'badge ok';
+      b1.textContent = 'Yayımlanmış';
+      meta.appendChild(b1);
+      if (d.published_at) {
+        var b2 = document.createElement('span');
+        b2.className = 'badge';
+        b2.textContent = 'Son güncelleme: ' + formatDateLabel(d.published_at);
+        meta.appendChild(b2);
+      }
+      if (d.source_generated_at && d.source_generated_at !== d.published_at) {
+        var b3 = document.createElement('span');
+        b3.className = 'badge';
+        b3.textContent = 'Veri: ' + formatDateLabel(d.source_generated_at);
+        meta.appendChild(b3);
+      }
+    } else {
+      var bw = document.createElement('span');
+      bw.className = 'badge warn';
+      bw.textContent = 'Henüz yayımlanmadı';
+      meta.appendChild(bw);
+    }
+
+    if (!d.published || !d.report) {
+      body.innerHTML =
+        '<div class="empty-state">' +
+        '<strong>' + escapeHtml(st.name || ('No ' + (st.no || ''))) + '</strong>' +
+        escapeHtml(d.message || 'Bu öğrenci için yayımlanmış rapor yok. Kurum raporu yayımladığında burada görünecek.') +
+        '</div>';
+      return;
+    }
+
+    var report = d.report;
+    var html = '';
+    html += '<p><b>' + escapeHtml((report.student && report.student.name) || st.name) + '</b>' +
+      ' &nbsp; No: ' + escapeHtml((report.student && report.student.no) || st.no) +
+      ' &nbsp; Sınıf: ' + escapeHtml((report.student && report.student.class) || st.class || '—') + '</p>';
+
+    (report.sections || []).forEach(function (sec) {
+      html += '<div class="section">';
+      html += '<h3>' + escapeHtml(sec.title || sec.key || 'Bölüm') + '</h3>';
+      if (sec.note) html += '<p class="note">' + escapeHtml(sec.note) + '</p>';
+      if (sec.warning) html += '<p class="warning">' + escapeHtml(sec.warning) + '</p>';
+      var rows = sec.rows || [];
+      if (!rows.length) {
+        html += '<p class="note">Bu bölümde kayıt yok.</p>';
+      } else if (sec.key === 'exams' || (rows[0] && rows[0].subjects && typeof rows[0].subjects === 'object')) {
+        html += renderExamRowsHtml(rows);
+      } else if (typeof rows[0] === 'object') {
+        html += renderGenericRowsHtml(rows);
+      } else {
+        html += '<ul>' + rows.map(function (r) {
+          return '<li>' + escapeHtml(String(r)) + '</li>';
+        }).join('') + '</ul>';
+      }
+      html += '</div>';
+    });
+    body.innerHTML = html;
+  }
+
+  /** Sınav satırı: subjects { Ders: {D,Y,B,Net,status} } → masaüstü benzeri tablo + yatay kaydırma */
+  function renderExamRowsHtml(rows) {
+    var subjectNames = [];
+    rows.forEach(function (r) {
+      var sub = (r && r.subjects) || {};
+      Object.keys(sub).forEach(function (name) {
+        if (subjectNames.indexOf(name) < 0) subjectNames.push(name);
+      });
+    });
+    var html = '<div class="table-wrap exam-scroll"><table class="exam-table"><thead>';
+    // İki satırlı başlık: ders adı + D Y B Net
+    html += '<tr>';
+    html += '<th rowspan="2">Sınav</th>';
+    html += '<th rowspan="2">Güncelleme</th>';
+    subjectNames.forEach(function (name) {
+      html += '<th colspan="4" class="subj-head">' + escapeHtml(name) + '</th>';
+    });
+    html += '<th rowspan="2">Toplam Net</th>';
+    html += '</tr><tr>';
+    subjectNames.forEach(function () {
+      html += '<th class="subh">D</th><th class="subh">Y</th><th class="subh">B</th><th class="subh">Net</th>';
+    });
+    html += '</tr></thead><tbody>';
+    rows.forEach(function (r) {
+      html += '<tr>';
+      html += '<td class="exam-name">' + escapeHtml(String(r['Sınav'] || r.Quiz || '')) + '</td>';
+      html += '<td class="exam-date">' + escapeHtml(String(r['Güncelleme Tarihi'] || '')) + '</td>';
+      var sub = r.subjects || {};
+      subjectNames.forEach(function (name) {
+        var cell = sub[name];
+        if (!cell || typeof cell !== 'object') {
+          html += '<td colspan="4" class="muted">—</td>';
+          return;
+        }
+        if (cell.status === 'G' || cell.status === 'g') {
+          html += '<td colspan="4" class="absent">G</td>';
+          return;
+        }
+        html += '<td class="num">' + escapeHtml(fmtNum(cell.D)) + '</td>';
+        html += '<td class="num">' + escapeHtml(fmtNum(cell.Y)) + '</td>';
+        html += '<td class="num">' + escapeHtml(fmtNum(cell.B)) + '</td>';
+        html += '<td class="num net">' + escapeHtml(fmtNum(cell.Net)) + '</td>';
+      });
+      var tot = r['Toplam Net'];
+      html += '<td class="num total-net"><b>' + escapeHtml(fmtNum(tot)) + '</b></td>';
+      html += '</tr>';
+    });
+    html += '</tbody></table></div>';
+    html += '<p class="scroll-hint">Tabloyu yatay kaydırarak tüm dersleri görebilirsiniz.</p>';
+    // Dar ekranda kart görünümü
+    html += '<div class="exam-cards">';
+    rows.forEach(function (r) {
+      html += '<div class="exam-card">';
+      html += '<div class="exam-card-title">' + escapeHtml(String(r['Sınav'] || '')) + '</div>';
+      html += '<div class="exam-card-meta">' + escapeHtml(String(r['Güncelleme Tarihi'] || '')) +
+        ' · Toplam Net: <b>' + escapeHtml(fmtNum(r['Toplam Net'])) + '</b></div>';
+      html += '<div class="subj-grid">';
+      var sub = r.subjects || {};
+      subjectNames.forEach(function (name) {
+        var cell = sub[name];
+        html += '<div class="subj-chip">';
+        html += '<div class="subj-name">' + escapeHtml(name) + '</div>';
+        if (!cell || typeof cell !== 'object') {
+          html += '<div class="muted">—</div>';
+        } else if (cell.status === 'G' || cell.status === 'g') {
+          html += '<div class="absent">G (girmedi)</div>';
+        } else {
+          html += '<div class="subj-stats">D ' + escapeHtml(fmtNum(cell.D)) +
+            ' · Y ' + escapeHtml(fmtNum(cell.Y)) +
+            ' · B ' + escapeHtml(fmtNum(cell.B)) +
+            ' · <b>Net ' + escapeHtml(fmtNum(cell.Net)) + '</b></div>';
+        }
+        html += '</div>';
+      });
+      html += '</div></div>';
+    });
+    html += '</div>';
+    return html;
+  }
+
+  function renderGenericRowsHtml(rows) {
+    var keys = [];
+    rows.forEach(function (r) {
+      Object.keys(r || {}).forEach(function (k) {
+        if (k === 'subjects') return;
+        if (keys.indexOf(k) < 0) keys.push(k);
+      });
+    });
+    var html = '<div class="table-wrap"><table><thead><tr>';
+    keys.forEach(function (k) { html += '<th>' + escapeHtml(k) + '</th>'; });
+    html += '</tr></thead><tbody>';
+    rows.forEach(function (r) {
+      html += '<tr>';
+      keys.forEach(function (k) {
+        html += '<td>' + escapeHtml(formatCellValue(r[k])) + '</td>';
+      });
+      html += '</tr>';
+    });
+    html += '</tbody></table></div>';
+    return html;
+  }
+
+  function fmtNum(v) {
+    if (v == null || v === '') return '';
+    if (typeof v === 'number') {
+      return (Math.round(v * 100) / 100).toString();
+    }
+    return String(v);
+  }
+
+  function formatCellValue(v) {
+    if (v == null) return '';
+    if (typeof v === 'object') {
+      if (Array.isArray(v)) return v.map(formatCellValue).join(', ');
+      // subjects veya D/Y/B nesnesi
+      if (v.D != null || v.Y != null || v.Net != null) {
+        if (v.status === 'G') return 'G';
+        return 'D:' + fmtNum(v.D) + ' Y:' + fmtNum(v.Y) + ' B:' + fmtNum(v.B) + ' Net:' + fmtNum(v.Net);
+      }
+      try {
+        return Object.keys(v).map(function (k) {
+          return k + ': ' + formatCellValue(v[k]);
+        }).join(' · ');
+      } catch (e) {
+        return '';
+      }
+    }
+    return String(v);
+  }
+
+  async function doLogin() {
+    var code = String(($('parentCode') && $('parentCode').value) || '').trim().toUpperCase();
+    var phone = String(($('parentPhone') && $('parentPhone').value) || '').trim();
+    if (!code) {
+      log('Erişim kodunu girin.', false);
+      return;
+    }
+    if (phone.replace(/\D/g, '').length < 10) {
+      log('Kurumda kayıtlı telefon numaranızı girin.', false);
+      return;
+    }
+    clearState();
+    showLogin();
+    state.parentCode = code;
+    var loginVersion = sessionVersion;
+    log('Giriş kontrol ediliyor…');
+    try {
+      var d = await api({ action: 'parent_login', parent_code: code, phone: phone });
+      if (loginVersion !== sessionVersion || state.parentCode !== code) return;
+      state.sessionToken = d.session_token || '';
+      if ($('parentPhone')) $('parentPhone').value = '';
+      state.parentLabel = d.parent_label || 'Veli';
+      state.students = d.students || [];
+      if (!state.activeNo || !state.students.some(function (s) { return String(s.no) === String(state.activeNo); })) {
+        state.activeNo = state.students.length ? String(state.students[0].no) : '';
+      }
+      state.reportCache = {};
+      writeState();
+      showSession();
+      log('Giriş başarılı.', true);
+      if (state.activeNo) loadReport(true);
+    } catch (e) {
+      if (loginVersion !== sessionVersion) return;
+      clearState();
+      showLogin();
+      log(e.message || String(e), false);
+    }
+  }
+
+  // Kayıtlı oturumu telefon sormadan, cihaza bağlı anahtarla sessizce yeniler.
+  async function doResume() {
+    var version = sessionVersion;
+    var d = await api({ action: 'parent_session', parent_code: state.parentCode });
+    if (version !== sessionVersion) return;
+    state.parentLabel = d.parent_label || state.parentLabel;
+    state.students = d.students || state.students;
+    if (!state.students.some(function (s) { return String(s.no) === String(state.activeNo); })) {
+      state.activeNo = state.students.length ? String(state.students[0].no) : '';
+    }
+    writeState();
+    showSession();
+  }
+
+  function doLogout() {
+    clearState();
+    if ($('parentCode')) $('parentCode').value = '';
+    showLogin();
+    log('Çıkış yapıldı.', true);
+  }
+
+  // Events
+  $('btnParentLogin').addEventListener('click', function () {
+    doLogin().catch(function (e) { log(e.message || String(e), false); });
+  });
+  ['parentCode', 'parentPhone'].forEach(function (id) {
+    if (!$(id)) return;
+    $(id).addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        doLogin().catch(function (err) { log(err.message || String(err), false); });
+      }
+    });
+  });
+  $('btnParentLogout').addEventListener('click', doLogout);
+  $('btnRefreshReport').addEventListener('click', function () {
+    loadReport(true).catch(function (e) { log(e.message || String(e), false); });
+  });
+
+  // Önce yerel veri; ardından arka planda oturum yenile
+  readState();
+  // WhatsApp bağlantısı kodu adres parçasında taşır (#k=KOD); sunucuya gitmez.
+  var linkCode = '';
+  try {
+    var m = /[#&]k=([A-Za-z0-9]{4,16})/.exec(window.location.hash || '');
+    if (m) {
+      linkCode = m[1].toUpperCase();
+      history.replaceState(null, '', window.location.pathname + window.location.search);
+    }
+  } catch (ignore) {}
+  if (linkCode && linkCode !== state.parentCode) {
+    // Kod bağlantıdan dolar; veli yalnız telefonunu yazar.
+    clearState();
+    if ($('parentCode')) $('parentCode').value = linkCode;
+    showLogin();
+    if ($('parentPhone')) $('parentPhone').focus();
+    return;
+  }
+  var savedCode = state.parentCode;
+  if (savedCode && state.students && state.students.length) {
+    if ($('parentCode')) $('parentCode').value = savedCode;
+    showSession();
+    if (state.activeNo) {
+      loadReport(false).catch(function () {});
+    }
+    // Arka planda sessiz oturum yenileme (ağ yoksa kayıtlı veriler kalır)
+    doResume().catch(function (e) {
+      log('Çevrimdışı mod: ' + (e.message || 'ağ yok') + ' — kayıtlı veriler gösteriliyor.', true);
+    });
+  } else {
+    showLogin();
+    if (savedCode && $('parentCode')) $('parentCode').value = savedCode;
+  }
+})();
+</script>
 </body>
 </html>
