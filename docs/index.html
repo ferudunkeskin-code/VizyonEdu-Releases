@@ -24,6 +24,7 @@
 </head>
 <body>
   <iframe
+    id="app"
     src="https://script.google.com/macros/s/AKfycbyQMRl__AbxTccropfdMou8lNT6pYzIeEAT1kewkrPZW8BJGPjYi6ZzrXAYoDCHi1U/exec"
     allow="fullscreen; web-share; clipboard-write"
     loading="eager"
@@ -53,6 +54,18 @@
       } catch (err) {
         reply({ type: 'vizyonedu-share-result', ok: false, name: (err && err.name) || '', message: (err && err.message) || String(err) });
       }
+    });
+    // Sert yenileme: iç sayfa istediğinde uygulama çerçevesi önbellek kırıcı parametreyle baştan yüklenir.
+    window.addEventListener('message', function (e) {
+      if (!/^https:\/\/(script\.google\.com|[a-z0-9-]+\.googleusercontent\.com)$/i.test(e.origin)) return;
+      var d = e.data;
+      if (!d || d.type !== 'vizyonedu-reload' || !d.id) return;
+      try { e.source.postMessage({ type: 'vizyonedu-reload-ack', id: d.id }, '*'); } catch (err) {}
+      var frame = document.getElementById('app');
+      if (!frame) return;
+      var base = (frame.getAttribute('data-base') || frame.src).split('?')[0];
+      frame.setAttribute('data-base', base);
+      setTimeout(function () { frame.src = base + '?r=' + Date.now(); }, 60);
     });
   </script>
 </body>
