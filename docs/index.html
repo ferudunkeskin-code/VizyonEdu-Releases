@@ -20,6 +20,14 @@
       height: 100%;
       display: block;
     }
+    #shareOverlay{position:fixed;inset:0;z-index:99999;background:#0008;display:flex;align-items:flex-end;justify-content:center;padding:14px;padding-bottom:max(14px,env(safe-area-inset-bottom));animation:shFade .2s ease-out}
+    #shareOverlay .sh-sheet{width:100%;max-width:420px;background:#fff;border-radius:18px;padding:18px 16px 14px;display:flex;flex-direction:column;gap:8px;box-shadow:0 -10px 34px #0004;font:15px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:#18324a;animation:shUp .3s cubic-bezier(.2,.8,.2,1)}
+    #shareOverlay strong{font-size:1.05rem;color:#174e78}
+    #shareOverlay p{margin:0;font-size:.85rem;color:#607285;word-break:break-all}
+    #shareOverlay button{border:0;border-radius:12px;min-height:48px;font:700 .95rem system-ui,sans-serif;background:linear-gradient(180deg,#1f5f8f,#174e78);color:#fff}
+    #shareOverlay button.sh-secondary{background:#eef4f8;color:#174e78}
+    @keyframes shFade{from{opacity:0}to{opacity:1}}
+    @keyframes shUp{from{opacity:0;transform:translateY(34px) scale(.96)}to{opacity:1;transform:none}}
   </style>
 </head>
 <body>
@@ -41,19 +49,39 @@
         try { e.source.postMessage(Object.assign({ id: d.id }, payload), '*'); } catch (err) {}
       }
       reply({ type: 'vizyonedu-share-ack' });
-      try {
-        var name = String(d.fileName || 'paket.vzep').replace(/[^A-Za-z0-9_.\-]+/g, '_').slice(0, 120);
-        if (!/\.vzep$/i.test(name)) name += '.vzep';
-        var file = new File([d.bytes], name, { type: 'application/octet-stream' });
-        if (!navigator.share) { reply({ type: 'vizyonedu-share-result', ok: false, why: 'no-share' }); return; }
-        if (navigator.canShare && !navigator.canShare({ files: [file] })) {
-          reply({ type: 'vizyonedu-share-result', ok: false, why: 'can-not-share-type' }); return;
-        }
-        await navigator.share({ files: [file], title: String(d.title || 'VizyonEdu'), text: String(d.text || '') });
-        reply({ type: 'vizyonedu-share-result', ok: true });
-      } catch (err) {
-        reply({ type: 'vizyonedu-share-result', ok: false, name: (err && err.name) || '', message: (err && err.message) || String(err) });
+      var name = String(d.fileName || 'paket.vzep').replace(/[^A-Za-z0-9_.\-]+/g, '_').slice(0, 120);
+      if (!/\.vzep$/i.test(name)) name += '.vzep';
+      var file;
+      try { file = new File([d.bytes], name, { type: 'application/octet-stream' }); }
+      catch (err) { reply({ type: 'vizyonedu-share-result', ok: false, name: 'FileError', message: String(err) }); return; }
+      if (!navigator.share) { reply({ type: 'vizyonedu-share-result', ok: false, why: 'no-share' }); return; }
+      if (navigator.canShare && !navigator.canShare({ files: [file] })) {
+        reply({ type: 'vizyonedu-share-result', ok: false, why: 'can-not-share-type' }); return;
       }
+      // Paylaşım menüsü kullanıcının bu sayfadaki DOĞRUDAN dokunuşunu ister (iç çerçevedeki
+      // dokunuş yetmeyebilir); bu yüzden üst sayfada bir "Paylaş" düğmesi gösterilir.
+      var old = document.getElementById('shareOverlay'); if (old) old.remove();
+      var ov = document.createElement('div');
+      ov.id = 'shareOverlay';
+      ov.innerHTML = '<div class="sh-sheet"><strong>Paket hazır</strong><p class="sh-name"></p><p class="sh-sub"></p>' +
+        '<button type="button" id="shGo">Paylaş (WhatsApp, e-posta…)</button>' +
+        '<button type="button" id="shCancel" class="sh-secondary">Vazgeç</button></div>';
+      ov.querySelector('.sh-name').textContent = name;
+      ov.querySelector('.sh-sub').textContent = String(d.text || '');
+      document.body.appendChild(ov);
+      function close() { ov.remove(); }
+      ov.querySelector('#shCancel').addEventListener('click', function () {
+        close(); reply({ type: 'vizyonedu-share-result', ok: false, name: 'AbortError' });
+      });
+      ov.querySelector('#shGo').addEventListener('click', async function () {
+        try {
+          await navigator.share({ files: [file], title: String(d.title || 'VizyonEdu'), text: String(d.text || '') });
+          close(); reply({ type: 'vizyonedu-share-result', ok: true });
+        } catch (err) {
+          close();
+          reply({ type: 'vizyonedu-share-result', ok: false, name: (err && err.name) || '', message: (err && err.message) || String(err) });
+        }
+      });
     });
     // Sert yenileme: iç sayfa istediğinde uygulama çerçevesi önbellek kırıcı parametreyle baştan yüklenir.
     window.addEventListener('message', function (e) {
