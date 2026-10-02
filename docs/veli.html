@@ -192,6 +192,11 @@ footer{text-align:center;padding:8px;color:var(--muted);font-size:.72rem}
   background:#eef3f8;color:var(--navy);font-size:.78rem;border:1px solid var(--line);
 }
 .chip.on{background:var(--navy);color:#fff;border-color:var(--navy)}
+
+.drank{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
+.drank div{display:flex;justify-content:space-between;align-items:center;background:#f1f6fb;border:1px solid #dbe6f0;border-radius:10px;padding:7px 12px;color:var(--navy);font-size:.8rem;font-weight:700}
+.drank b{font-size:1.1rem}
+.exam-table td.rank{font-weight:800;color:var(--navy)}
 </style>
 </head>
 <body>
@@ -807,6 +812,10 @@ footer{text-align:center;padding:8px;color:var(--muted);font-size:.72rem}
       if (withNet && r['Toplam Net'] != null && r['Toplam Net'] !== '') {
         html += '<div class="dtotal"><span>Toplam Net</span><b>' + escapeHtml(fmtNum(r['Toplam Net'])) + '</b></div>';
       }
+      if (withNet && r['Sınıf Sıra'] != null) {
+        html += '<div class="drank"><div><span>Sınıf Sıra</span><b>' + escapeHtml(rankText(r['Sınıf Sıra'])) + '</b></div>' +
+          '<div><span>Kurum Sıra</span><b>' + escapeHtml(rankText(r['Kurum Sıra'])) + '</b></div></div>';
+      }
       html += '<div class="dsub-grid">';
       names.forEach(function (n) { html += subjectBlock(n, sub[n], withNet); });
       html += '</div></article>';
@@ -906,6 +915,7 @@ footer{text-align:center;padding:8px;color:var(--muted);font-size:.72rem}
       html += '<th colspan="4" class="subj-head">' + escapeHtml(name) + '</th>';
     });
     html += '<th rowspan="2">Toplam Net</th>';
+    html += '<th rowspan="2">Sınıf Sıra</th><th rowspan="2">Kurum Sıra</th>';
     html += '</tr><tr>';
     subjectNames.forEach(function () {
       html += '<th class="subh">D</th><th class="subh">Y</th><th class="subh">B</th><th class="subh">Net</th>';
@@ -933,6 +943,8 @@ footer{text-align:center;padding:8px;color:var(--muted);font-size:.72rem}
       });
       var tot = r['Toplam Net'];
       html += '<td class="num total-net"><b>' + escapeHtml(fmtNum(tot)) + '</b></td>';
+      html += '<td class="num rank">' + escapeHtml(rankText(r['Sınıf Sıra'])) + '</td>';
+      html += '<td class="num rank">' + escapeHtml(rankText(r['Kurum Sıra'])) + '</td>';
       html += '</tr>';
     });
     html += '</tbody></table></div>';
@@ -943,7 +955,8 @@ footer{text-align:center;padding:8px;color:var(--muted);font-size:.72rem}
       html += '<div class="exam-card">';
       html += '<div class="exam-card-title">' + escapeHtml(String(r['Sınav'] || '')) + '</div>';
       html += '<div class="exam-card-meta">' + escapeHtml(String(r['Güncelleme Tarihi'] || '')) +
-        (r['Toplam Net'] != null && r['Toplam Net'] !== '' ? ' · Toplam Net: <b>' + escapeHtml(fmtNum(r['Toplam Net'])) + '</b>' : '') + '</div>';
+        (r['Toplam Net'] != null && r['Toplam Net'] !== '' ? ' · Toplam Net: <b>' + escapeHtml(fmtNum(r['Toplam Net'])) + '</b>' : '') +
+        (r['Sınıf Sıra'] != null ? ' · Sınıf Sıra: <b>' + escapeHtml(rankText(r['Sınıf Sıra'])) + '</b> · Kurum Sıra: <b>' + escapeHtml(rankText(r['Kurum Sıra'])) + '</b>' : '') + '</div>';
       html += '<div class="subj-grid">';
       var sub = r.subjects || {};
       subjectNames.forEach(function (name) {
@@ -988,6 +1001,10 @@ footer{text-align:center;padding:8px;color:var(--muted);font-size:.72rem}
     });
     html += '</tbody></table></div>';
     return html;
+  }
+
+  function rankText(v) {
+    return (v == null || v === '') ? '—' : String(v);
   }
 
   function fmtNum(v) {
