@@ -42,7 +42,7 @@ input,select{
 }
 button{
   border:0;border-radius:10px;background:var(--navy);color:#fff;
-  min-height:46px;padding:11px 14px;font:750 .92rem/1.2 inherit;cursor:pointer;width:100%;margin:6px 0 0;
+  min-height:46px;padding:11px 14px;font-weight:750;font-size:.92rem;line-height:1.2;font-family:inherit;cursor:pointer;width:100%;margin:6px 0 0;
 }
 button:disabled{opacity:.45}
 button.secondary{background:#eef3f8;color:var(--navy)}
@@ -122,6 +122,76 @@ footer{text-align:center;padding:8px;color:var(--muted);font-size:.72rem}
 @media (min-width:641px){
   .exam-cards{display:none}
 }
+
+/* ── Rapor merkezi: dikdörtgen düğmeler, paneller, öğrenci fotoğrafı ── */
+.hub-btn{
+  width:100%;min-height:58px;margin:0 0 10px;border-radius:12px;
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  text-align:left;padding:10px 16px;background:linear-gradient(135deg,#173d62,#24557f);color:#fff;
+  box-shadow:0 4px 12px #173d6226;transition:transform .12s ease,box-shadow .12s ease;
+}
+.hub-btn:active{transform:scale(.985)}
+.hub-btn span{display:flex;flex-direction:column;gap:2px;min-width:0}
+.hub-btn small{font-size:.66rem;letter-spacing:.09em;opacity:.78;font-weight:750}
+.hub-btn strong{font-size:.98rem;font-weight:800}
+.hub-btn em{font-style:normal;font-size:.72rem;opacity:.82;font-weight:600}
+.hub-btn em:empty{display:none}
+.hub-btn.hub-main{min-height:68px;background:linear-gradient(135deg,#0f2f4e,#2a6296)}
+.hub-btn[aria-expanded="true"]{box-shadow:0 0 0 2px #4da3ff55,0 6px 16px #173d6233}
+.hub-badge{
+  flex:none;background:#ffd166;color:#4a3300;font-size:.7rem;font-weight:850;
+  padding:5px 10px;border-radius:999px;animation:hubPulse 1.6s ease-in-out infinite;
+}
+.hub-dot{flex:none;width:12px;height:12px;border-radius:50%;background:#ffd166;box-shadow:0 0 0 4px #ffd16644;animation:hubPulse 1.6s ease-in-out infinite}
+.hub-dot[hidden],.hub-badge[hidden]{display:none}
+@keyframes hubPulse{50%{transform:scale(1.12);opacity:.8}}
+.hub-title{margin:18px 2px 8px;font-size:.78rem;font-weight:800;letter-spacing:.08em;color:var(--muted);text-transform:uppercase}
+.hub-panel{margin:-2px 0 12px;transform-origin:top center}
+.hub-panel.hub-open{animation:hubOpen .26s cubic-bezier(.2,.8,.2,1)}
+@keyframes hubOpen{from{opacity:0;transform:scale(.96) translateY(-8px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.hub-panel.hub-open,.hub-badge,.hub-dot{animation:none}}
+
+.stu-head{display:flex;align-items:center;gap:14px;margin:0 0 10px}
+.stu-photo{
+  flex:none;width:96px;height:112px;border-radius:16px;overflow:hidden;
+  background:linear-gradient(135deg,#dfe9f3,#c4d6e8);border:1px solid var(--line);
+  display:grid;place-items:center;color:var(--navy);font-size:1.9rem;font-weight:850;
+}
+.stu-photo img{width:100%;height:100%;object-fit:cover;display:block}
+.stu-info{display:flex;flex-direction:column;gap:3px;min-width:0}
+.stu-info strong{font-size:1.08rem;color:var(--navy)}
+.stu-info small{color:var(--muted);font-size:.8rem}
+
+.dhead{display:flex;flex-direction:column;gap:2px;margin:0 0 8px}
+.dhead h2{margin:0}
+.dhead small{color:var(--muted);font-size:.74rem}
+.dcard{border:1px solid var(--line);border-radius:12px;background:#fafcfe;padding:12px;margin:0 0 10px}
+.dcard header{display:flex;flex-direction:column;gap:2px;margin-bottom:8px}
+.dcard header strong{color:var(--navy);font-size:.95rem}
+.dcard header small,.dfoot{color:var(--muted);font-size:.72rem}
+.dfoot{display:block;margin-top:6px}
+.dtotal{display:flex;justify-content:space-between;align-items:center;background:#eaf3fb;border-radius:10px;padding:8px 12px;margin-bottom:8px;color:var(--navy)}
+.dtotal b{font-size:1.25rem}
+.dsub-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.dsub{background:#fff;border:1px solid #e2eaf1;border-radius:10px;padding:8px 10px}
+.dsub-name{font-size:.72rem;font-weight:800;color:#486581;margin-bottom:3px}
+.dsub-stats{display:flex;flex-wrap:wrap;gap:4px 8px;font-size:.78rem;font-variant-numeric:tabular-nums}
+.s-d{color:var(--green);font-weight:750}.s-y{color:var(--red);font-weight:750}.s-b{color:#6b7886;font-weight:750}.s-n{color:var(--navy)}
+.qbar{display:flex;height:6px;border-radius:99px;overflow:hidden;background:#e8eef3;margin-top:6px}
+.qbar i{display:block;height:100%}.q-d{background:#2e9c5f}.q-y{background:#c4553a}.q-b{background:#b6c1cc}
+.absent{color:var(--amber);font-weight:800;font-size:.8rem}
+.muted{color:var(--muted)}
+.kv{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:5px 0;border-bottom:1px dashed #e3eaf0;font-size:.82rem}
+.kv:last-of-type{border-bottom:0}
+.vb{display:inline-block;background:#e6f4ea;color:var(--green);font-weight:800;font-size:.76rem;padding:3px 10px;border-radius:999px;max-width:60%;text-align:right}
+.vb-empty{background:#eef3f8;color:#6b7886}
+.dtext{margin:0;font-size:.88rem}
+.chips{display:flex;gap:6px;overflow-x:auto;padding:2px 0 10px;-webkit-overflow-scrolling:touch}
+.chip{
+  flex:none;width:auto;min-height:34px;margin:0;padding:6px 12px;border-radius:999px;
+  background:#eef3f8;color:var(--navy);font-size:.78rem;border:1px solid var(--line);
+}
+.chip.on{background:var(--navy);color:#fff;border-color:var(--navy)}
 </style>
 </head>
 <body>
@@ -160,17 +230,35 @@ footer{text-align:center;padding:8px;color:var(--muted);font-size:.72rem}
         <div class="student-switch" id="studentSwitch"></div>
       </section>
 
-      <section class="card" id="reportCard">
-        <h2>Veli raporu</h2>
+      <!-- Rapor ve ayrıntı düğmeleri -->
+      <button type="button" class="hub-btn hub-main" id="btnOpenReport" aria-expanded="false" aria-controls="panelReport">
+        <span><small>RAPOR</small><strong>Veli Raporunu Aç</strong><em id="reportBtnSub">Kayıtlı rapor hazır</em></span>
+        <span class="hub-badge" id="reportBadge" hidden>Güncelleme var</span>
+      </button>
+      <section class="card hub-panel" id="panelReport" hidden>
+        <div class="stu-head" id="reportHead"></div>
         <div class="meta-row" id="reportMeta"></div>
-        <div id="reportBody">
-          <div class="empty-state">
-            <strong>Öğrenci seçin</strong>
-            Rapor burada görünecek.
-          </div>
-        </div>
+        <div id="reportBody"></div>
         <button type="button" class="secondary" id="btnRefreshReport">Raporu yenile</button>
       </section>
+
+      <p class="hub-title">Ayrıntılı sonuçlar</p>
+      <button type="button" class="hub-btn" data-detail="exams" aria-expanded="false">
+        <span><small>SINAV</small><strong>Sınav Sonuçları</strong><em data-sub="exams"></em></span><i class="hub-dot" data-dot="exams" hidden></i>
+      </button>
+      <section class="card hub-panel" id="panel-exams" hidden></section>
+      <button type="button" class="hub-btn" data-detail="quizzes" aria-expanded="false">
+        <span><small>QUİZ</small><strong>Quiz Sonuçları</strong><em data-sub="quizzes"></em></span><i class="hub-dot" data-dot="quizzes" hidden></i>
+      </button>
+      <section class="card hub-panel" id="panel-quizzes" hidden></section>
+      <button type="button" class="hub-btn" data-detail="homework" aria-expanded="false">
+        <span><small>ÖDEV</small><strong>Ödev Onay Sonuçları</strong><em data-sub="homework"></em></span><i class="hub-dot" data-dot="homework" hidden></i>
+      </button>
+      <section class="card hub-panel" id="panel-homework" hidden></section>
+      <button type="button" class="hub-btn" data-detail="activities" aria-expanded="false">
+        <span><small>ÖĞRETMEN</small><strong>Öğretmen Çalışması Sonuçları</strong><em data-sub="activities"></em></span><i class="hub-dot" data-dot="activities" hidden></i>
+      </button>
+      <section class="card hub-panel" id="panel-activities" hidden></section>
 
       <div class="logout-row">
         <button type="button" class="secondary" id="btnParentLogout">Çıkış yap</button>
@@ -191,7 +279,8 @@ footer{text-align:center;padding:8px;color:var(--muted);font-size:.72rem}
     parentLabel: '',
     students: [],
     activeNo: '',
-    reportCache: {}
+    reportCache: {},
+    seen: {}
   };
 
   function $(id) { return document.getElementById(id); }
@@ -217,6 +306,7 @@ footer{text-align:center;padding:8px;color:var(--muted);font-size:.72rem}
       state.students = s.students || [];
       state.activeNo = s.activeNo || '';
       state.reportCache = s.reportCache || {};
+      state.seen = s.seen || {};
     } catch (e) {}
   }
 
@@ -228,7 +318,8 @@ footer{text-align:center;padding:8px;color:var(--muted);font-size:.72rem}
         parentLabel: state.parentLabel,
         students: state.students,
         activeNo: state.activeNo,
-        reportCache: state.reportCache || {}
+        reportCache: state.reportCache || {},
+        seen: state.seen || {}
       }));
     } catch (e) {
       try {
@@ -238,7 +329,8 @@ footer{text-align:center;padding:8px;color:var(--muted);font-size:.72rem}
           parentLabel: state.parentLabel,
           students: state.students,
           activeNo: state.activeNo,
-          reportCache: {}
+          reportCache: {},
+          seen: state.seen || {}
         }));
       } catch (e2) {}
     }
@@ -249,8 +341,9 @@ footer{text-align:center;padding:8px;color:var(--muted);font-size:.72rem}
     reportRequestId += 1;
     if ($('reportBody')) $('reportBody').innerHTML = '';
     if ($('reportMeta')) $('reportMeta').innerHTML = '';
+    closeAllPanels();
     if ($('studentSwitch')) $('studentSwitch').innerHTML = '';
-    state = { parentCode: '', sessionToken: '', parentLabel: '', students: [], activeNo: '', reportCache: {} };
+    state = { parentCode: '', sessionToken: '', parentLabel: '', students: [], activeNo: '', reportCache: {}, seen: {} };
     try { localStorage.removeItem(KEY); } catch (e) {}
   }
 
@@ -326,6 +419,7 @@ footer{text-align:center;padding:8px;color:var(--muted);font-size:.72rem}
       ? 'Birden fazla öğrenciniz var; yalnız onlar arasında geçiş yapabilirsiniz.'
       : 'Size bağlı öğrenci aşağıda listelenir.';
     renderStudentSwitch();
+    renderHubState();
   }
 
   function renderStudentSwitch() {
@@ -347,7 +441,9 @@ footer{text-align:center;padding:8px;color:var(--muted);font-size:.72rem}
         state.activeNo = String(st.no);
         writeState();
         renderStudentSwitch();
-        loadReport(true);
+        closeAllPanels();
+        renderHubState();
+        silentSync(true);
       });
       box.appendChild(btn);
     });
@@ -397,72 +493,233 @@ footer{text-align:center;padding:8px;color:var(--muted);font-size:.72rem}
     }
   }
 
-  async function loadReport(force) {
-    var no = studentKey(state.activeNo);
-    var parentCode = state.parentCode;
-    var session = sessionVersion;
-    var requestId = ++reportRequestId;
-    var cacheKey = parentCode + '|' + no;
-    var body = $('reportBody');
-    var meta = $('reportMeta');
-    function isCurrent() {
-      return session === sessionVersion && requestId === reportRequestId &&
-        parentCode === state.parentCode && no === studentKey(state.activeNo);
+  // ───────────────────────── Rapor merkezi (düğmeler, hafıza, otomatik alma) ─────────────────────────
+  var DETAIL_KEYS = ['exams', 'quizzes', 'homework', 'activities'];
+  var lastSync = 0;
+  var syncing = false;
+  var detailFilter = {};
+
+  function cacheKey() { return state.parentCode + '|' + studentKey(state.activeNo); }
+
+  function reportFp(d) {
+    if (!d || !d.published) return 'none';
+    return String(d.published_at || '') + '|' + String(d.source_generated_at || '');
+  }
+
+  function hashText(str) {
+    var h = 5381;
+    for (var i = 0; i < str.length; i++) { h = ((h << 5) + h + str.charCodeAt(i)) | 0; }
+    return String(h);
+  }
+
+  function sectionOf(d, key) {
+    var secs = (d && d.report && d.report.sections) || [];
+    for (var i = 0; i < secs.length; i++) if (secs[i].key === key) return secs[i];
+    return null;
+  }
+
+  function sectionFp(d, key) {
+    var sec = sectionOf(d, key);
+    return sec ? hashText(JSON.stringify(sec.rows || [])) : 'none';
+  }
+
+  function isOpen(id) { var p = $(id); return !!(p && !p.hidden); }
+
+  function closeAllPanels() {
+    ['panelReport', 'panel-exams', 'panel-quizzes', 'panel-homework', 'panel-activities'].forEach(function (id) {
+      var p = $(id);
+      if (p) p.hidden = true;
+    });
+    var buttons = document.querySelectorAll('.hub-btn');
+    for (var i = 0; i < buttons.length; i++) buttons[i].setAttribute('aria-expanded', 'false');
+  }
+
+  function openPanel(panelId, btn) {
+    closeAllPanels();
+    var p = $(panelId);
+    if (p) {
+      p.hidden = false;
+      p.classList.remove('hub-open');
+      void p.offsetWidth;
+      p.classList.add('hub-open');
     }
-    body.innerHTML = '';
-    meta.innerHTML = '';
-    if (!no) {
-      body.innerHTML = '<div class="empty-state"><strong>Öğrenci seçin</strong>Rapor burada görünecek.</div>';
-      return;
-    }
-    body.innerHTML = '<div class="empty-state"><strong>Yükleniyor…</strong>Rapor alınıyor.</div>';
-    try {
-      var fromCache = !force && state.reportCache[cacheKey];
-      var d = fromCache || null;
-      if (!d) d = await api({ action: 'parent_report', student_no: no, parent_code: parentCode });
-      if (!isCurrent()) return;
-      validateReportIdentity(d, no);
-      state.reportCache[cacheKey] = d;
-      writeState();
-      renderReport(d);
-      // Önbellekten gösterildiyse arka planda sessiz yenile
-      if (fromCache) {
-        api({ action: 'parent_report', student_no: no, parent_code: parentCode }).then(function (fresh) {
-          if (!isCurrent()) return;
-          try {
-            validateReportIdentity(fresh, no);
-            state.reportCache[cacheKey] = fresh;
-            writeState();
-            renderReport(fresh);
-          } catch (ignore) {}
-        }).catch(function () {});
-      }
-    } catch (e) {
-      if (!isCurrent()) return;
-      // Önbellekte varsa ağ hatasında onu göster
-      var cached = state.reportCache[cacheKey];
-      if (cached) {
-        try {
-          validateReportIdentity(cached, no);
-          renderReport(cached);
-          log('Çevrimdışı: kayıtlı rapor gösteriliyor.', true);
-          return;
-        } catch (ignore2) {}
-      }
-      delete state.reportCache[cacheKey];
-      writeState();
-      meta.innerHTML = '';
-      body.innerHTML = '<div class="empty-state"><strong>Rapor gösterilmedi</strong>' +
-        escapeHtml(e.message || String(e)) + '</div>';
-      log(e.message || String(e), false);
+    if (btn) btn.setAttribute('aria-expanded', 'true');
+    if (p && p.scrollIntoView) {
+      try { p.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); } catch (e) {}
     }
   }
 
-  function renderReport(d) {
+  // Düğmelerin alt yazısı ve "güncelleme var" işaretleri (yalnız yerel hafızadan)
+  function renderHubState() {
+    var key = cacheKey();
+    var d = state.reportCache[key] || null;
+    var sub = $('reportBtnSub');
+    var badge = $('reportBadge');
+    var hasReport = !!(d && d.published && d.report);
+    var updated = hasReport && state.seen[key + '|report'] !== reportFp(d);
+    if (sub) {
+      sub.textContent = hasReport
+        ? (d.published_at ? 'Son güncelleme: ' + formatDateLabel(d.published_at) : 'Kayıtlı rapor hazır')
+        : (d ? 'Henüz yayımlanmış rapor yok' : 'Açınca rapor alınır');
+    }
+    if (badge) badge.hidden = !updated;
+    DETAIL_KEYS.forEach(function (k) {
+      var sec = sectionOf(d, k);
+      var subEl = document.querySelector('[data-sub="' + k + '"]');
+      var dot = document.querySelector('[data-dot="' + k + '"]');
+      if (subEl) {
+        subEl.textContent = !hasReport ? '' : (sec && sec.rows && sec.rows.length ? sec.rows.length + ' kayıt' : 'Kayıt yok');
+      }
+      if (dot) dot.hidden = !(hasReport && sec && sec.rows && sec.rows.length && state.seen[key + '|' + k] !== sectionFp(d, k));
+    });
+  }
+
+  // Sunucudan sessizce al; yeni yayın varsa hafızaya yaz ve işaretle.
+  async function fetchFresh() {
+    var no = studentKey(state.activeNo);
+    var code = state.parentCode;
+    var session = sessionVersion;
+    if (!no) return null;
+    var d = await api({ action: 'parent_report', student_no: no, parent_code: code });
+    if (session !== sessionVersion || code !== state.parentCode || no !== studentKey(state.activeNo)) return null;
+    validateReportIdentity(d, no);
+    return d;
+  }
+
+  async function silentSync(force) {
+    if (syncing || !state.sessionToken || !studentKey(state.activeNo)) return;
+    if (!force && Date.now() - lastSync < 15000) return;
+    syncing = true;
+    try {
+      var key = cacheKey();
+      var before = reportFp(state.reportCache[key]);
+      var d = await fetchFresh();
+      lastSync = Date.now();
+      if (!d) return;
+      state.reportCache[key] = d;
+      writeState();
+      renderHubState();
+      // Açık paneller yeni veriyle tazelenir
+      if (isOpen('panelReport')) renderReportPanel(d);
+      DETAIL_KEYS.forEach(function (k) { if (isOpen('panel-' + k)) renderDetail(k, d); });
+      if (reportFp(d) !== before && before !== 'none' && (isOpen('panelReport') || DETAIL_KEYS.some(function (k) { return isOpen('panel-' + k); }))) {
+        log('Güncelleme var — yeni veriler alındı.', true);
+      }
+    } catch (e) {
+      // Ağ yoksa kayıtlı veriler kalır
+    } finally {
+      syncing = false;
+    }
+  }
+
+  async function toggleReport() {
+    var btn = $('btnOpenReport');
+    if (isOpen('panelReport')) { closeAllPanels(); return; }
+    var key = cacheKey();
+    var cached = state.reportCache[key] || null;
+    openPanel('panelReport', btn);
+    if (cached) {
+      try { validateReportIdentity(cached, state.activeNo); renderReportPanel(cached); }
+      catch (e) { delete state.reportCache[key]; cached = null; }
+    }
+    if (!cached) {
+      $('reportHead').innerHTML = '';
+      $('reportMeta').innerHTML = '';
+      $('reportBody').innerHTML = '<div class="empty-state"><strong>Yükleniyor…</strong>Rapor alınıyor.</div>';
+    }
+    await refreshOpenReport(cached);
+  }
+
+  async function refreshOpenReport(shown) {
+    var key = cacheKey();
+    var no = studentKey(state.activeNo);
+    try {
+      var d = await fetchFresh();
+      lastSync = Date.now();
+      if (!d || no !== studentKey(state.activeNo)) return;
+      var changed = shown && reportFp(d) !== reportFp(shown);
+      state.reportCache[key] = d;
+      state.seen[key + '|report'] = reportFp(d);
+      writeState();
+      if (isOpen('panelReport')) renderReportPanel(d);
+      renderHubState();
+      if (changed) log('Güncelleme var — yeni rapor açıldı.', true);
+    } catch (e) {
+      if (!shown) {
+        $('reportMeta').innerHTML = '';
+        $('reportBody').innerHTML = '<div class="empty-state"><strong>Rapor gösterilmedi</strong>' +
+          escapeHtml(e.message || String(e)) + '</div>';
+        log(e.message || String(e), false);
+      } else {
+        state.seen[key + '|report'] = reportFp(shown);
+        writeState();
+        renderHubState();
+        log('Çevrimdışı: kayıtlı rapor gösteriliyor.', true);
+      }
+    }
+  }
+
+  async function toggleDetail(k, btn) {
+    var panelId = 'panel-' + k;
+    if (isOpen(panelId)) { closeAllPanels(); return; }
+    var key = cacheKey();
+    var d = state.reportCache[key] || null;
+    openPanel(panelId, btn);
+    if (d) renderDetail(k, d);
+    else $(panelId).innerHTML = '<div class="empty-state"><strong>Yükleniyor…</strong>Veriler alınıyor.</div>';
+    if (d && d.published) {
+      state.seen[key + '|' + k] = sectionFp(d, k);
+      writeState();
+      renderHubState();
+    }
+    // Açılırken yeni veri var mı bak
+    var shownFp = sectionFp(d, k);
+    try {
+      var fresh = await fetchFresh();
+      lastSync = Date.now();
+      if (!fresh) return;
+      state.reportCache[key] = fresh;
+      state.seen[key + '|' + k] = sectionFp(fresh, k);
+      writeState();
+      if (isOpen(panelId)) renderDetail(k, fresh);
+      renderHubState();
+      if (d && sectionFp(fresh, k) !== shownFp) log('Güncelleme var — yeni veriler alındı.', true);
+    } catch (e) {
+      if (!d) {
+        $(panelId).innerHTML = '<div class="empty-state"><strong>Gösterilemedi</strong>' + escapeHtml(e.message || String(e)) + '</div>';
+      }
+    }
+  }
+
+  function initials(name) {
+    var parts = String(name || '').trim().split(/\s+/).filter(Boolean);
+    if (!parts.length) return '?';
+    return (parts[0].charAt(0) + (parts.length > 1 ? parts[parts.length - 1].charAt(0) : '')).toLocaleUpperCase('tr-TR');
+  }
+
+  function photoUrlOf(d) {
+    var r = d && d.report && d.report.student || {};
+    var s = d && d.student || {};
+    var u = String(r.photo_url || r.photo || s.photo_url || s.photo || d.photo_url || '').trim();
+    return /^(https:\/\/|data:image\/)/i.test(u) ? u : '';
+  }
+
+  function renderReportPanel(d) {
     validateReportIdentity(d, state.activeNo);
     var meta = $('reportMeta');
     var body = $('reportBody');
+    var head = $('reportHead');
     var st = (d && d.student) || {};
+    var rs = (d.report && d.report.student) || {};
+    var name = rs.name || st.name || ('Öğrenci ' + (st.no || ''));
+    var photo = photoUrlOf(d);
+    head.innerHTML =
+      '<div class="stu-photo">' +
+        (photo ? '<img alt="" src="' + escapeHtml(photo) + '" referrerpolicy="no-referrer">'
+               : '<span>' + escapeHtml(initials(name)) + '</span>') +
+      '</div>' +
+      '<div class="stu-info"><strong>' + escapeHtml(name) + '</strong>' +
+      '<small>No: ' + escapeHtml(rs.no || st.no || '') + ' · Sınıf: ' + escapeHtml(rs.class || st.class || '—') + '</small></div>';
     meta.innerHTML = '';
     if (d.published) {
       var b1 = document.createElement('span');
@@ -487,23 +744,14 @@ footer{text-align:center;padding:8px;color:var(--muted);font-size:.72rem}
       bw.textContent = 'Henüz yayımlanmadı';
       meta.appendChild(bw);
     }
-
     if (!d.published || !d.report) {
-      body.innerHTML =
-        '<div class="empty-state">' +
-        '<strong>' + escapeHtml(st.name || ('No ' + (st.no || ''))) + '</strong>' +
+      body.innerHTML = '<div class="empty-state">' +
         escapeHtml(d.message || 'Bu öğrenci için yayımlanmış rapor yok. Kurum raporu yayımladığında burada görünecek.') +
         '</div>';
       return;
     }
-
-    var report = d.report;
     var html = '';
-    html += '<p><b>' + escapeHtml((report.student && report.student.name) || st.name) + '</b>' +
-      ' &nbsp; No: ' + escapeHtml((report.student && report.student.no) || st.no) +
-      ' &nbsp; Sınıf: ' + escapeHtml((report.student && report.student.class) || st.class || '—') + '</p>';
-
-    (report.sections || []).forEach(function (sec) {
+    (d.report.sections || []).forEach(function (sec) {
       html += '<div class="section">';
       html += '<h3>' + escapeHtml(sec.title || sec.key || 'Bölüm') + '</h3>';
       if (sec.note) html += '<p class="note">' + escapeHtml(sec.note) + '</p>';
@@ -516,13 +764,128 @@ footer{text-align:center;padding:8px;color:var(--muted);font-size:.72rem}
       } else if (typeof rows[0] === 'object') {
         html += renderGenericRowsHtml(rows);
       } else {
-        html += '<ul>' + rows.map(function (r) {
-          return '<li>' + escapeHtml(String(r)) + '</li>';
-        }).join('') + '</ul>';
+        html += '<ul>' + rows.map(function (r) { return '<li>' + escapeHtml(String(r)) + '</li>'; }).join('') + '</ul>';
       }
       html += '</div>';
     });
     body.innerHTML = html;
+  }
+
+  // ───────────────────────── Ayrıntı görünümleri ─────────────────────────
+  function barHtml(dv, yv, bv) {
+    var d = Number(dv) || 0, y = Number(yv) || 0, b = Number(bv) || 0;
+    var tot = d + y + b;
+    if (!tot) return '';
+    return '<div class="qbar" aria-hidden="true">' +
+      '<i class="q-d" style="width:' + (d * 100 / tot) + '%"></i>' +
+      '<i class="q-y" style="width:' + (y * 100 / tot) + '%"></i>' +
+      '<i class="q-b" style="width:' + (b * 100 / tot) + '%"></i></div>';
+  }
+
+  function subjectBlock(name, cell, withNet) {
+    var html = '<div class="dsub"><div class="dsub-name">' + escapeHtml(name) + '</div>';
+    if (!cell || typeof cell !== 'object') return html + '<div class="muted">—</div></div>';
+    if (cell.status === 'G' || cell.status === 'g') return html + '<div class="absent">G · girmedi</div></div>';
+    html += '<div class="dsub-stats"><span class="s-d">D ' + escapeHtml(fmtNum(cell.D)) + '</span>' +
+      '<span class="s-y">Y ' + escapeHtml(fmtNum(cell.Y)) + '</span>' +
+      '<span class="s-b">B ' + escapeHtml(fmtNum(cell.B)) + '</span>' +
+      (withNet ? '<b class="s-n">Net ' + escapeHtml(fmtNum(cell.Net)) + '</b>' : '') + '</div>';
+    html += barHtml(cell.D, cell.Y, cell.B) + '</div>';
+    return html;
+  }
+
+  function scoreCards(rows, titleKey, withNet) {
+    if (!rows.length) return '<div class="empty-state"><strong>Kayıt yok</strong>Henüz sonuç girilmemiş.</div>';
+    var names = [];
+    rows.forEach(function (r) {
+      Object.keys((r && r.subjects) || {}).forEach(function (n) { if (names.indexOf(n) < 0) names.push(n); });
+    });
+    return rows.map(function (r) {
+      var sub = r.subjects || {};
+      var html = '<article class="dcard"><header><strong>' + escapeHtml(String(r[titleKey] || r['Sınav'] || r.Quiz || '')) + '</strong>' +
+        '<small>' + escapeHtml(String(r['Güncelleme Tarihi'] || '')) + '</small></header>';
+      if (withNet && r['Toplam Net'] != null && r['Toplam Net'] !== '') {
+        html += '<div class="dtotal"><span>Toplam Net</span><b>' + escapeHtml(fmtNum(r['Toplam Net'])) + '</b></div>';
+      }
+      html += '<div class="dsub-grid">';
+      names.forEach(function (n) { html += subjectBlock(n, sub[n], withNet); });
+      html += '</div></article>';
+      return html;
+    }).join('');
+  }
+
+  function chipsHtml(k, values, active) {
+    if (values.length < 2) return '';
+    var html = '<div class="chips" data-chips="' + k + '">';
+    html += '<button type="button" class="chip' + (!active ? ' on' : '') + '" data-val="">Tümü</button>';
+    values.forEach(function (v) {
+      html += '<button type="button" class="chip' + (active === v ? ' on' : '') + '" data-val="' + escapeHtml(v) + '">' + escapeHtml(v) + '</button>';
+    });
+    return html + '</div>';
+  }
+
+  function uniq(rows, field) {
+    var out = [];
+    rows.forEach(function (r) { var v = String(r[field] || '').trim(); if (v && out.indexOf(v) < 0) out.push(v); });
+    return out.sort(function (a, b) { return a.localeCompare(b, 'tr'); });
+  }
+
+  function valueBadge(v) {
+    var t = String(v == null ? '' : v).trim();
+    if (!t) return '<span class="vb vb-empty">—</span>';
+    return '<span class="vb">' + escapeHtml(t) + '</span>';
+  }
+
+  function renderDetail(k, d) {
+    var panel = $('panel-' + k);
+    if (!panel) return;
+    var sec = sectionOf(d, k);
+    var titles = { exams: 'Sınav Sonuçları', quizzes: 'Quiz Sonuçları', homework: 'Ödev Onay Sonuçları', activities: 'Öğretmen Çalışması Sonuçları' };
+    var rows = (sec && sec.rows) || [];
+    var html = '<div class="dhead"><h2>' + titles[k] + '</h2>' +
+      (d.published_at ? '<small>Son güncelleme: ' + escapeHtml(formatDateLabel(d.published_at)) + '</small>' : '') + '</div>';
+    if (!d.published || !d.report) {
+      panel.innerHTML = html + '<div class="empty-state">' + escapeHtml(d.message || 'Henüz yayımlanmış rapor yok.') + '</div>';
+      return;
+    }
+    if (sec && sec.warning) html += '<p class="warning">' + escapeHtml(sec.warning) + '</p>';
+    if (sec && sec.note) html += '<p class="note">' + escapeHtml(sec.note) + '</p>';
+    if (k === 'exams') {
+      html += scoreCards(rows, 'Sınav', true);
+    } else if (k === 'quizzes') {
+      html += scoreCards(rows, 'Quiz', false);
+    } else if (k === 'homework') {
+      var f = detailFilter.homework || '';
+      html += chipsHtml('homework', uniq(rows, 'Ders'), f);
+      var list = rows.filter(function (r) { return !f || r['Ders'] === f; });
+      html += list.length ? list.map(function (r) {
+        return '<article class="dcard"><header><strong>' + escapeHtml(String(r['Kazanım / ödev'] || '')) + '</strong>' +
+          '<small>' + escapeHtml(String(r['Ders'] || '')) + '</small></header>' +
+          '<div class="kv"><span>Öğrenci ödevleri</span>' + valueBadge(r['Öğrenci Ödevleri']) + '</div>' +
+          '<div class="kv"><span>Öğretmen onayı</span>' + valueBadge(r['Öğretmen Onayı']) + '</div>' +
+          '<small class="dfoot">' + escapeHtml(String(r['Güncelleme Tarihi'] || '')) + '</small></article>';
+      }).join('') : '<div class="empty-state"><strong>Kayıt yok</strong>Henüz ödev onayı girilmemiş.</div>';
+    } else {
+      var g = detailFilter.activities || '';
+      html += chipsHtml('activities', uniq(rows, 'Ders'), g);
+      var items = rows.filter(function (r) { return !g || r['Ders'] === g; });
+      html += items.length ? items.map(function (r) {
+        return '<article class="dcard"><header><strong>' + escapeHtml(String(r['Ders'] || '')) + '</strong>' +
+          '<small>' + escapeHtml(String(r['Tarih'] || '')) + '</small></header>' +
+          '<p class="dtext">' + escapeHtml(String(r['Çalışma'] || '')) + '</p>' +
+          '<small class="dfoot">Öğretmen: ' + escapeHtml(String(r['Öğretmen'] || '—')) + '</small></article>';
+      }).join('') : '<div class="empty-state"><strong>Kayıt yok</strong>Henüz öğretmen çalışması girilmemiş.</div>';
+    }
+    panel.innerHTML = html;
+    var chipBox = panel.querySelector('[data-chips]');
+    if (chipBox) {
+      chipBox.addEventListener('click', function (e) {
+        var b = e.target.closest ? e.target.closest('.chip') : null;
+        if (!b) return;
+        detailFilter[k] = b.getAttribute('data-val') || '';
+        renderDetail(k, d);
+      });
+    }
   }
 
   /** Sınav satırı: subjects { Ders: {D,Y,B,Net,status} } → masaüstü benzeri tablo + yatay kaydırma */
@@ -566,7 +929,7 @@ footer{text-align:center;padding:8px;color:var(--muted);font-size:.72rem}
         html += '<td class="num">' + escapeHtml(fmtNum(cell.D)) + '</td>';
         html += '<td class="num">' + escapeHtml(fmtNum(cell.Y)) + '</td>';
         html += '<td class="num">' + escapeHtml(fmtNum(cell.B)) + '</td>';
-        html += '<td class="num net">' + escapeHtml(fmtNum(cell.Net)) + '</td>';
+        html += '<td class="num net">' + escapeHtml(cell.Net == null ? '' : fmtNum(cell.Net)) + '</td>';
       });
       var tot = r['Toplam Net'];
       html += '<td class="num total-net"><b>' + escapeHtml(fmtNum(tot)) + '</b></td>';
@@ -580,7 +943,7 @@ footer{text-align:center;padding:8px;color:var(--muted);font-size:.72rem}
       html += '<div class="exam-card">';
       html += '<div class="exam-card-title">' + escapeHtml(String(r['Sınav'] || '')) + '</div>';
       html += '<div class="exam-card-meta">' + escapeHtml(String(r['Güncelleme Tarihi'] || '')) +
-        ' · Toplam Net: <b>' + escapeHtml(fmtNum(r['Toplam Net'])) + '</b></div>';
+        (r['Toplam Net'] != null && r['Toplam Net'] !== '' ? ' · Toplam Net: <b>' + escapeHtml(fmtNum(r['Toplam Net'])) + '</b>' : '') + '</div>';
       html += '<div class="subj-grid">';
       var sub = r.subjects || {};
       subjectNames.forEach(function (name) {
@@ -595,7 +958,7 @@ footer{text-align:center;padding:8px;color:var(--muted);font-size:.72rem}
           html += '<div class="subj-stats">D ' + escapeHtml(fmtNum(cell.D)) +
             ' · Y ' + escapeHtml(fmtNum(cell.Y)) +
             ' · B ' + escapeHtml(fmtNum(cell.B)) +
-            ' · <b>Net ' + escapeHtml(fmtNum(cell.Net)) + '</b></div>';
+            (cell.Net != null ? ' · <b>Net ' + escapeHtml(fmtNum(cell.Net)) + '</b>' : '') + '</div>';
         }
         html += '</div>';
       });
@@ -685,7 +1048,8 @@ footer{text-align:center;padding:8px;color:var(--muted);font-size:.72rem}
       writeState();
       showSession();
       log('Giriş başarılı.', true);
-      if (state.activeNo) loadReport(true);
+      renderHubState();
+      silentSync(true);
     } catch (e) {
       if (loginVersion !== sessionVersion) return;
       clearState();
@@ -730,8 +1094,22 @@ footer{text-align:center;padding:8px;color:var(--muted);font-size:.72rem}
   });
   $('btnParentLogout').addEventListener('click', doLogout);
   $('btnRefreshReport').addEventListener('click', function () {
-    loadReport(true).catch(function (e) { log(e.message || String(e), false); });
+    var shown = state.reportCache[cacheKey()] || null;
+    refreshOpenReport(shown).catch(function (e) { log(e.message || String(e), false); });
   });
+  $('btnOpenReport').addEventListener('click', function () {
+    toggleReport().catch(function (e) { log(e.message || String(e), false); });
+  });
+  Array.prototype.forEach.call(document.querySelectorAll('[data-detail]'), function (btn) {
+    btn.addEventListener('click', function () {
+      toggleDetail(btn.getAttribute('data-detail'), btn).catch(function (e) { log(e.message || String(e), false); });
+    });
+  });
+  // Yeni veri buluta düştüğünde otomatik al: açıkken düzenli, öne gelince ve ağ dönünce.
+  setInterval(function () { if (!document.hidden) silentSync(false); }, 90000);
+  document.addEventListener('visibilitychange', function () { if (!document.hidden) silentSync(false); });
+  window.addEventListener('online', function () { silentSync(true); });
+  window.addEventListener('focus', function () { silentSync(false); });
 
   // Önce yerel veri; ardından arka planda oturum yenile
   readState();
@@ -756,11 +1134,9 @@ footer{text-align:center;padding:8px;color:var(--muted);font-size:.72rem}
   if (savedCode && state.students && state.students.length) {
     if ($('parentCode')) $('parentCode').value = savedCode;
     showSession();
-    if (state.activeNo) {
-      loadReport(false).catch(function () {});
-    }
+    renderHubState();
     // Arka planda sessiz oturum yenileme (ağ yoksa kayıtlı veriler kalır)
-    doResume().catch(function (e) {
+    doResume().then(function () { return silentSync(true); }).catch(function (e) {
       log('Çevrimdışı mod: ' + (e.message || 'ağ yok') + ' — kayıtlı veriler gösteriliyor.', true);
     });
   } else {
