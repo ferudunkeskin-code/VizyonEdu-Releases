@@ -41,6 +41,14 @@
   <script>
     // Apps Script sayfası Google'ın iç iframe'inde çalışır ve web-share iznini alamaz.
     // Paylaşım menüsü bu üst sayfadan açılır; dosya postMessage ile gelir.
+    window.addEventListener('message', function (e) {
+      if (!/^https:\/\/(script\.google\.com|[a-z0-9-]+\.googleusercontent\.com)$/i.test(e.origin)) return;
+      var d = e.data;
+      if (d && d.type === 'vizyonedu-share-cancel') {
+        var o = document.getElementById('shareOverlay');
+        if (o && o.getAttribute('data-id') === String(d.id)) o.remove();
+      }
+    });
     window.addEventListener('message', async function (e) {
       if (!/^https:\/\/(script\.google\.com|[a-z0-9-]+\.googleusercontent\.com)$/i.test(e.origin)) return;
       var d = e.data;
@@ -51,8 +59,16 @@
       reply({ type: 'vizyonedu-share-ack' });
       var name = String(d.fileName || 'paket.vzep').replace(/[^A-Za-z0-9_.\-]+/g, '_').slice(0, 120);
       if (!/\.vzep$/i.test(name)) name += '.vzep';
+      // Chrome, .vzep/octet-stream dosyalarının paylaşımını reddeder; paket WhatsApp'ın kabul ettiği
+      // düz metin (.txt) olarak sarılır. Masaüstü bunu otomatik açar.
       var file;
-      try { file = new File([d.bytes], name, { type: 'application/octet-stream' }); }
+      try {
+        var u8 = new Uint8Array(d.bytes), bin = '';
+        for (var i = 0; i < u8.length; i += 0x8000) bin += String.fromCharCode.apply(null, u8.subarray(i, i + 0x8000));
+        var wrapped = 'VIZYONEDU-VZEP-V1\n' + name + '\n' + btoa(bin);
+        name = name.replace(/\.vzep$/i, '') + '.txt';
+        file = new File([wrapped], name, { type: 'text/plain' });
+      }
       catch (err) { reply({ type: 'vizyonedu-share-result', ok: false, name: 'FileError', message: String(err) }); return; }
       if (!navigator.share) { reply({ type: 'vizyonedu-share-result', ok: false, why: 'no-share' }); return; }
       if (navigator.canShare && !navigator.canShare({ files: [file] })) {
@@ -62,7 +78,7 @@
       // dokunuş yetmeyebilir); bu yüzden üst sayfada bir "Paylaş" düğmesi gösterilir.
       var old = document.getElementById('shareOverlay'); if (old) old.remove();
       var ov = document.createElement('div');
-      ov.id = 'shareOverlay';
+      ov.id = 'shareOverlay'; ov.setAttribute('data-id', String(d.id));
       ov.innerHTML = '<div class="sh-sheet"><strong>Paket hazır</strong><p class="sh-name"></p><p class="sh-sub"></p>' +
         '<button type="button" id="shGo">Paylaş (WhatsApp, e-posta…)</button>' +
         '<button type="button" id="shCancel" class="sh-secondary">Vazgeç</button></div>';
