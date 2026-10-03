@@ -987,7 +987,7 @@ footer{text-align:center;padding:8px;color:var(--muted);font-size:.72rem}
           '<div class="kv"><span>Durum</span><b>' + escapeHtml(String(r['Durum'] || '')) + '</b></div>' +
           '<div class="kv"><span>Ödevler</span>' + valueBadge(r['Ödevler']) + '</div>' +
           '<div class="kv"><span>Öğretmen onayı</span>' + valueBadge(r['Öğretmen Onayı']) + '</div>' +
-          '<div class="kv"><span>Feedback</span>' + valueBadge(r['Feedback']) + '</div>' +
+          '<div class="kv"><span>Aylar Sonra</span>' + valueBadge(r['Aylar Sonra'] || r['Feedback']) + '</div>' +
           '<div class="kv"><span>Rehberlik</span>' + valueBadge(r['Rehberlik']) + '</div></article>';
       }).join('') : '<div class="empty-state"><strong>Kayıt yok</strong>Takip edilen eksik kazanım bulunmuyor.</div>';
     } else if (k === 'gains') {
