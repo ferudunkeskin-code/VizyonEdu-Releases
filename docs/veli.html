@@ -197,6 +197,8 @@ footer{text-align:center;padding:8px;color:var(--muted);font-size:.72rem}
 .drank div{display:flex;justify-content:space-between;align-items:center;background:#f1f6fb;border:1px solid #dbe6f0;border-radius:10px;padding:7px 12px;color:var(--navy);font-size:.8rem;font-weight:700}
 .drank b{font-size:1.1rem}
 .exam-table td.rank{font-weight:800;color:var(--navy)}
+.alts{margin:0 0 8px;padding-left:18px;font-size:.8rem;color:#33506b}.alts li{margin:2px 0}
+.pbar{height:7px;border-radius:99px;background:#e8eef3;overflow:hidden;margin:2px 0 8px}.pbar i{display:block;height:100%;background:linear-gradient(90deg,#e0a43a,#2e9c5f)}
 </style>
 </head>
 <body>
@@ -256,6 +258,14 @@ footer{text-align:center;padding:8px;color:var(--muted);font-size:.72rem}
         <span><small>QUİZ</small><strong>Quiz Sonuçları</strong><em data-sub="quizzes"></em></span><i class="hub-dot" data-dot="quizzes" hidden></i>
       </button>
       <section class="card hub-panel" id="panel-quizzes" hidden></section>
+      <button type="button" class="hub-btn" data-detail="deficient" aria-expanded="false">
+        <span><small>KAZANIM</small><strong>Eksik Kazanım Takibi</strong><em data-sub="deficient"></em></span><i class="hub-dot" data-dot="deficient" hidden></i>
+      </button>
+      <section class="card hub-panel" id="panel-deficient" hidden></section>
+      <button type="button" class="hub-btn" data-detail="gains" aria-expanded="false">
+        <span><small>KONU</small><strong>Güncel İşlenen Konu</strong><em data-sub="gains"></em></span><i class="hub-dot" data-dot="gains" hidden></i>
+      </button>
+      <section class="card hub-panel" id="panel-gains" hidden></section>
       <button type="button" class="hub-btn" data-detail="homework" aria-expanded="false">
         <span><small>ÖDEV</small><strong>Ödev Onay Sonuçları</strong><em data-sub="homework"></em></span><i class="hub-dot" data-dot="homework" hidden></i>
       </button>
@@ -499,7 +509,7 @@ footer{text-align:center;padding:8px;color:var(--muted);font-size:.72rem}
   }
 
   // ───────────────────────── Rapor merkezi (düğmeler, hafıza, otomatik alma) ─────────────────────────
-  var DETAIL_KEYS = ['exams', 'quizzes', 'homework', 'activities'];
+  var DETAIL_KEYS = ['exams', 'quizzes', 'deficient', 'gains', 'homework', 'activities'];
   var lastSync = 0;
   var syncing = false;
   var detailFilter = {};
@@ -531,7 +541,7 @@ footer{text-align:center;padding:8px;color:var(--muted);font-size:.72rem}
   function isOpen(id) { var p = $(id); return !!(p && !p.hidden); }
 
   function closeAllPanels() {
-    ['panelReport', 'panel-exams', 'panel-quizzes', 'panel-homework', 'panel-activities'].forEach(function (id) {
+    ['panelReport', 'panel-exams', 'panel-quizzes', 'panel-deficient', 'panel-gains', 'panel-homework', 'panel-activities'].forEach(function (id) {
       var p = $(id);
       if (p) p.hidden = true;
     });
@@ -849,7 +859,7 @@ footer{text-align:center;padding:8px;color:var(--muted);font-size:.72rem}
     var panel = $('panel-' + k);
     if (!panel) return;
     var sec = sectionOf(d, k);
-    var titles = { exams: 'Sınav Sonuçları', quizzes: 'Quiz Sonuçları', homework: 'Ödev Onay Sonuçları', activities: 'Öğretmen Çalışması Sonuçları' };
+    var titles = { exams: 'Sınav Sonuçları', quizzes: 'Quiz Sonuçları', deficient: 'Eksik Kazanım Takibi', gains: 'Güncel İşlenen Konu', homework: 'Ödev Onay Sonuçları', activities: 'Öğretmen Çalışması Sonuçları' };
     var rows = (sec && sec.rows) || [];
     var html = '<div class="dhead"><h2>' + titles[k] + '</h2>' +
       (d.published_at ? '<small>Son güncelleme: ' + escapeHtml(formatDateLabel(d.published_at)) + '</small>' : '') + '</div>';
@@ -863,6 +873,41 @@ footer{text-align:center;padding:8px;color:var(--muted);font-size:.72rem}
       html += scoreCards(rows, 'Sınav', true);
     } else if (k === 'quizzes') {
       html += scoreCards(rows, 'Quiz', false);
+    } else if (k === 'deficient') {
+      rows = rows.map(function (r) {
+        var full = String(r['Belirlenen Eksik Ana Kazanımlar'] || '');
+        var cut = full.indexOf(' — ');
+        return { ders: cut >= 0 ? full.slice(0, cut) : '', gain: cut >= 0 ? full.slice(cut + 3) : full, r: r };
+      });
+      var df = detailFilter.deficient || '';
+      var dl = rows.filter(function (x) { return !df || x.ders === df; });
+      var dders = []; rows.forEach(function (x) { if (x.ders && dders.indexOf(x.ders) < 0) dders.push(x.ders); });
+      dders.sort(function (a, b) { return a.localeCompare(b, 'tr'); });
+      html += chipsHtml('deficient', dders, df);
+      html += dl.length ? dl.map(function (x) {
+        var r = x.r;
+        var pct = parseInt((String(r['Durum'] || '').match(/(\d+)/) || [0, 0])[1], 10) || 0;
+        var alts = String(r['Alt Kazanımlar'] || '').split('\n').filter(function (t) { return t.trim(); });
+        return '<article class="dcard"><header><strong>' + escapeHtml(x.gain) + '</strong>' +
+          '<small>' + escapeHtml(x.ders) + '</small></header>' +
+          (alts.length ? '<ul class="alts">' + alts.map(function (t) { return '<li>' + escapeHtml(t) + '</li>'; }).join('') + '</ul>' : '') +
+          '<div class="pbar"><i style="width:' + Math.min(100, pct) + '%"></i></div>' +
+          '<div class="kv"><span>Durum</span><b>' + escapeHtml(String(r['Durum'] || '')) + '</b></div>' +
+          '<div class="kv"><span>Ödevler</span>' + valueBadge(r['Ödevler']) + '</div>' +
+          '<div class="kv"><span>Öğretmen onayı</span>' + valueBadge(r['Öğretmen Onayı']) + '</div>' +
+          '<div class="kv"><span>Feedback</span>' + valueBadge(r['Feedback']) + '</div>' +
+          '<div class="kv"><span>Rehberlik</span>' + valueBadge(r['Rehberlik']) + '</div></article>';
+      }).join('') : '<div class="empty-state"><strong>Kayıt yok</strong>Takip edilen eksik kazanım bulunmuyor.</div>';
+    } else if (k === 'gains') {
+      var gf = detailFilter.gains || '';
+      html += chipsHtml('gains', uniq(rows, 'Ders'), gf);
+      var gl = rows.filter(function (r) { return !gf || r['Ders'] === gf; });
+      html += gl.length ? gl.map(function (r) {
+        return '<article class="dcard"><header><strong>' + escapeHtml(String(r['Ders'] || '')) + '</strong>' +
+          '<small>' + escapeHtml(String(r['Güncelleme Tarihi'] || '')) + '</small></header>' +
+          '<p class="dtext">' + escapeHtml(String(r['Güncel İşlenen Konu'] || '')) + '</p>' +
+          '<small class="dfoot">Öğretmen: ' + escapeHtml(String(r['Öğretmen'] || '—')) + '</small></article>';
+      }).join('') : '<div class="empty-state"><strong>Kayıt yok</strong>Güncel işlenen konu girilmemiş.</div>';
     } else if (k === 'homework') {
       var f = detailFilter.homework || '';
       html += chipsHtml('homework', uniq(rows, 'Ders'), f);
