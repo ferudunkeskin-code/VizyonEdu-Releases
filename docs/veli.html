@@ -199,6 +199,12 @@ footer{text-align:center;padding:8px;color:var(--muted);font-size:.72rem}
 .exam-table td.rank{font-weight:800;color:var(--navy)}
 .alts{margin:0 0 8px;padding-left:18px;font-size:.8rem;color:#33506b}.alts li{margin:2px 0}
 .pbar{height:7px;border-radius:99px;background:#e8eef3;overflow:hidden;margin:2px 0 8px}.pbar i{display:block;height:100%;background:linear-gradient(90deg,#e0a43a,#2e9c5f)}
+.adm-filters{display:flex;flex-direction:column;gap:8px;margin:8px 0}
+.adm-filters select,.adm-filters input{width:100%;min-height:44px;border:1px solid var(--line);border-radius:12px;padding:0 12px;font:inherit;background:#fff;color:var(--navy)}
+.adm-active{background:#eef6fc;border:1px solid #4da3ff;border-radius:12px;padding:10px 12px;margin:4px 0 8px}
+.adm-active b{display:block;color:var(--navy)}.adm-active small{color:var(--muted);font-size:.75rem}
+.adm-count{color:var(--muted);font-size:.74rem;margin:2px 2px 6px}
+.adm-list{display:flex;flex-direction:column;gap:8px;max-height:46vh;overflow-y:auto;-webkit-overflow-scrolling:touch}
 </style>
 </head>
 <body>
@@ -207,7 +213,7 @@ footer{text-align:center;padding:8px;color:var(--muted);font-size:.72rem}
   <header class="topbar">
     <div>
       <small>VİZYONEDU</small>
-      <h1>Veli Portalı</h1>
+      <h1 id="portalTitle">Veli Portalı</h1>
       <p id="headerSub">Yalnız kendi öğrencinizin raporu</p>
     </div>
   </header>
@@ -232,12 +238,13 @@ footer{text-align:center;padding:8px;color:var(--muted);font-size:.72rem}
     <!-- Oturum -->
     <div id="sessionArea" hidden>
       <section class="card" id="studentCard">
-        <h2>Öğrenciniz</h2>
+        <h2 id="studentCardTitle">Öğrenciniz</h2>
         <p class="hint" id="parentLabelLine">Bağlı öğrenciler arasında geçiş yapabilirsiniz.</p>
         <div class="student-switch" id="studentSwitch"></div>
       </section>
 
       <!-- Rapor ve ayrıntı düğmeleri -->
+      <div id="hubArea">
       <button type="button" class="hub-btn hub-main" id="btnOpenReport" aria-expanded="false" aria-controls="panelReport">
         <span><small>RAPOR</small><strong>Veli Raporunu Aç</strong><em id="reportBtnSub">Kayıtlı rapor hazır</em></span>
         <span class="hub-badge" id="reportBadge" hidden>Güncelleme var</span>
@@ -274,6 +281,7 @@ footer{text-align:center;padding:8px;color:var(--muted);font-size:.72rem}
         <span><small>ÖĞRETMEN</small><strong>Öğretmen Çalışması Sonuçları</strong><em data-sub="activities"></em></span><i class="hub-dot" data-dot="activities" hidden></i>
       </button>
       <section class="card hub-panel" id="panel-activities" hidden></section>
+      </div>
 
       <div class="logout-row">
         <button type="button" class="secondary" id="btnParentLogout">Çıkış yap</button>
@@ -295,7 +303,11 @@ footer{text-align:center;padding:8px;color:var(--muted);font-size:.72rem}
     students: [],
     activeNo: '',
     reportCache: {},
-    seen: {}
+    seen: {},
+    isAdmin: false,
+    adminRole: '',
+    adminClass: '',
+    adminQuery: ''
   };
 
   function $(id) { return document.getElementById(id); }
@@ -322,10 +334,22 @@ footer{text-align:center;padding:8px;color:var(--muted);font-size:.72rem}
       state.activeNo = s.activeNo || '';
       state.reportCache = s.reportCache || {};
       state.seen = s.seen || {};
+      state.isAdmin = !!s.isAdmin;
+      state.adminRole = s.adminRole || '';
+      state.adminClass = s.adminClass || '';
     } catch (e) {}
   }
 
   function writeState() {
+    if (state.isAdmin) {
+      // Yönetimde çok sayıda öğrenci gezilir; hafıza şişmesin diye yalnız son birkaç raporu sakla.
+      var ck = Object.keys(state.reportCache || {}), cur = cacheKey();
+      while (ck.length > 6) {
+        var drop = ck.shift();
+        if (drop === cur) { ck.push(drop); if (ck.every(function (x) { return x === cur; })) break; continue; }
+        delete state.reportCache[drop];
+      }
+    }
     try {
       localStorage.setItem(KEY, JSON.stringify({
         parentCode: state.parentCode,
@@ -334,7 +358,10 @@ footer{text-align:center;padding:8px;color:var(--muted);font-size:.72rem}
         students: state.students,
         activeNo: state.activeNo,
         reportCache: state.reportCache || {},
-        seen: state.seen || {}
+        seen: state.seen || {},
+        isAdmin: !!state.isAdmin,
+        adminRole: state.adminRole || '',
+        adminClass: state.adminClass || ''
       }));
     } catch (e) {
       try {
@@ -345,7 +372,10 @@ footer{text-align:center;padding:8px;color:var(--muted);font-size:.72rem}
           students: state.students,
           activeNo: state.activeNo,
           reportCache: {},
-          seen: state.seen || {}
+          seen: state.seen || {},
+          isAdmin: !!state.isAdmin,
+          adminRole: state.adminRole || '',
+          adminClass: state.adminClass || ''
         }));
       } catch (e2) {}
     }
@@ -358,7 +388,7 @@ footer{text-align:center;padding:8px;color:var(--muted);font-size:.72rem}
     if ($('reportMeta')) $('reportMeta').innerHTML = '';
     closeAllPanels();
     if ($('studentSwitch')) $('studentSwitch').innerHTML = '';
-    state = { parentCode: '', sessionToken: '', parentLabel: '', students: [], activeNo: '', reportCache: {}, seen: {} };
+    state = { parentCode: '', sessionToken: '', parentLabel: '', students: [], activeNo: '', reportCache: {}, seen: {}, isAdmin: false, adminRole: '', adminClass: '', adminQuery: '' };
     try { localStorage.removeItem(KEY); } catch (e) {}
   }
 
@@ -423,22 +453,84 @@ footer{text-align:center;padding:8px;color:var(--muted);font-size:.72rem}
   function showLogin() {
     $('loginCard').hidden = false;
     $('sessionArea').hidden = true;
+    $('portalTitle').textContent = 'Veli Portalı';
     $('headerSub').textContent = 'Yalnız kendi öğrencinizin raporu';
   }
 
   function showSession() {
     $('loginCard').hidden = true;
     $('sessionArea').hidden = false;
-    $('headerSub').textContent = state.parentLabel || 'Veli oturumu';
-    $('parentLabelLine').textContent = state.students.length > 1
-      ? 'Birden fazla öğrenciniz var; yalnız onlar arasında geçiş yapabilirsiniz.'
-      : 'Size bağlı öğrenci aşağıda listelenir.';
+    var adm = !!state.isAdmin;
+    $('portalTitle').textContent = adm ? 'Yönetim Portalı' : 'Veli Portalı';
+    $('studentCardTitle').textContent = adm ? 'Öğrenci seçimi' : 'Öğrenciniz';
+    $('headerSub').textContent = adm ? ((state.adminRole || state.parentLabel || 'Yönetim') + ' · salt okunur') : (state.parentLabel || 'Veli oturumu');
+    $('parentLabelLine').textContent = adm
+      ? 'Sınıf seçin veya ad / numara yazın. Yayımlanmış veli raporları gösterilir; taslaklar görünmez.'
+      : (state.students.length > 1
+        ? 'Birden fazla öğrenciniz var; yalnız onlar arasında geçiş yapabilirsiniz.'
+        : 'Size bağlı öğrenci aşağıda listelenir.');
+    $('hubArea').hidden = !studentKey(state.activeNo);
     renderStudentSwitch();
     renderHubState();
   }
 
+  function trKey(v) { return String(v || '').toLocaleLowerCase('tr').replace(/\s+/g, ' ').trim(); }
+
+  function selectStudent(no) {
+    state.activeNo = String(no);
+    writeState();
+    closeAllPanels();
+    $('hubArea').hidden = false;
+    renderStudentSwitch();
+    renderHubState();
+    silentSync(true);
+  }
+
+  // Yönetim: sınıf seçimi + arama + kaydırılabilir öğrenci listesi
+  function renderAdminSwitch() {
+    var box = $('studentSwitch');
+    var classes = [];
+    state.students.forEach(function (st) { if (st.class && classes.indexOf(st.class) < 0) classes.push(st.class); });
+    classes.sort(function (a, b) { return a.localeCompare(b, 'tr', { numeric: true }); });
+    if (state.adminClass && classes.indexOf(state.adminClass) < 0) state.adminClass = '';
+    var active = state.students.filter(function (st) { return String(st.no) === String(state.activeNo); })[0];
+    var h = '<div class="adm-filters"><select id="admClass" aria-label="Sınıf"><option value="">Tüm sınıflar (' + state.students.length + ')</option>';
+    classes.forEach(function (c) {
+      h += '<option value="' + escapeHtml(c) + '"' + (c === state.adminClass ? ' selected' : '') + '>' + escapeHtml(c) + '</option>';
+    });
+    h += '</select><input id="admQuery" type="search" placeholder="Ad veya numara ara" autocomplete="off" value="' + escapeHtml(state.adminQuery) + '"></div>';
+    if (active) {
+      h += '<div class="adm-active"><span><b>' + escapeHtml(active.name || ('Öğrenci ' + active.no)) + '</b><small>No: ' + escapeHtml(active.no) +
+        (active.class ? ' · ' + escapeHtml(active.class) : '') + '</small></span></div>';
+    }
+    h += '<div class="adm-count" id="admCount"></div><div class="adm-list" id="admList"></div>';
+    box.innerHTML = h;
+    function fill() {
+      var q = trKey(state.adminQuery);
+      var list = state.students.filter(function (st) {
+        if (state.adminClass && st.class !== state.adminClass) return false;
+        return !q || trKey(st.name).indexOf(q) >= 0 || String(st.no).indexOf(q.replace(/\s/g, '')) >= 0;
+      });
+      var cap = 80;
+      $('admCount').textContent = list.length + ' öğrenci' + (list.length > cap ? ' · ilk ' + cap + ' gösteriliyor, aramayı daraltın' : '');
+      $('admList').innerHTML = list.slice(0, cap).map(function (st) {
+        return '<button type="button" class="student-chip' + (String(st.no) === String(state.activeNo) ? ' active' : '') + '" data-no="' + escapeHtml(st.no) + '">' +
+          '<span><b>' + escapeHtml(st.name || ('Öğrenci ' + st.no)) + '</b><small>No: ' + escapeHtml(st.no) + (st.class ? ' · ' + escapeHtml(st.class) : '') + '</small></span>' +
+          '<span aria-hidden="true">›</span></button>';
+      }).join('') || '<p class="hint">Eşleşen öğrenci yok.</p>';
+    }
+    fill();
+    $('admClass').addEventListener('change', function () { state.adminClass = this.value; writeState(); fill(); });
+    $('admQuery').addEventListener('input', function () { state.adminQuery = this.value; fill(); });
+    $('admList').addEventListener('click', function (e) {
+      var b = e.target.closest ? e.target.closest('[data-no]') : null;
+      if (b) selectStudent(b.getAttribute('data-no'));
+    });
+  }
+
   function renderStudentSwitch() {
     var box = $('studentSwitch');
+    if (state.isAdmin) { renderAdminSwitch(); return; }
     box.innerHTML = '';
     if (!state.students.length) {
       box.innerHTML = '<p class="hint">Bu koda bağlı öğrenci bulunamadı. Kurumla iletişime geçin.</p>';
@@ -1102,8 +1194,14 @@ footer{text-align:center;padding:8px;color:var(--muted);font-size:.72rem}
       state.sessionToken = d.session_token || '';
       if ($('parentPhone')) $('parentPhone').value = '';
       state.parentLabel = d.parent_label || 'Veli';
+      state.isAdmin = !!d.is_admin;
+      state.adminRole = d.admin_role || '';
+      state.adminClass = '';
+      state.adminQuery = '';
       state.students = d.students || [];
-      if (!state.activeNo || !state.students.some(function (s) { return String(s.no) === String(state.activeNo); })) {
+      if (state.isAdmin) {
+        state.activeNo = '';
+      } else if (!state.activeNo || !state.students.some(function (s) { return String(s.no) === String(state.activeNo); })) {
         state.activeNo = state.students.length ? String(state.students[0].no) : '';
       }
       state.reportCache = {};
@@ -1127,8 +1225,10 @@ footer{text-align:center;padding:8px;color:var(--muted);font-size:.72rem}
     if (version !== sessionVersion) return;
     state.parentLabel = d.parent_label || state.parentLabel;
     state.students = d.students || state.students;
+    state.isAdmin = !!d.is_admin;
+    state.adminRole = d.admin_role || '';
     if (!state.students.some(function (s) { return String(s.no) === String(state.activeNo); })) {
-      state.activeNo = state.students.length ? String(state.students[0].no) : '';
+      state.activeNo = (state.isAdmin || !state.students.length) ? '' : String(state.students[0].no);
     }
     writeState();
     showSession();
