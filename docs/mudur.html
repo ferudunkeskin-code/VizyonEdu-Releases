@@ -8,15 +8,202 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="VizyonEdu Müdür">
   <title>VizyonEdu Müdür</title>
-  <style>:root{--navy:#173f67;--ink:#18324a;--muted:#607285;--line:#dbe5ee;--bg:#f4f7fa;--white:#fff;--blue:#2f80ed;--green:#27ae60;--orange:#f2994a;--purple:#9b51e0;--red:#eb5757}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.42 system-ui,-apple-system,"Segoe UI",sans-serif}.topbar{padding:18px max(18px,env(safe-area-inset-left));padding-top:max(18px,env(safe-area-inset-top));background:linear-gradient(135deg,#173f67,#245f8e);color:#fff;display:flex;align-items:center;justify-content:space-between;gap:12px;box-shadow:0 5px 20px #173f6730}.topbar small,.panel-title small,.intro-card small{letter-spacing:.12em;font-size:.66rem;font-weight:800;opacity:.78}.topbar h1{font-size:1.28rem;margin:2px 0}.topbar p{margin:0;font-size:.82rem;opacity:.82}.readonly{font-size:.62rem;font-weight:800;border:1px solid #ffffff60;border-radius:999px;padding:7px 9px}main{max-width:980px;margin:auto;padding:14px 12px 50px}.login-card,.panel,.intro-card{background:#fff;border:1px solid var(--line);border-radius:15px;box-shadow:0 6px 18px #173f670b}.login-card{max-width:480px;margin:34px auto;padding:24px}.brand-mark{width:48px;height:48px;border-radius:14px;display:grid;place-items:center;background:var(--navy);color:#fff;font-size:1.5rem;font-weight:900}.login-card h2{margin:14px 0 3px}.login-card p{color:var(--muted);margin:0 0 16px}label{display:flex;flex-direction:column;gap:6px;font-size:.78rem;font-weight:750;color:#486581;margin:12px 0}input,select{width:100%;border:1px solid #cbd8e3;border-radius:10px;background:#fff;color:var(--ink);font:inherit;min-height:45px;padding:9px 11px}button{border:0;border-radius:10px;background:var(--navy);color:#fff;min-height:44px;padding:10px 14px;font:750 .9rem/1.2 inherit;cursor:pointer}button:disabled{opacity:.5}.login-card button{width:100%;margin-top:8px}.secondary{background:#eef4f8;color:var(--navy);border:1px solid #cfdae5}.intro-card{margin-bottom:12px;padding:13px 15px;display:flex;align-items:center;justify-content:space-between}.intro-card strong{display:block;margin-top:3px}.intro-card button{min-height:38px}.sync-progress{background:#fff;border:1px solid #cbdceb;border-radius:14px;padding:13px 15px;margin:-2px 0 12px;box-shadow:0 6px 18px #173f670b}.sync-progress.error{border-color:#e4b6ae;background:#fff8f6}.sync-progress-head{display:flex;align-items:center;gap:10px}.sync-progress-head div{display:flex;flex-direction:column}.sync-progress-head small{color:var(--muted)}.spinner{width:22px;height:22px;border:3px solid #d9e6f0;border-top-color:var(--blue);border-radius:50%;animation:spin .8s linear infinite}.sync-progress.done .spinner{animation:none;border:0;background:#27ae60;color:#fff;display:grid;place-items:center}.sync-progress.done .spinner:after{content:'✓';font-weight:900}.sync-progress.error .spinner{animation:none;border:0;background:#eb5757}.sync-progress.error .spinner:after{content:'!';color:#fff;display:grid;place-items:center;font-weight:900}.sync-progress>p{margin:8px 0;color:#486581;font-size:.8rem}.sync-steps{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px}.sync-step{font-size:.72rem;color:#7890a5;padding:6px 8px;border-radius:8px;background:#f5f8fb}.sync-step.done{background:#edf8f2;color:#187647;font-weight:700}.sync-step.done:before{content:'✓ ';font-weight:900}@keyframes spin{to{transform:rotate(360deg)}}.metric-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:12px}.metric{background:#fff;border:1px solid var(--line);border-left:5px solid;border-radius:13px;padding:13px;min-width:0}.metric span{display:block;color:var(--muted);font-size:.68rem;text-transform:uppercase;font-weight:800}.metric strong{display:block;font-size:1.65rem;margin-top:3px}.metric.blue{border-left-color:var(--blue)}.metric.green{border-left-color:var(--green)}.metric.orange{border-left-color:var(--orange)}.metric.purple{border-left-color:var(--purple)}.panel{padding:15px;margin:12px 0}.panel-title{display:flex;justify-content:space-between;align-items:center}.panel-title h2{font-size:1.03rem;margin:2px 0 8px}.filter-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.filter-grid label{margin:2px 0}.monitor-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.monitor-card{background:#fff;border:1px solid var(--line);border-top:4px solid var(--accent,#2f80ed);border-radius:13px;padding:13px;display:flex;flex-direction:column;min-height:156px}.monitor-card h3{font-size:.78rem;color:var(--muted);margin:0;min-height:35px}.monitor-card strong{font-size:1.6rem;margin:5px 0}.monitor-card p{font-size:.72rem;color:var(--muted);margin:0 0 10px}.monitor-card button{margin-top:auto;min-height:36px;background:#eef4f8;color:var(--navy)}.report-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}.report-btn{background:#f8fbfd;color:var(--ink);border:1px solid var(--line);text-align:left;display:grid;grid-template-columns:30px 1fr;grid-template-rows:auto auto;padding:13px}.report-btn span{grid-row:1/3;font-size:1.2rem}.report-btn b{font-size:.82rem}.report-btn small{color:var(--muted);font-weight:500}.system-panel p{margin:5px 0;color:#486581}.safe-note{padding:10px;background:#edf8f2;border-radius:10px;color:#187647!important;font-size:.78rem}.logout{display:block;margin:18px auto;background:transparent;color:#7a3840;border:1px solid #e6cbd0}.modal{position:fixed;inset:0;z-index:2000;background:#10283d99;display:flex;align-items:flex-end;justify-content:center;padding-top:40px}.modal[hidden]{display:none}.modal-sheet{background:#fff;width:min(100%,980px);max-height:92vh;overflow:auto;border-radius:18px 18px 0 0;padding:16px;box-shadow:0 -10px 35px #0003}.modal-head{position:sticky;top:-16px;background:#fff;z-index:2;display:flex;justify-content:space-between;align-items:flex-start;border-bottom:1px solid var(--line);padding:4px 0 12px;margin-bottom:12px}.modal-head h2{font-size:1.08rem;margin:2px 0}.modal-head p{font-size:.75rem;color:var(--muted);margin:2px 0}.modal-head button{border-radius:50%;width:38px;height:38px;min-height:38px;padding:0;background:#eef4f8;color:var(--navy);font-size:1.4rem}.table-wrap{overflow:auto}table{border-collapse:collapse;width:100%;font-size:.76rem}th,td{border-bottom:1px solid #e6edf3;padding:9px 8px;text-align:left;vertical-align:top;white-space:nowrap}th{position:sticky;top:56px;background:#f4f7fa;color:#486581}.empty{text-align:center;color:var(--muted);padding:25px}.student-list{display:flex;flex-direction:column;gap:7px;margin-top:12px}.student-row{display:grid;grid-template-columns:52px 1fr auto;gap:9px;align-items:center;background:#f8fbfd;border:1px solid var(--line);border-radius:11px;padding:10px;color:var(--ink);text-align:left}.student-row .class{font-size:.7rem;font-weight:800;color:var(--navy)}.student-row b{font-size:.83rem}.student-row small{display:block;color:var(--muted)}.student-row .arrow{color:var(--navy)}.timeline{display:flex;flex-direction:column;gap:9px}.timeline article{border-left:4px solid var(--blue);background:#f8fbfd;border-radius:10px;padding:10px}.timeline h3{font-size:.8rem;margin:0}.timeline p{font-size:.76rem;margin:4px 0}.timeline small{color:var(--muted)}#status{position:fixed;left:12px;right:12px;top:max(10px,env(safe-area-inset-top));z-index:5000;transform:translateY(-150%);transition:.2s;background:#174e78;color:#fff;border-radius:10px;padding:11px 13px;box-shadow:0 7px 25px #0004;font-size:.82rem;font-weight:700}#status.show{transform:translateY(0)}#status.error{background:#a13b25}#status.ok{background:#187647}@media(max-width:720px){.metric-grid{grid-template-columns:repeat(2,1fr)}.monitor-grid{grid-template-columns:repeat(2,1fr)}.filter-grid,.report-grid{grid-template-columns:1fr}.topbar h1{font-size:1.08rem}.readonly{display:none}}@media(max-width:430px){.monitor-grid{grid-template-columns:1fr}.metric strong{font-size:1.42rem}.modal-sheet{padding:13px}.sync-steps{grid-template-columns:1fr}}
-</style>
+  <style>:root{
+  --navy:#173d62;--ink:#203248;--muted:#596776;--line:#d5e0ea;--bg:#f3f6f9;--white:#fff;
+  --green:#1e7a46;--amber:#9a6700;--red:#a13b25;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;background:var(--bg);color:var(--ink);
+  font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  padding-bottom:env(safe-area-inset-bottom);
+}
+.topbar{
+  padding:16px max(14px,env(safe-area-inset-left));
+  padding-top:max(16px,env(safe-area-inset-top));
+  background:linear-gradient(135deg,#173d62,#2a5f8f);color:#fff;
+  box-shadow:0 4px 16px #173d6230;
+}
+.topbar small{letter-spacing:.12em;font-size:.65rem;font-weight:800;opacity:.8}
+.topbar h1{margin:2px 0 0;font-size:1.2rem}
+.topbar p{margin:4px 0 0;font-size:.8rem;opacity:.88}
+main{max-width:640px;margin:0 auto;padding:14px 12px 40px}
+.card{
+  background:#fff;border:1px solid var(--line);border-radius:14px;
+  box-shadow:0 4px 14px #173d620a;padding:16px;margin:0 0 12px;
+}
+.card h2{margin:0 0 8px;font-size:1.05rem;color:var(--navy)}
+.hint{color:var(--muted);font-size:.82rem;margin:0 0 12px}
+label{display:flex;flex-direction:column;gap:6px;font-size:.78rem;font-weight:750;color:#486581;margin:10px 0}
+input,select{
+  width:100%;border:1px solid #cbd8e3;border-radius:10px;background:#fff;
+  font:inherit;min-height:46px;padding:10px 12px;color:var(--ink);
+}
+button{
+  border:0;border-radius:10px;background:var(--navy);color:#fff;
+  min-height:46px;padding:11px 14px;font-weight:750;font-size:.92rem;line-height:1.2;font-family:inherit;cursor:pointer;width:100%;margin:6px 0 0;
+}
+button:disabled{opacity:.45}
+button.secondary{background:#eef3f8;color:var(--navy)}
+.brand-mark{
+  width:48px;height:48px;border-radius:14px;display:grid;place-items:center;
+  background:var(--navy);color:#fff;font-size:1.4rem;font-weight:900;margin-bottom:10px;
+}
+.login-card{max-width:420px;margin:28px auto}
+.student-switch{display:flex;flex-direction:column;gap:8px;margin:10px 0}
+.student-chip{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  text-align:left;background:#f7fafc;border:1.5px solid var(--line);border-radius:12px;
+  padding:12px 14px;color:var(--ink);width:100%;margin:0;
+}
+.student-chip.active{border-color:#4da3ff;background:#eef6fc;box-shadow:0 0 0 2px #4da3ff30}
+.student-chip b{display:block;font-size:.95rem}
+.student-chip small{color:var(--muted);font-size:.75rem}
+.meta-row{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 12px}
+.badge{
+  display:inline-block;font-size:.72rem;font-weight:800;padding:5px 9px;border-radius:999px;
+  background:#edf4fa;color:var(--navy);
+}
+.badge.warn{background:#fff4e0;color:var(--amber)}
+.badge.ok{background:#e6f4ea;color:var(--green)}
+.section{margin:16px 0 8px}
+.section h3{margin:0 0 6px;font-size:.95rem;color:var(--navy)}
+.section .note{font-size:.78rem;color:var(--muted);margin:0 0 8px}
+.section .warning{font-size:.8rem;color:var(--amber);margin:0 0 8px}
+.table-wrap{overflow:auto;border:1px solid var(--line);border-radius:10px}
+table{width:100%;border-collapse:collapse;font-size:.8rem}
+th,td{padding:8px 9px;border-bottom:1px solid #e8eef3;text-align:left;vertical-align:top}
+th{background:#edf4fa;color:#486581;font-weight:750;white-space:nowrap}
+.empty-state{text-align:center;padding:28px 12px;color:var(--muted)}
+.empty-state strong{display:block;color:var(--navy);margin-bottom:6px}
+#status{
+  position:fixed;left:12px;right:12px;top:max(10px,env(safe-area-inset-top));z-index:5000;
+  transform:translateY(-150%);transition:.2s;background:#174e78;color:#fff;border-radius:10px;
+  padding:11px 13px;box-shadow:0 7px 25px #0004;font-size:.82rem;font-weight:700;
+}
+#status.show{transform:translateY(0)}
+#status.err{background:#a13b25}
+#status.ok{background:#187647}
+.logout-row{margin-top:18px}
+footer{text-align:center;padding:8px;color:var(--muted);font-size:.72rem}
+
+.table-wrap.exam-scroll{
+  overflow-x:auto;-webkit-overflow-scrolling:touch;
+  margin:8px 0 4px;border:1px solid var(--line);border-radius:10px;
+  max-width:100%;
+}
+.exam-table{min-width:720px;font-size:.72rem}
+.exam-table th.subj-head{text-align:center;background:#dceaf6;font-size:.7rem}
+.exam-table th.subh{text-align:center;background:#e8f1f8;font-size:.65rem;padding:4px 5px}
+.exam-table td.num{text-align:center;white-space:nowrap;font-variant-numeric:tabular-nums}
+.exam-table td.net,.exam-table td.total-net{font-weight:700;color:var(--navy)}
+.exam-table td.absent{text-align:center;color:var(--amber);font-weight:800}
+.exam-table td.exam-name{font-weight:700;max-width:140px}
+.exam-table td.exam-date{white-space:nowrap;font-size:.68rem;color:var(--muted)}
+.scroll-hint{font-size:.72rem;color:var(--muted);margin:0 0 10px}
+.exam-cards{display:none;flex-direction:column;gap:10px;margin-top:8px}
+.exam-card{
+  border:1px solid var(--line);border-radius:12px;padding:12px;background:#fafcfe;
+}
+.exam-card-title{font-weight:800;color:var(--navy);margin-bottom:4px}
+.exam-card-meta{font-size:.78rem;color:var(--muted);margin-bottom:8px}
+.subj-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.subj-chip{
+  background:#fff;border:1px solid #e2eaf1;border-radius:10px;padding:8px 10px;
+}
+.subj-name{font-size:.72rem;font-weight:800;color:#486581;margin-bottom:2px}
+.subj-stats{font-size:.78rem;line-height:1.35}
+@media (max-width:640px){
+  .exam-scroll{display:none}
+  .exam-cards{display:flex}
+  .scroll-hint{display:none}
+}
+@media (min-width:641px){
+  .exam-cards{display:none}
+}
+
+/* ── Rapor merkezi: dikdörtgen düğmeler, paneller, öğrenci fotoğrafı ── */
+.hub-btn{
+  width:100%;min-height:58px;margin:0 0 10px;border-radius:12px;
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  text-align:left;padding:10px 16px;background:linear-gradient(135deg,#173d62,#24557f);color:#fff;
+  box-shadow:0 4px 12px #173d6226;transition:transform .12s ease,box-shadow .12s ease;
+}
+.hub-btn:active{transform:scale(.985)}
+.hub-btn span{display:flex;flex-direction:column;gap:2px;min-width:0}
+.hub-btn small{font-size:.66rem;letter-spacing:.09em;opacity:.78;font-weight:750}
+.hub-btn strong{font-size:.98rem;font-weight:800}
+.hub-btn em{font-style:normal;font-size:.72rem;opacity:.82;font-weight:600}
+.hub-btn em:empty{display:none}
+.hub-btn.hub-main{min-height:68px;background:linear-gradient(135deg,#0f2f4e,#2a6296)}
+.hub-btn[aria-expanded="true"]{box-shadow:0 0 0 2px #4da3ff55,0 6px 16px #173d6233}
+.hub-badge{
+  flex:none;background:#ffd166;color:#4a3300;font-size:.7rem;font-weight:850;
+  padding:5px 10px;border-radius:999px;animation:hubPulse 1.6s ease-in-out infinite;
+}
+.hub-dot{flex:none;width:12px;height:12px;border-radius:50%;background:#ffd166;box-shadow:0 0 0 4px #ffd16644;animation:hubPulse 1.6s ease-in-out infinite}
+.hub-dot[hidden],.hub-badge[hidden]{display:none}
+@keyframes hubPulse{50%{transform:scale(1.12);opacity:.8}}
+.hub-title{margin:18px 2px 8px;font-size:.78rem;font-weight:800;letter-spacing:.08em;color:var(--muted);text-transform:uppercase}
+.hub-panel{margin:-2px 0 12px;transform-origin:top center}
+.hub-panel.hub-open{animation:hubOpen .26s cubic-bezier(.2,.8,.2,1)}
+@keyframes hubOpen{from{opacity:0;transform:scale(.96) translateY(-8px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.hub-panel.hub-open,.hub-badge,.hub-dot{animation:none}}
+
+.stu-head{display:flex;align-items:center;gap:14px;margin:0 0 10px}
+.stu-photo{
+  flex:none;width:96px;height:112px;border-radius:16px;overflow:hidden;
+  background:linear-gradient(135deg,#dfe9f3,#c4d6e8);border:1px solid var(--line);
+  display:grid;place-items:center;color:var(--navy);font-size:1.9rem;font-weight:850;
+}
+.stu-photo img{width:100%;height:100%;object-fit:cover;display:block}
+.stu-info{display:flex;flex-direction:column;gap:3px;min-width:0}
+.stu-info strong{font-size:1.08rem;color:var(--navy)}
+.stu-info small{color:var(--muted);font-size:.8rem}
+
+.dhead{display:flex;flex-direction:column;gap:2px;margin:0 0 8px}
+.dhead h2{margin:0}
+.dhead small{color:var(--muted);font-size:.74rem}
+.dcard{border:1px solid var(--line);border-radius:12px;background:#fafcfe;padding:12px;margin:0 0 10px}
+.dcard header{display:flex;flex-direction:column;gap:2px;margin-bottom:8px}
+.dcard header strong{color:var(--navy);font-size:.95rem}
+.dcard header small,.dfoot{color:var(--muted);font-size:.72rem}
+.dfoot{display:block;margin-top:6px}
+.dtotal{display:flex;justify-content:space-between;align-items:center;background:#eaf3fb;border-radius:10px;padding:8px 12px;margin-bottom:8px;color:var(--navy)}
+.dtotal b{font-size:1.25rem}
+.dsub-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.dsub{background:#fff;border:1px solid #e2eaf1;border-radius:10px;padding:8px 10px}
+.dsub-name{font-size:.72rem;font-weight:800;color:#486581;margin-bottom:3px}
+.dsub-stats{display:flex;flex-wrap:wrap;gap:4px 8px;font-size:.78rem;font-variant-numeric:tabular-nums}
+.s-d{color:var(--green);font-weight:750}.s-y{color:var(--red);font-weight:750}.s-b{color:#6b7886;font-weight:750}.s-n{color:var(--navy)}
+.qbar{display:flex;height:6px;border-radius:99px;overflow:hidden;background:#e8eef3;margin-top:6px}
+.qbar i{display:block;height:100%}.q-d{background:#2e9c5f}.q-y{background:#c4553a}.q-b{background:#b6c1cc}
+.absent{color:var(--amber);font-weight:800;font-size:.8rem}
+.muted{color:var(--muted)}
+.kv{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:5px 0;border-bottom:1px dashed #e3eaf0;font-size:.82rem}
+.kv:last-of-type{border-bottom:0}
+.vb{display:inline-block;background:#e6f4ea;color:var(--green);font-weight:800;font-size:.76rem;padding:3px 10px;border-radius:999px;max-width:60%;text-align:right}
+.vb-empty{background:#eef3f8;color:#6b7886}
+.dtext{margin:0;font-size:.88rem}
+.chips{display:flex;gap:6px;overflow-x:auto;padding:2px 0 10px;-webkit-overflow-scrolling:touch}
+.chip{
+  flex:none;width:auto;min-height:34px;margin:0;padding:6px 12px;border-radius:999px;
+  background:#eef3f8;color:var(--navy);font-size:.78rem;border:1px solid var(--line);
+}
+.chip.on{background:var(--navy);color:#fff;border-color:var(--navy)}
+
+.drank{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
+.drank div{display:flex;justify-content:space-between;align-items:center;background:#f1f6fb;border:1px solid #dbe6f0;border-radius:10px;padding:7px 12px;color:var(--navy);font-size:.8rem;font-weight:700}
+.drank b{font-size:1.1rem}
+.exam-table td.rank{font-weight:800;color:var(--navy)}</style>
 </head>
 <body>
   <div id="status" role="status" aria-live="polite"></div>
   <header class="topbar">
     <div>
       <small>VİZYONEDU</small>
-      <h1>Kurum İzleme Merkezi</h1>
+      <h1>Kurum İzleme Merkezi <small style="font-size:.55em;opacity:.7;letter-spacing:0">s.2026-10-06c</small></h1>
       <p id="managerLine">Müdür mobil portalı · Salt okunur</p>
     </div>
     <span class="readonly">GÖRÜNTÜLEME</span>
@@ -50,6 +237,8 @@
         </div>
         <button id="btnRefresh" type="button" class="secondary">Yenile</button>
       </section>
+
+      <p class="hint bg-sync" id="bgSync" hidden aria-live="polite" style="margin:0 0 10px"></p>
 
       <section class="sync-progress" id="syncProgress" hidden aria-live="polite">
         <div class="sync-progress-head">
@@ -90,7 +279,7 @@
       <section class="panel system-panel">
         <div class="panel-title"><div><small>SİSTEM</small><h2>Veri Güncelliği</h2></div></div>
         <p id="systemStatus">—</p>
-        <p class="safe-note">Bu portal kayıt eklemez, değiştirmez, silmez veya Drive’a paket göndermez.</p>
+        <p class="safe-note">Bu portal kayıt eklemez, değiştirmez veya silmez.</p>
       </section>
 
       <button id="btnLogout" type="button" class="logout">Oturumu Kapat</button>
@@ -164,8 +353,12 @@
     statusTimer = setTimeout(function () { box.className = ''; }, 4200);
   }
 
-  async function api(body) {
-    body = Object.assign({},body,{pin:$('pin').value.trim(),session_token:mobileSession && mobileSession.session_token || ''});
+  var BUILD = '2026-10-06c';
+  function isAuthError(e) {
+    return !!e && (e.code === 'AUTH_REQUIRED' || /Oturum doğrulanamadı|AUTH_REQUIRED/i.test(String(e.message || e)));
+  }
+  async function rawCall(body) {
+    body = Object.assign({}, body, { pin: $('pin').value.trim(), session_token: mobileSession && mobileSession.session_token || '' });
     var reply;
     if (window.google && google.script && google.script.run) {
       reply = await new Promise(function (resolve, reject) {
@@ -184,8 +377,32 @@
       var text = await res.text();
       try { reply = JSON.parse(text); } catch (e) { throw new Error('Beklenmeyen yanıt: ' + text.slice(0, 200)); }
     }
-    if (!reply || !reply.ok) { var err = new Error((reply && reply.error) || 'İşlem başarısız'); err.code = reply && reply.code; throw err; }
+    if (!reply || !reply.ok) {
+      var err = new Error((reply && reply.error) || 'İşlem başarısız');
+      if (reply && reply.code) err.code = reply.code;
+      throw err;
+    }
     return reply;
+  }
+  var resumeFlight = null;
+  function resumeSession() {
+    if (resumeFlight) return resumeFlight;
+    resumeFlight = rawCall({ action: 'auth_resume', user_id: activeManager.user_id, device_token: mobileSession.device_token })
+      .then(function (session) { mobileSession = session; saveSession(); return session; })
+      .finally(function () { resumeFlight = null; });
+    return resumeFlight;
+  }
+  async function api(body) {
+    try {
+      return await rawCall(body);
+    } catch (e) {
+      // Oturum süresi dolduysa bu cihazda hatırlanan kimlikle sessizce yenile (şifre sorulmaz).
+      if (isAuthError(e) && String(body.action || '').indexOf('auth_') !== 0 && activeManager && mobileSession && mobileSession.device_token) {
+        await resumeSession();
+        return rawCall(body);
+      }
+      throw e;
+    }
   }
 
   function escapeHtml(value) {
@@ -210,7 +427,7 @@
     $('syncProgress').hidden = false;
     $('syncProgress').className = 'sync-progress';
     $('syncTitle').textContent = 'Kurum verileri hazırlanıyor…';
-    $('syncCurrent').textContent = 'Drive bağlantısı kuruluyor…';
+    $('syncCurrent').textContent = 'Veriler hazırlanıyor…';
     $('syncElapsed').textContent = '0 sn';
     $('syncSteps').innerHTML = progressLabels.map(function (label) {
       return '<span class="sync-step">' + escapeHtml(label) + '</span>';
@@ -273,7 +490,9 @@
     try {
       localStorage.setItem(KEY, JSON.stringify({
         pin: $('pin').value.trim(),
-        managerId: activeManager && activeManager.user_id
+        managerId: activeManager && activeManager.user_id,
+        user: activeManager || null,
+        session: mobileSession || null
       }));
     } catch (ignore) {}
   }
@@ -289,7 +508,7 @@
     function hex(buf){return Array.from(new Uint8Array(buf)).map(function(b){return ('0'+b.toString(16)).slice(-2);}).join('');}
     var signingKey = await crypto.subtle.importKey('raw',new TextEncoder().encode(hex(derived)),{name:'HMAC',hash:'SHA-256'},false,['sign']);
     var proof = hex(await crypto.subtle.sign('HMAC',signingKey,new TextEncoder().encode(challenge.challenge)));
-    return api({action:'auth_login',user_id:uid,challenge_id:challenge.challenge_id,proof:proof});
+    return api({action:'auth_login',user_id:uid,challenge_id:challenge.challenge_id,proof:proof,remember_device:true});
   }
   async function loadManagers() {
     notify('Müdür hesapları alınıyor…');
@@ -324,11 +543,12 @@
     $('loginCard').hidden = true;
     $('dashboard').hidden = false;
     $('managerPassword').value = '';
-    await refresh({ forceContext: true });
+    await openDashboard();
   }
 
   function logout() {
-    if (activeManager && mobileSession) api({action:'auth_logout',user_id:activeManager.user_id}).catch(function(){});
+    if (activeManager && mobileSession) rawCall({action:'auth_logout',user_id:activeManager.user_id,device_token:mobileSession.device_token || ''}).catch(function(){});
+    refreshToken++;
     mobileSession = null;
     activeManager = null;
     snapshot = null;
@@ -353,41 +573,99 @@
     return body;
   }
 
-  async function runStages(stages, operations, startIndex) {
+  // ---- Cihaz hafızası (IndexedDB; olmazsa localStorage; o da olmazsa hafızasız çalışır) ----
+  var dbPromise = null;
+  function idb() {
+    if (!dbPromise) dbPromise = new Promise(function (resolve, reject) {
+      try {
+        var r = indexedDB.open('vizyonedu_manager', 1);
+        r.onupgradeneeded = function () { r.result.createObjectStore('kv'); };
+        r.onsuccess = function () { resolve(r.result); };
+        r.onerror = function () { reject(r.error); };
+      } catch (e) { reject(e); }
+    });
+    return dbPromise;
+  }
+  function kvGet(key) {
+    return idb().then(function (db) {
+      return new Promise(function (resolve, reject) {
+        var q = db.transaction('kv').objectStore('kv').get(key);
+        q.onsuccess = function () { resolve(q.result || null); };
+        q.onerror = function () { reject(q.error); };
+      });
+    }).catch(function () {
+      try { return JSON.parse(localStorage.getItem('vzm:' + key) || 'null'); } catch (e) { return null; }
+    });
+  }
+  function kvSet(key, value) {
+    return idb().then(function (db) {
+      return new Promise(function (resolve, reject) {
+        var tx = db.transaction('kv', 'readwrite');
+        tx.objectStore('kv').put(value, key);
+        tx.oncomplete = function () { resolve(true); };
+        tx.onerror = function () { reject(tx.error); };
+      });
+    }).catch(function () {
+      try { localStorage.setItem('vzm:' + key, JSON.stringify(value)); } catch (e) {}
+      return false;
+    });
+  }
+  function cacheKey() {
+    return 'snap|' + activeManager.user_id + '|' + $('period').value + '|' + $('classFilter').value + '|' + $('subjectFilter').value;
+  }
+  function saveCache() {
+    if (!activeManager || !snapshot) return Promise.resolve();
+    return kvSet(cacheKey(), { savedAt: Date.now(), snapshot: snapshot });
+  }
+  function setBg(text, kind) {
+    var el = $('bgSync');
+    if (!el) return;
+    el.hidden = !text;
+    el.textContent = text || '';
+    el.className = 'hint bg-sync' + (kind ? ' ' + kind : '');
+  }
+  function putMetric(metric) {
+    var list = snapshot.metrics = snapshot.metrics || [];
+    for (var i = 0; i < list.length; i++) {
+      if (list[i].key === metric.key) { list[i] = metric; return; }
+    }
+    list.push(metric);
+  }
+  function wait(ms) { return new Promise(function (resolve) { setTimeout(resolve, ms); }); }
+
+  async function runStages(stages, operations, startIndex, silent) {
     var failed = 0;
     for (var i = 0; i < stages.length; i++) {
       var key = stages[i][0];
       var label = stages[i][1];
       var stepIndex = startIndex + i;
       progressIndex = stepIndex;
-      markStep(stepIndex, 'active');
+      if (!silent) markStep(stepIndex, 'active'); else setBg('Arkaplanda güncelleniyor: ' + label + '…');
       try {
         var part = await stageApi(commonBody({ stage: key }), label);
-        snapshot.metrics = (snapshot.metrics || []).filter(function (m) {
-          return m.key !== key;
-        });
-        snapshot.metrics.push(part.metric);
+        // İlk kullanımda sunucu paket dizinini birkaç turda kurar; bitene kadar sessizce sürdür.
+        for (var again = 0; part.pending > 0 && again < 40; again++) {
+          var msg = label + ' · veriler hazırlanıyor (' + part.pending + ' kayıt kaldı)…';
+          if (silent) setBg(msg); else $('syncCurrent').textContent = msg;
+          await wait(1500);
+          part = await stageApi(commonBody({ stage: key }), label);
+        }
+        putMetric(part.metric);
         operations.push({ label: label, detail: String(part.metric.value), ok: true });
-        markStep(stepIndex, 'done');
+        if (!silent) markStep(stepIndex, 'done');
         render(snapshot);
-        notify(label + ' tamamlandı.', 'ok');
+        saveCache();
+        if (!silent) notify(label + ' tamamlandı.', 'ok');
       } catch (error) {
         failed++;
         operations.push({ label: label, detail: 'Alınamadı', ok: false });
-        markStep(stepIndex, 'fail');
-        snapshot.metrics = (snapshot.metrics || []).filter(function (m) {
-          return m.key !== key;
-        });
-        snapshot.metrics.push({
-          key: key,
-          title: label,
-          value: '—',
-          subtitle: 'Bağlantı hatası · Yenile ile tekrar deneyin',
-          headers: [],
-          rows: []
-        });
-        render(snapshot);
-        notify(label + ' alınamadı; diğer işlemlere devam ediliyor.', 'error');
+        if (!silent) markStep(stepIndex, 'fail');
+        var had = (snapshot.metrics || []).some(function (m) { return m.key === key; });
+        if (!had && !silent) {
+          putMetric({ key: key, title: label, value: '—', subtitle: 'Bağlantı hatası · Yenile ile tekrar deneyin', headers: [], rows: [] });
+          render(snapshot);
+        }
+        if (!silent) notify(label + ' alınamadı; diğer işlemlere devam ediliyor.', 'error');
       }
     }
     return failed;
@@ -395,31 +673,36 @@
 
   /**
    * options.forceContext: atama context'ini sunucuda yenile (ilk giriş / Yenile)
+   * options.silent: hafızadaki veri ekranda kalır; yeni veri arkaplanda sessizce gelir
    */
   async function refresh(options) {
     options = options || {};
+    var silent = !!options.silent;
     if (!activeManager) throw new Error('Müdür oturumu bulunamadı.');
-    startProgress();
-    notify('Öğretmen listesi alınıyor…');
-    markStep(0, 'active');
+    var token = ++refreshToken;
+    if (silent) setBg('Arkaplanda güncelleniyor…'); else { startProgress(); notify('Öğretmen listesi alınıyor…'); markStep(0, 'active'); }
 
     var base;
     try {
       base = await stageApi(
-        commonBody({
-          stage: 'base',
-          refresh_context: options.forceContext ? 1 : 0
-        }),
+        commonBody({ stage: 'base', refresh_context: options.forceContext ? 1 : 0 }),
         'Öğretmen listesi'
       );
     } catch (error) {
+      if (isAuthError(error)) { sessionLost(); return; }
+      if (silent) { setBg('Güncelleme alınamadı; hafızadaki veri gösteriliyor. Yenile ile tekrar deneyin.', 'error'); return; }
       failProgress(error);
       throw error;
     }
+    if (token !== refreshToken) return;   // kullanıcı bu arada filtre değiştirdi
 
-    snapshot = Object.assign({}, base, { metrics: [], students: [] });
+    if (silent && snapshot) {
+      snapshot = Object.assign({}, snapshot, base, { metrics: snapshot.metrics || [], students: snapshot.students || [] });
+    } else {
+      snapshot = Object.assign({}, base, { metrics: [], students: [] });
+    }
     render(snapshot);
-    markStep(0, 'done');
+    if (!silent) markStep(0, 'done');
 
     var teachers = base.teachers || [];
     var operations = [{
@@ -430,22 +713,18 @@
     }];
 
     // 1) Her öğretmenin ataması ayrı istek — zaman aşımını önler
-    markStep(1, 'active');
+    if (!silent) markStep(1, 'active');
     var teacherFailed = 0;
     for (var ti = 0; ti < teachers.length; ti++) {
+      if (token !== refreshToken) return;
       var teacher = teachers[ti];
       var tLabel = (teacher.display_name || teacher.user_id || 'Öğretmen') +
         ' (' + (ti + 1) + '/' + teachers.length + ')';
-      if ($('syncCurrent')) {
-        $('syncCurrent').textContent = 'Atama yükleniyor: ' + tLabel;
-      }
+      if (silent) setBg('Arkaplanda güncelleniyor: atama ' + tLabel + '…');
+      else if ($('syncCurrent')) $('syncCurrent').textContent = 'Atama yükleniyor: ' + tLabel;
       try {
         var part = await stageApi(
-          commonBody({
-            stage: 'teacher_assign',
-            teacher_id: teacher.user_id,
-            refresh_context: options.forceContext ? 1 : 0
-          }),
+          commonBody({ stage: 'teacher_assign', teacher_id: teacher.user_id, refresh_context: options.forceContext ? 1 : 0 }),
           tLabel
         );
         snapshot.counts = part.counts || snapshot.counts;
@@ -462,28 +741,64 @@
         });
       } catch (errT) {
         teacherFailed++;
-        operations.push({
-          label: 'Atama: ' + (teacher.display_name || teacher.user_id),
-          detail: 'Alınamadı',
-          ok: false
-        });
-        notify(tLabel + ' ataması alınamadı; devam ediliyor.', 'error');
+        operations.push({ label: 'Atama: ' + (teacher.display_name || teacher.user_id), detail: 'Alınamadı', ok: false });
+        if (!silent) notify(tLabel + ' ataması alınamadı; devam ediliyor.', 'error');
       }
     }
-    markStep(1, teacherFailed ? 'fail' : 'done');
+    if (!silent) markStep(1, teacherFailed ? 'fail' : 'done');
+    saveCache();
 
-    // 2) Kritik metrikler
+    // 2) Kritik metrikler  3) İkincil metrikler
     var failed = teacherFailed;
-    failed += await runStages(STAGE_PRIMARY, operations, 2);
-    // 3) İkincil metrikler
-    failed += await runStages(STAGE_SECONDARY, operations, 2 + STAGE_PRIMARY.length);
+    failed += await runStages(STAGE_PRIMARY, operations, 2, silent);
+    if (token !== refreshToken) return;
+    failed += await runStages(STAGE_SECONDARY, operations, 2 + STAGE_PRIMARY.length, silent);
+    if (token !== refreshToken) return;
 
+    snapshot.generated_at = snapshot.generated_at || new Date().toISOString();
+    snapshot.cached_at = Date.now();
+    await saveCache();
+    if (silent) {
+      setBg(failed ? ('Güncelleme kısmen tamamlandı (' + failed + ' bölüm alınamadı); mevcut veri korundu. Yenile ile tekrar deneyin.') : 'Tüm veriler alındı · güncel: ' + new Date().toLocaleString('tr-TR'), failed ? 'error' : 'ok');
+      return;
+    }
     finishProgress(operations, failed);
     if (failed) {
       notify('Kurum sayfası açıldı; ' + failed + ' adımda hata oluştu.', 'error');
     } else {
-      notify('Tüm öğretmen verileri yüklendi. Sonraki girişte önbellek kullanılır.', 'ok');
+      notify('Tüm öğretmen verileri yüklendi. Sonraki açılışta hafızadan gösterilir.', 'ok');
     }
+  }
+
+  /**
+   * Açılış/filtre/Yenile: hafızada veri varsa hemen onu göster, yenisini arkaplanda getir.
+   * Hafıza yoksa (ilk kurulum) tüm veriyi ilerleme göstergesiyle alır ve hafızaya yazar.
+   */
+  var refreshToken = 0;
+  async function openDashboard(opts) {
+    opts = opts || {};
+    var cached = opts.manual ? null : await kvGet(cacheKey());
+    if (!cached && opts.manual && snapshot && snapshot.metrics && snapshot.metrics.length) {
+      // Yenile: ekrandaki veri kalsın, yenisi arkaplanda gelsin
+      return refresh({ silent: true, forceContext: true });
+    }
+    if (cached && cached.snapshot && cached.snapshot.counts && cached.snapshot.filters) {
+      snapshot = cached.snapshot;
+      $('syncProgress').hidden = true;
+      render(snapshot);
+      var age = Date.now() - (cached.savedAt || 0);
+      setBg('Hafızadan gösteriliyor (' + formatDate(cached.savedAt) + ') · arkaplanda güncelleniyor…');
+      refresh({ silent: true, forceContext: age > 6 * 3600 * 1000 }).catch(function (e) {
+        setBg('Güncelleme alınamadı: ' + (e && e.message || e), 'error');
+      });
+      return;
+    }
+    // İlk kurulum da sessiz: panel hemen açılır, veriler geldikçe kartlar eklenir.
+    $('syncProgress').hidden = true;
+    snapshot = null;
+    $('monitorGrid').innerHTML = '';
+    setBg('İlk kurulum: veriler arkaplanda alınıyor, geldikçe burada görünecek…');
+    return refresh({ silent: true, forceContext: true });
   }
 
   function refillSelect(select, items, valueFn, label) {
@@ -522,7 +837,7 @@
     $('systemStatus').textContent =
       (data.system && data.system.mode ? data.system.mode : 'Salt okunur') +
       ' · ' + (data.system && data.system.assignment_users != null ? data.system.assignment_users : '—') +
-      ' öğretmen ataması · ' + formatDate(data.system && data.system.last_refresh);
+      ' öğretmen ataması · ' + formatDate(data.system && data.system.last_refresh) + ' · s.' + BUILD;
   }
 
   function openMetric(metric) {
@@ -566,6 +881,21 @@
     notify('Bu gösterge henüz yüklenmedi. Yenile’ye basın.', 'error');
   }
 
+  function sessionLost() {
+    refreshToken++;
+    mobileSession = null;
+    snapshot = null;
+    $('dashboard').hidden = true;
+    $('loginCard').hidden = false;
+    try {
+      var saved = JSON.parse(localStorage.getItem(KEY) || '{}');
+      saved.session = null;
+      localStorage.setItem(KEY, JSON.stringify(saved));
+    } catch (ignore) {}
+    notify('Oturum süresi doldu; şifrenizi bir kez girin, bu cihazda hatırlanır.', 'error');
+    loadManagers().then(function () { if (activeManager && managers[activeManager.user_id]) $('managerId').value = activeManager.user_id; }).catch(function () {});
+  }
+
   function renderStudents() {
     var q = String(($('studentSearch') && $('studentSearch').value) || '').trim().toLowerCase();
     var list = (snapshot && snapshot.students) || [];
@@ -594,20 +924,10 @@
     $('studentDetailTitle').textContent = student.student_name || student.student_no;
     $('studentDetailLine').textContent =
       (student.class_code || '') + ' · No ' + (student.student_no || '');
-    $('studentDetailRows').innerHTML = '<p>Yükleniyor…</p>';
-    $('studentDetailModal').hidden = false;
-    try {
-      var data = await api({
-        action: 'manager_student_detail',
-        user_id: activeManager.user_id,
-        student_no: student.student_no
-      });
-      var rows = data.rows || [];
-      if (!rows.length) {
-        $('studentDetailRows').innerHTML = '<p class="empty">Kayıt yok.</p>';
-        return;
-      }
-      $('studentDetailRows').innerHTML = rows.map(function (r) {
+    var dKey = 'det|' + activeManager.user_id + '|' + student.student_no;
+    function paint(rows, note) {
+      if (!rows.length) { $('studentDetailRows').innerHTML = '<p class="empty">Kayıt yok.</p>'; return; }
+      $('studentDetailRows').innerHTML = (note ? '<p class="hint">' + escapeHtml(note) + '</p>' : '') + rows.map(function (r) {
         return '<article class="timeline-item">' +
           '<small>' + escapeHtml(r.channel || '') + ' · ' + escapeHtml(r.subject_code || '') + '</small>' +
           '<strong>' + escapeHtml(r.description || '') + '</strong>' +
@@ -615,8 +935,22 @@
           '<span>' + escapeHtml(formatDate(r.updated_at)) + '</span>' +
           '</article>';
       }).join('');
+    }
+    $('studentDetailRows').innerHTML = '<p>Yükleniyor…</p>';
+    $('studentDetailModal').hidden = false;
+    var cached = await kvGet(dKey), shown = false;
+    if (cached && cached.rows) { paint(cached.rows, 'Hafızadan gösteriliyor · arkaplanda güncelleniyor…'); shown = true; }
+    try {
+      var data = await api({
+        action: 'manager_student_detail',
+        user_id: activeManager.user_id,
+        student_no: student.student_no
+      });
+      var rows = data.rows || [];
+      kvSet(dKey, { savedAt: Date.now(), rows: rows });
+      paint(rows, '');
     } catch (e) {
-      $('studentDetailRows').innerHTML = '<p class="empty">' + escapeHtml(e.message || e) + '</p>';
+      if (!shown) $('studentDetailRows').innerHTML = '<p class="empty">' + escapeHtml(e.message || e) + '</p>';
     }
   }
 
@@ -631,17 +965,11 @@
   $('btnLoadManagers').onclick = function () { run(this, loadManagers); };
   $('btnLogin').onclick = function () { run(this, login); };
   $('btnRefresh').onclick = function () {
-    run(this, function () { return refresh({ forceContext: true }); });
+    run(this, function () { return openDashboard({ manual: true }); });
   };
-  $('period').onchange = function () {
-    run(null, function () { return refresh({ forceContext: true }); });
-  };
-  $('classFilter').onchange = function () {
-    run(null, function () { return refresh({ forceContext: true }); });
-  };
-  $('subjectFilter').onchange = function () {
-    run(null, function () { return refresh({ forceContext: true }); });
-  };
+  $('period').onchange = function () { run(null, function () { return openDashboard(); }); };
+  $('classFilter').onchange = function () { run(null, function () { return openDashboard(); }); };
+  $('subjectFilter').onchange = function () { run(null, function () { return openDashboard(); }); };
   $('btnStudents').onclick = function () {
     $('studentModal').hidden = false;
     renderStudents();
@@ -662,8 +990,18 @@
   try {
     var saved = {};
     try { saved = JSON.parse(localStorage.getItem(KEY) || sessionStorage.getItem(KEY) || '{}'); } catch (ignore) { saved = {}; }
-    if (saved.pin) {
-      $('pin').value = saved.pin;
+    if (saved.pin) $('pin').value = saved.pin;
+    if (saved.pin && saved.session && saved.session.session_token && saved.user && saved.user.user_id) {
+      // Bu cihazda daha önce giriş yapıldı: şifre sormadan hafızadan aç, yenisini arkaplanda al.
+      mobileSession = saved.session;
+      activeManager = saved.user;
+      $('managerLine').textContent = (activeManager.display_name || '') + ' · Müdür · Salt okunur';
+      $('loginCard').hidden = true;
+      $('dashboard').hidden = false;
+      openDashboard().catch(function (e) {
+        if (isAuthError(e)) sessionLost(); else notify(e.message || String(e), 'error');
+      });
+    } else if (saved.pin) {
       loadManagers().then(function () {
         if (saved.managerId && managers[saved.managerId]) {
           $('managerId').value = saved.managerId;
