@@ -1,6 +1,6 @@
 {
-  "version": "1.03.25",
-  "installer_url": "https://github.com/ferudunkeskin-code/VizyonEdu-Releases/releases/download/v1.03.25/VizyonEdu_v1.03.25_Setup.exe",
-  "sha256": "8DF659F83ECF0EDE54431003A9425FEEE372BDF49A7AD47E9409FD15C72731A7",
-  "notes": "Drive Paket Denetleyici: tarih/adet/gönderen filtreleri, arka plan silme kuyruğu; SI ödev/kontrol parafsız kayıt silme; denetleyici test uyumu."
+  "version": "1.03.40",
+  "installer_url": "https://github.com/ferudunkeskin-code/VizyonEdu-Releases/releases/download/v1.03.40/VizyonEdu_v1.03.40_Setup.exe",
+  "sha256": "86a7c084b1f750069c93cca871068355ad9c6bea942d04ae5b02a766834abf49",
+  "notes": "Quiz Talep yenilendi: sınav grubu başına tek talep (Lise 12 + EA, Mezun + EA birlikte), varsayılan ve kalıp soru sayıları, havuzdan ana kazanıma göre soru seçimi, daha önce kullanılmış sorular için engel yerine uyarı, Hazır Soru Al (.vzep)."
 }
