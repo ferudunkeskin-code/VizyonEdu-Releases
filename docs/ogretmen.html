@@ -4904,7 +4904,7 @@ header h1{letter-spacing:.01em}
     var wPend = gdWorkPending(), wPhone = gdWorkPhone();
     function workRow(w) { return row(String(w.no).replace(/^0+/,'') + '|' + w.subj); }
     Object.keys(wPhone).forEach(function(k){
-      var w = wPhone[k]; if (wPend[k] || subjects.indexOf(w.subj) < 0 || !gdInRange(w.at)) return;
+      var w = wPhone[k]; if (wPend[k] || !gdInRange(w.at)) return;
       workRow(w).phone.X++; total.phone.X++;
     });
     Object.keys(wPend).forEach(function(k){
@@ -4921,7 +4921,7 @@ header h1{letter-spacing:.01em}
       Object.keys(gdCloud.work).forEach(function(k){wAll[k]=gdCloud.work[k];});
       Object.keys(wPhone).forEach(function(k){if(!wAll[k])wAll[k]=wPhone[k];});
       Object.keys(wAll).forEach(function(k){
-        if (wPend[k] || subjects.indexOf(wAll[k].subj) < 0) return;
+        if (wPend[k]) return;
         if (!gdCloud.work[k] !== !wPhone[k]) { workRow(wAll[k]).diff++; total.diff++; }
       });
     }
@@ -4982,6 +4982,14 @@ header h1{letter-spacing:.01em}
       }
     }
   }
+  // Öğretmenin buluttaki çalışma kayıtları; tarama bitmediyse null.
+  async function gdFetchWork(uid) {
+    $('gdMeta').textContent = 'Bulut okunuyor: Öğretmen Öğrenci Çalışması…';
+    var today = wrIstDate(new Date().toISOString()), from = wrIstDate(new Date(Date.now() - 390 * 864e5).toISOString());
+    var w = null, rounds = 0;
+    do { w = await gdApi({action:'teacher_work_report',user_id:uid,from:from,to:today}, 'Bulut okunuyor: Öğretmen Öğrenci Çalışması'); rounds++; } while (w.pending > 0 && rounds < 60);
+    return w.pending > 0 ? null : (w.rows || []);
+  }
   async function gdLoadCloud() {
     if (gdBusy || !requireTeacher()) return;
     gdBusy = true; $('btnGdCloud').disabled = true;
@@ -4995,13 +5003,10 @@ header h1{letter-spacing:.01em}
         snap.subjects[subjects[i]] = 1;
         (d.cells || []).forEach(function(c){snap.cells[c.key] = c;});
       }
-      $('gdMeta').textContent = 'Bulut okunuyor: Öğretmen Öğrenci Çalışması…';
-      var today = wrIstDate(new Date().toISOString()), from = wrIstDate(new Date(Date.now() - 390 * 864e5).toISOString());
-      var w = null, rounds = 0;
-      do { w = await gdApi({action:'teacher_work_report',user_id:uid,from:from,to:today}, 'Bulut okunuyor: Öğretmen Öğrenci Çalışması'); rounds++; } while (w.pending > 0 && rounds < 60);
-      if (w.pending > 0) snap.incomplete = true;
+      var w = await gdFetchWork(uid);
+      if (!w) snap.incomplete = true;
       else {
-        snap.work = {}; snap.workRows = w.rows || [];
+        snap.work = {}; snap.workRows = w;
         snap.workRows.forEach(function(r){snap.work[gdWorkKey(r.student_no,r.message,r.at)] = {no:r.student_no,subj:r.subject_code,at:r.at};});
       }
       snap.at = Date.now(); gdCloud = snap; gdRender();
@@ -5018,7 +5023,8 @@ header h1{letter-spacing:.01em}
         $('gdMeta').textContent = 'Buluttan yeniden alınıyor: ' + wrSubjectName(subjects[i]) + '…';
         await fetchHomeworkStatuses(subjects[i], true, true);
       }
-      if (gdCloud && gdCloud.workRows) wrJournalAdd(state.userId, gdCloud.workRows.map(function(r){
+      var workRows = (gdCloud && gdCloud.workRows) || await gdFetchWork(state.userId);
+      if (workRows) wrJournalAdd(state.userId, workRows.map(function(r){
         return { at: r.at, no: String(r.student_no), name: r.student_name || '', cls: '', subj: r.subject_code, msg: r.message };
       }));
     } catch(e) { log('Yeniden alma tamamlanamadı: ' + (e.message || e), false); }
