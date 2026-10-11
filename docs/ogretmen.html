@@ -846,14 +846,19 @@ header h1{letter-spacing:.01em}
 
 
 <style>
-  .test-block{border:1px solid #cbd5e1;border-radius:10px;padding:10px;margin:0 0 10px;background:#f8fafc}
-  .test-block strong{display:block;color:#173f67}
-  .test-block .test-line{display:flex;flex-wrap:wrap;gap:8px;align-items:flex-end;margin-top:6px}
-  .test-block label{margin:0;font-size:.8rem}
-  .test-block input{width:76px;min-height:40px;text-align:center}
-  .test-block .test-net{font-weight:700;min-width:150px}
-  .test-block .test-saved{font-size:.8rem;color:#475569;margin-top:4px}
-  .test-block button{min-height:40px;padding:6px 12px}
+  .test-block{border:1px solid #cbd5e1;border-radius:10px;padding:6px;margin:0 0 10px;background:#f8fafc}
+  .test-head{display:block;width:100%;text-align:left;background:none;border:0;box-shadow:none;color:#173f67;font-weight:700;padding:6px 4px;min-height:0;margin:0}
+  .test-row{border-top:1px solid #e2e8f0}
+  .test-summary{display:flex;width:100%;justify-content:space-between;gap:8px;align-items:center;background:none;border:0;box-shadow:none;color:#18324a;padding:8px 4px;min-height:0;margin:0;font-weight:400;text-align:left}
+  .test-summary .test-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;flex:1}
+  .test-summary .test-result{white-space:nowrap;color:#64748b}
+  .test-summary.filled .test-result{color:#187647;font-weight:700}
+  .test-line{display:flex;flex-wrap:wrap;gap:8px;align-items:flex-end;padding:4px 4px 8px}
+  .test-line label{margin:0;font-size:.8rem}
+  .test-line input{width:72px;min-height:40px;text-align:center}
+  .test-line .test-net{font-weight:700;min-width:130px}
+  .test-line button{min-height:40px;padding:6px 12px}
+  .test-saved{font-size:.8rem;color:#475569;padding:0 4px 6px}
 </style>
 <div id="extraTaskModal" class="modal-overlay" hidden>
   <div class="modal-sheet" role="dialog" aria-modal="true" aria-labelledby="extraTaskTitle">
@@ -3925,7 +3930,7 @@ header h1{letter-spacing:.01em}
     // Test türü ek görevler kazanım satırlarına değil, üstte ayrı bir sonuç kutusuna yazılır.
     var testTasks = studentExtras.filter(function (task) { return task.kind === 'test'; });
     studentExtras = studentExtras.filter(function (task) { return task.kind !== 'test'; });
-    testTasks.forEach(function (task) { rows.appendChild(renderTestBlock(task, no, code)); });
+    if (testTasks.length) rows.appendChild(renderTestSection(testTasks, no, code));
 
     (state.gains[code] || []).forEach(function (g) {
       var mainGain = g.item_name;
@@ -4043,13 +4048,33 @@ header h1{letter-spacing:.01em}
     var net = Math.round((d - y / 4) * 100) / 100;
     return (total ? 'Boş ' + Math.max(0, total - d - y) + ' · ' : '') + 'Net ' + String(net).replace('.', ',');
   }
-  function renderTestBlock(task, no, code) {
+  // Testler tek kutuda, her test tek satır. Satıra dokununca yalnız o testin giriş alanı açılır.
+  var testsCollapsed = null, openTestKey = '';
+  function renderTestSection(tasks, no, code) {
+    var done = tasks.filter(function (t) { return state.statuses[statusKey(no, code, extraStatusItemName(t, ''), 'Ok')]; }).length;
+    if (testsCollapsed === null) testsCollapsed = tasks.length > 4;
+    var box = document.createElement('div'); box.className = 'test-block';
+    var head = document.createElement('button'); head.type = 'button'; head.className = 'test-head';
+    head.textContent = (testsCollapsed ? '▸ ' : '▾ ') + 'Testler (' + tasks.length + ') · ' + done + ' sonuç girildi';
+    head.addEventListener('click', function () { testsCollapsed = !testsCollapsed; renderHomeworkRows(); });
+    box.appendChild(head);
+    if (!testsCollapsed) tasks.forEach(function (task) { box.appendChild(renderTestRow(task, no, code)); });
+    return box;
+  }
+  function renderTestRow(task, no, code) {
     var base = extraStatusItemName(task, '');
     var key = statusKey(no, code, base, 'Ok');
     var saved = state.statuses[key] || '', parsed = parseTestValue(saved), total = Number(task.question_count || 0);
-    var box = document.createElement('div'); box.className = 'test-block';
-    var head = document.createElement('strong');
-    head.textContent = (task.title || 'Test') + (total ? ' · ' + total + ' soru' : '');
+    var box = document.createElement('div'); box.className = 'test-row';
+    var head = document.createElement('button'); head.type = 'button'; head.className = 'test-summary' + (parsed ? ' filled' : '');
+    var name = document.createElement('span'); name.className = 'test-name';
+    name.textContent = (task.title || 'Test') + (total ? ' (' + total + ')' : '');
+    var res = document.createElement('span'); res.className = 'test-result';
+    res.textContent = parsed ? parsed.d + 'D ' + parsed.y + 'Y · ' + testNetText(parsed.d, parsed.y, 0) : (saved || 'sonuç gir');
+    head.appendChild(name); head.appendChild(res);
+    head.addEventListener('click', function () { openTestKey = openTestKey === key ? '' : key; renderHomeworkRows(); });
+    box.appendChild(head);
+    if (openTestKey !== key) return box;
     var line = document.createElement('div'); line.className = 'test-line';
     function field(label, value) {
       var wrap = document.createElement('label'); wrap.textContent = label;
@@ -4081,9 +4106,10 @@ header h1{letter-spacing:.01em}
         .catch(function (e) { log(e.message || String(e), false); });
     });
     line.appendChild(net); line.appendChild(save); line.appendChild(clear);
-    box.appendChild(head); box.appendChild(line);
+    box.appendChild(line);
     if (saved) { var note = document.createElement('div'); note.className = 'test-saved'; note.textContent = 'Kayıtlı: ' + saved; box.appendChild(note); }
     read();
+    setTimeout(function () { try { if (!parsed) dIn.focus(); } catch (ignoreFocus) {} }, 30);
     return box;
   }
   // result: {d,y} ya da null (sonucu sil). Ödev/kontrol işaretleriyle aynı kuyruktan gider.
@@ -4101,6 +4127,7 @@ header h1{letter-spacing:.01em}
       fetchHomeworkStatuses(code, true).catch(function () {});
     } });
     state.statuses[key] = preview;
+    openTestKey = '';
     writeState(); renderHomeworkRows();
     log(result ? 'Test sonucu kaydedildi.' : 'Test sonucu silindi.', true);
   }
