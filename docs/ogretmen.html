@@ -898,6 +898,20 @@ header h1{letter-spacing:.01em}
   </div>
 </div>
 
+<div id="topicGate" class="modal-overlay" hidden>
+  <div class="modal-sheet" role="dialog" aria-modal="true" aria-labelledby="topicGateTitle">
+    <strong id="topicGateTitle">Güncel işlenen konuyu onaylayın</strong>
+    <p class="hint">Aşağıdaki derslerde güncel konu iki haftadır güncellenmedi. Devam etmek için her dersin konusunu seçip onaylayın. Aynı konudaysanız yalnızca «Onayla»ya basın.</p>
+    <div id="topicGateList"></div>
+  </div>
+</div>
+<style>
+  .topic-gate-row{border-top:1px solid #e2e8f0;padding:10px 0}
+  .topic-gate-row strong{display:block;color:#173f67}
+  .topic-gate-row small{display:block;color:#64748b;margin:2px 0 6px}
+  .topic-gate-row select{width:100%;min-height:44px;margin-bottom:6px}
+</style>
+
 <div id="percentMenu" class="percent-menu" hidden>
       <div class="percent-sheet" role="dialog" aria-modal="true">
         <strong id="percentTitle">İlerleme seçin</strong>
@@ -1616,7 +1630,7 @@ header h1{letter-spacing:.01em}
       outbox.forEach(function(job){if(job.uid===uid && job.scope===session.scope_id)delete job.blocked;});
       persistOutbox(outbox.slice());
       loadingConfiguration=true;await synchronizeSetup({force:true,initial:true});
-      if(configurationReady()) {setBlocking(false);renderOutboxStatus();drainOutbox();}
+      if(configurationReady()) {setBlocking(false);renderOutboxStatus();drainOutbox();checkTopicFreshness(true);}
     } catch(e) {if(!loadingConfiguration || !state.configuration || !state.configuration.pending)setBlocking(false);throw e;}
   }
 
@@ -1853,6 +1867,86 @@ header h1{letter-spacing:.01em}
   async function refreshMainGainsBackground(opts) {
     return synchronizeSetup(opts || {});
   }
+
+  // ── Güncel konu güncelliği: iki haftadır güncellenmeyen ders varsa onay istenir ──
+  var TOPIC_MAX_AGE_MS = 14 * 86400000, topicGateCheckedAt = 0, topicGateBusy = false;
+  function staleTopicSubjects() {
+    var now = Date.now();
+    return ((state.assignments && state.assignments.subjects) || []).filter(function (s) {
+      if (!(state.gains[s.subject_code] || []).length) return false; // konu listesi yoksa seçim yapılamaz
+      var p = (state.progressBySubject || {})[s.subject_code];
+      var at = p && p.updated_at ? Date.parse(p.updated_at) : NaN;
+      return !(p && p.topic) || isNaN(at) || now - at > TOPIC_MAX_AGE_MS;
+    });
+  }
+  function renderTopicGate() {
+    var gate = $('topicGate'), list = $('topicGateList'); if (!gate || !list) return;
+    var stale = configurationReady() && rememberedIdentity() ? staleTopicSubjects() : [];
+    gate.hidden = !stale.length;
+    list.innerHTML = '';
+    stale.forEach(function (s) {
+      var code = s.subject_code, p = (state.progressBySubject || {})[code] || {};
+      var row = document.createElement('div'); row.className = 'topic-gate-row';
+      var name = document.createElement('strong'); name.textContent = formatSubjectLabel(s);
+      var info = document.createElement('small');
+      info.textContent = p.topic
+        ? 'Son kayıt: ' + p.topic + ' · ' + new Date(p.updated_at).toLocaleDateString('tr-TR') + (p.teacher_name ? ' · ' + p.teacher_name : '')
+        : 'Bu ders için güncel konu hiç girilmemiş.';
+      var select = document.createElement('select');
+      var blank = document.createElement('option'); blank.value = ''; blank.textContent = '— konu seçin —'; select.appendChild(blank);
+      (state.gains[code] || []).forEach(function (g) {
+        var o = document.createElement('option'); o.value = g.item_name; o.textContent = g.item_name; select.appendChild(o);
+      });
+      if (p.topic) select.value = p.topic;
+      var ok = document.createElement('button'); ok.type = 'button'; ok.textContent = 'Onayla';
+      ok.addEventListener('click', function () {
+        if (!select.value) { log('Önce konuyu seçin.', false); return; }
+        try { confirmTopic(code, select.value); } catch (e) { log(e.message || String(e), false); }
+      });
+      row.appendChild(name); row.appendChild(info); row.appendChild(select); row.appendChild(ok);
+      list.appendChild(row);
+    });
+  }
+  function confirmTopic(code, topic) {
+    if (!requireTeacher({ write: true })) return;
+    var uid = state.userId, at = new Date().toISOString();
+    var payload = { action: 'program_progress', user_id: uid, subject_code: code, current_topic: topic,
+      operation_at: at, initials: $('initials').value.trim() || state.initials || '' };
+    enqueueMutation('Güncel işlenen konu kaydı', payload, { onSuccess: function () {} });
+    progressEdits[code] = (progressEdits[code] || 0) + 1; delete progressDrafts[code];
+    state.progressBySubject = state.progressBySubject || {};
+    state.progressBySubject[code] = { topic: topic, updated_at: at, teacher_name: (teachers[uid] || {}).display_name || '', initials: payload.initials };
+    if (state.subjectCode === code) { state.topic = topic; if ($('topic') && $('subjectCode').value === code) $('topic').value = topic; }
+    writeState(); renderTopicGate();
+  }
+  // Buluttaki güncel konuları okur (masaüstünden yapılan güncelleme de sayılır), sonra kapıyı günceller.
+  // Bulut okunamazsa kapı AÇILMAZ: bağlantı sorunu öğretmeni kilitlememeli.
+  async function checkTopicFreshness(force) {
+    if (topicGateBusy || !configurationReady() || !rememberedIdentity()) return;
+    if (!force && Date.now() - topicGateCheckedAt < 30 * 60000) { renderTopicGate(); return; }
+    topicGateBusy = true;
+    var uid = state.userId, epoch = teacherEpoch;
+    try {
+      var d = await api({ action: 'fetch_program_progress', user_id: uid });
+      if (epoch !== teacherEpoch || uid !== state.userId) return;
+      state.progressBySubject = state.progressBySubject || {};
+      (d.items || []).forEach(function (item) {
+        ((state.assignments && state.assignments.subjects) || []).forEach(function (s) {
+          if (!catalogMatch(item.subject_code || item.catalog_subject_code, s.subject_code) || !item.current_topic) return;
+          var local = state.progressBySubject[s.subject_code];
+          if (local && local.updated_at && Date.parse(local.updated_at) >= Date.parse(item.updated_at)) return;
+          state.progressBySubject[s.subject_code] = { topic: String(item.current_topic), updated_at: String(item.updated_at || ''),
+            teacher_name: item.teacher_name || '', initials: item.updated_by_initials || '' };
+        });
+      });
+      topicGateCheckedAt = Date.now();
+      writeState(); renderTopicGate();
+    } catch (ignoreOffline) {
+    } finally { topicGateBusy = false; }
+  }
+
+  // Oturum kapanınca ya da kurulum bozulunca onay penceresi açık kalmasın.
+  setInterval(function () { var g = $('topicGate'); if (g && !g.hidden && !(configurationReady() && rememberedIdentity())) g.hidden = true; }, 3000);
 
   async function loadProgramProgressIntoForm(opts) {
     opts = opts || {};
@@ -6180,6 +6274,7 @@ header h1{letter-spacing:.01em}
       await synchronizeSetup();
       if(!configurationReady())return;
       drainOutbox();
+      checkTopicFreshness(false);
       await refreshQuizRequests(false);
       await runStartupCloudUpdate();
     } catch(e) { /* Ağ yoksa geçerli yerel kurulumla çalışmaya devam. Bilinen güncelleme kilidi korunur. */ }
