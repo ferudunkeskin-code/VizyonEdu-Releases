@@ -845,6 +845,16 @@ header h1{letter-spacing:.01em}
     </div>
 
 
+<style>
+  .test-block{border:1px solid #cbd5e1;border-radius:10px;padding:10px;margin:0 0 10px;background:#f8fafc}
+  .test-block strong{display:block;color:#173f67}
+  .test-block .test-line{display:flex;flex-wrap:wrap;gap:8px;align-items:flex-end;margin-top:6px}
+  .test-block label{margin:0;font-size:.8rem}
+  .test-block input{width:76px;min-height:40px;text-align:center}
+  .test-block .test-net{font-weight:700;min-width:150px}
+  .test-block .test-saved{font-size:.8rem;color:#475569;margin-top:4px}
+  .test-block button{min-height:40px;padding:6px 12px}
+</style>
 <div id="extraTaskModal" class="modal-overlay" hidden>
   <div class="modal-sheet" role="dialog" aria-modal="true" aria-labelledby="extraTaskTitle">
     <strong id="extraTaskTitle">Ek görev ekle</strong>
@@ -852,9 +862,19 @@ header h1{letter-spacing:.01em}
     <label>Görev başlığı
       <input id="extraTaskTitleInput" type="text" maxlength="80" placeholder="Örn. Sayfa 42 soruları" autocomplete="off">
     </label>
+    <label>Tür
+      <select id="extraTaskKind">
+        <option value="">Ödev / Kontrol (tarih ve paraf)</option>
+        <option value="test">Test (doğru / yanlış / net)</option>
+      </select>
+    </label>
+    <label id="extraTaskCountRow" hidden>Soru sayısı
+      <input id="extraTaskCount" type="number" inputmode="numeric" min="1" max="300" placeholder="Örn. 20">
+    </label>
     <div class="modal-actions">
       <button type="button" id="extraTaskApplyStudent">Yalnız seçili öğrenciye ekle</button>
       <button type="button" class="secondary" id="extraTaskApplyClass">Sınıfın tamamına ekle</button>
+      <button type="button" class="secondary" id="extraTaskApplyAll">Bu dersi alan tüm sınıflarıma ekle</button>
       <button type="button" class="secondary" id="extraTaskCancel">Vazgeç</button>
     </div>
   </div>
@@ -866,6 +886,7 @@ header h1{letter-spacing:.01em}
     <p class="hint" id="extraTaskManageHint"></p>
     <div id="extraTaskManageList"></div>
     <label class="check-line"><input type="checkbox" id="extraTaskManageClass"> Sınıftaki aynı başlıklı tüm görevlere uygula</label>
+    <label class="check-line"><input type="checkbox" id="extraTaskManageAll"> Bu dersi alan tüm sınıflarımdaki aynı başlıklı görevlere uygula</label>
     <div class="modal-actions">
       <button type="button" class="secondary" id="extraTaskManageClose">Kapat</button>
     </div>
@@ -3901,6 +3922,11 @@ header h1{letter-spacing:.01em}
         })
       : [];
 
+    // Test türü ek görevler kazanım satırlarına değil, üstte ayrı bir sonuç kutusuna yazılır.
+    var testTasks = studentExtras.filter(function (task) { return task.kind === 'test'; });
+    studentExtras = studentExtras.filter(function (task) { return task.kind !== 'test'; });
+    testTasks.forEach(function (task) { rows.appendChild(renderTestBlock(task, no, code)); });
+
     (state.gains[code] || []).forEach(function (g) {
       var mainGain = g.item_name;
       var row = document.createElement('div');
@@ -4007,6 +4033,78 @@ header h1{letter-spacing:.01em}
     updateDraftButtons();
   }
 
+  // «12D 3Y 11 Eki FK» → {d:12, y:3}; tanınmazsa null.
+  function parseTestValue(value) {
+    var m = /^(\d+)D\s+(\d+)Y\b/.exec(String(value || '').trim());
+    return m ? { d: Number(m[1]), y: Number(m[2]) } : null;
+  }
+  function testNetText(d, y, total) {
+    if (!(d >= 0) || !(y >= 0)) return '';
+    var net = Math.round((d - y / 4) * 100) / 100;
+    return (total ? 'Boş ' + Math.max(0, total - d - y) + ' · ' : '') + 'Net ' + String(net).replace('.', ',');
+  }
+  function renderTestBlock(task, no, code) {
+    var base = extraStatusItemName(task, '');
+    var key = statusKey(no, code, base, 'Ok');
+    var saved = state.statuses[key] || '', parsed = parseTestValue(saved), total = Number(task.question_count || 0);
+    var box = document.createElement('div'); box.className = 'test-block';
+    var head = document.createElement('strong');
+    head.textContent = (task.title || 'Test') + (total ? ' · ' + total + ' soru' : '');
+    var line = document.createElement('div'); line.className = 'test-line';
+    function field(label, value) {
+      var wrap = document.createElement('label'); wrap.textContent = label;
+      var input = document.createElement('input');
+      input.type = 'number'; input.inputMode = 'numeric'; input.min = '0'; if (total) input.max = String(total);
+      input.value = value === null ? '' : String(value);
+      wrap.appendChild(input); line.appendChild(wrap); return input;
+    }
+    var dIn = field('Doğru', parsed ? parsed.d : null), yIn = field('Yanlış', parsed ? parsed.y : null);
+    var net = document.createElement('span'); net.className = 'test-net';
+    var save = document.createElement('button'); save.type = 'button'; save.textContent = 'Kaydet';
+    var clear = document.createElement('button'); clear.type = 'button'; clear.className = 'secondary'; clear.textContent = 'Sil';
+    clear.hidden = !saved;
+    function read() {
+      var d = dIn.value === '' ? NaN : Number(dIn.value), y = yIn.value === '' ? NaN : Number(yIn.value);
+      var ok = Number.isInteger(d) && Number.isInteger(y) && d >= 0 && y >= 0 && (!total || d + y <= total);
+      net.textContent = ok ? testNetText(d, y, total) : ((dIn.value !== '' || yIn.value !== '') ? (total ? 'Doğru + yanlış en çok ' + total : 'Geçersiz sayı') : '');
+      save.disabled = !ok || (parsed && parsed.d === d && parsed.y === y);
+      return ok ? { d: d, y: y } : null;
+    }
+    dIn.addEventListener('input', read); yIn.addEventListener('input', read);
+    save.addEventListener('click', function () {
+      var r = read(); if (!r) return;
+      try { saveTestResult(task, no, code, base, key, r); } catch (e) { log(e.message || String(e), false); }
+    });
+    clear.addEventListener('click', function () {
+      uiConfirm({ title: 'Test sonucu silinsin mi?', message: '"' + (task.title || 'Test') + '" için girilen sonuç silinecek.', okText: 'Sil', cancelText: 'Vazgeç', danger: true })
+        .then(function (yes) { if (yes) saveTestResult(task, no, code, base, key, null); })
+        .catch(function (e) { log(e.message || String(e), false); });
+    });
+    line.appendChild(net); line.appendChild(save); line.appendChild(clear);
+    box.appendChild(head); box.appendChild(line);
+    if (saved) { var note = document.createElement('div'); note.className = 'test-saved'; note.textContent = 'Kayıtlı: ' + saved; box.appendChild(note); }
+    read();
+    return box;
+  }
+  // result: {d,y} ya da null (sonucu sil). Ödev/kontrol işaretleriyle aynı kuyruktan gider.
+  function saveTestResult(task, no, code, base, key, result) {
+    if (!requireTeacher({ write: true })) return;
+    var opt = $('homeworkStudent').selectedOptions[0], at = new Date().toISOString();
+    var preview = result ? (result.d + 'D ' + result.y + 'Y ' + previewStamp(0)) : '';
+    var change = { main_gain: base, item_type: 'Ok', operation: result ? 'set' : 'clear', percent: 0,
+      preview_value: preview, status_item_name: base, extra_task_id: task.task_id || '', operation_at: at };
+    if (result) change.test_result = { d: result.d, y: result.y };
+    var payload = { action: 'homework_status_batch', user_id: $('userId').value, subject_code: code,
+      class_code: $('homeworkClass').value, student_no: no, student_name: opt ? opt.textContent : '',
+      initials: $('initials').value.trim(), changes: [change] };
+    enqueueMutation('Test sonucu gönderimi', payload, { onSuccess: function () {
+      fetchHomeworkStatuses(code, true).catch(function () {});
+    } });
+    state.statuses[key] = preview;
+    writeState(); renderHomeworkRows();
+    log(result ? 'Test sonucu kaydedildi.' : 'Test sonucu silindi.', true);
+  }
+
   function bindCell(btn, target) {
     var started = 0, startX = 0, startY = 0, cancelled = false, leftCue = null, rightCue = null;
     function clear() {
@@ -4101,6 +4199,7 @@ header h1{letter-spacing:.01em}
     if (modal) modal.hidden = true;
     var input = $('extraTaskTitleInput');
     if (input) input.value = '';
+    if ($('extraTaskKind')) { $('extraTaskKind').value = ''; $('extraTaskCount').value = ''; $('extraTaskCountRow').hidden = true; }
   }
 
   function openExtraTaskModal() {
@@ -4130,7 +4229,15 @@ header h1{letter-spacing:.01em}
     setTimeout(function () { if (input) input.focus(); }, 50);
   }
 
-  async function submitExtraTask(applyClass) {
+  async function submitExtraTask(scope) {
+    var applyAll = scope === 'all', applyClass = scope === true || scope === 'class';
+    var kind = ($('extraTaskKind') && $('extraTaskKind').value === 'test') ? 'test' : '';
+    var questionCount = kind ? parseInt($('extraTaskCount').value, 10) : 0;
+    if (kind && !(questionCount >= 1 && questionCount <= 300)) {
+      log('Test için soru sayısını (1–300) girin.', false);
+      if ($('extraTaskCount')) $('extraTaskCount').focus();
+      return;
+    }
     if (!requireTeacher({ write: true })) return;
     var uid = $('userId').value || state.userId;
     var code = $('homeworkSubject').value;
@@ -4155,10 +4262,16 @@ header h1{letter-spacing:.01em}
 
     // Anında yerel ekleme (öğrenci veya sınıf)
     var targetNos = [String(no)];
-    if (applyClass) {
+    if (applyClass || applyAll) {
+      var subjectRow = ((state.assignments && state.assignments.subjects) || []).filter(function (s) { return s.subject_code === code; })[0];
+      var subjectClasses = (subjectRow && subjectRow.classes) || [];
       var classStudents = ((state.assignments && state.assignments.students) || []).filter(function (s) {
-        return String(s.class_code) === String(classCode);
+        return applyAll ? subjectClasses.indexOf(s.class_code) >= 0 : String(s.class_code) === String(classCode);
       });
+      if (applyAll && classStudents.length > 1) {
+        var sure = await uiConfirm({ title: 'Tüm sınıflara eklensin mi?', message: '"' + title + '" görevi bu dersi alan ' + classStudents.length + ' öğrenciye açılacak.', okText: 'Ekle', cancelText: 'Vazgeç' });
+        if (!sure) return;
+      }
       if (classStudents.length) {
         targetNos = classStudents.map(function (s) { return String(s.student_no); });
       }
@@ -4181,6 +4294,7 @@ header h1{letter-spacing:.01em}
         class_code: classCode,
         owner_user_id: uid,
         is_active: true,
+        kind: kind, question_count: questionCount,
         _localPending: true
       });
     }
@@ -4194,8 +4308,10 @@ header h1{letter-spacing:.01em}
       class_code: classCode,
       student_no: no,
       title: title,
-      apply_to_class: !!applyClass
+      apply_to_class: !!applyClass,
+      apply_to_all: !!applyAll
     };
+    if (kind) { payload.kind = kind; payload.question_count = questionCount; }
     enqueueMutation('Ek görev gönderimi', payload, {
       localTasks:localTasks,
       onSuccess: function (d) {
@@ -4270,13 +4386,15 @@ header h1{letter-spacing:.01em}
       log('Önce ders, sınıf ve öğrenci seçin.', false); return;
     }
     var chk = $('extraTaskManageClass'); if (chk) chk.checked = false;
+    if ($('extraTaskManageAll')) $('extraTaskManageAll').checked = false;
     renderExtraManage();
     $('extraTaskManageModal').hidden = false;
   }
   async function submitExtraUpdate(task, operation, newTitle) {
     var uid = $('userId').value || state.userId, code = $('homeworkSubject').value;
     var classCode = $('homeworkClass').value, no = $('homeworkStudent').value;
-    var applyClass = !!($('extraTaskManageClass') && $('extraTaskManageClass').checked);
+    var applyAll = !!($('extraTaskManageAll') && $('extraTaskManageAll').checked);
+    var applyClass = applyAll || !!($('extraTaskManageClass') && $('extraTaskManageClass').checked);
     var title = String(newTitle || '').trim();
     if (operation === 'rename') {
       if (!title) { log('Başlık boş olamaz.', false); return; }
@@ -4291,13 +4409,13 @@ header h1{letter-spacing:.01em}
       });
       var key = String(task.title || '').trim().toLocaleLowerCase('tr-TR');
       ids = ((state.extraTasks || {})[code] || []).filter(function (t) {
-        return !t._localPending && String(t.title || '').trim().toLocaleLowerCase('tr-TR') === key && inClass[String(t.student_no)];
+        return !t._localPending && String(t.title || '').trim().toLocaleLowerCase('tr-TR') === key && (applyAll || inClass[String(t.student_no)]);
       }).map(function (t) { return t.task_id; });
       if (ids.indexOf(task.task_id) < 0) ids.push(task.task_id);
     }
     var payload = {
       action: 'update_teacher_extra_task', user_id: uid, subject_code: code, class_code: classCode,
-      student_no: no, task_id: task.task_id, operation: operation, title: title, apply_to_class: applyClass
+      student_no: no, task_id: task.task_id, operation: operation, title: title, apply_to_class: applyClass && !applyAll, apply_to_all: applyAll
     };
     var update = { ids: ids, operation: operation, title: title };
     enqueueMutation(operation === 'delete' ? 'Ek görev silme' : 'Ek görev düzenleme', payload, {
@@ -4740,6 +4858,8 @@ header h1{letter-spacing:.01em}
       if (e.target === $('extraTaskModal')) closeExtraTaskModal();
     });
   }
+  if ($('extraTaskApplyAll')) $('extraTaskApplyAll').addEventListener('click', function () { submitExtraTask('all').catch(function(e){log(e.message,false);}); });
+  if ($('extraTaskKind')) $('extraTaskKind').addEventListener('change', function () { $('extraTaskCountRow').hidden = $('extraTaskKind').value !== 'test'; });
   if ($('extraTaskTitleInput')) {
     $('extraTaskTitleInput').addEventListener('keydown', function (e) {
       if (e.key === 'Enter') { e.preventDefault(); submitExtraTask(false).catch(function(e){log(e.message,false);}); }
