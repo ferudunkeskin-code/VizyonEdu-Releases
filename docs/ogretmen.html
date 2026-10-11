@@ -1870,6 +1870,8 @@ header h1{letter-spacing:.01em}
 
   // ── Güncel konu güncelliği: iki haftadır güncellenmeyen ders varsa onay istenir ──
   var TOPIC_MAX_AGE_MS = 14 * 86400000, topicGateCheckedAt = 0, topicGateBusy = false;
+  // Deneme: adresin sonuna ?konuGun=0 yazılırsa süre o kadar güne iner (yalnız o açılış için).
+  try { var konuGun = /[?&#]konuGun=(\d+(?:\.\d+)?)/.exec(String(window.location.href)); if (konuGun) TOPIC_MAX_AGE_MS = Number(konuGun[1]) * 86400000; } catch (ignoreKonu) {}
   function staleTopicSubjects() {
     var now = Date.now();
     return ((state.assignments && state.assignments.subjects) || []).filter(function (s) {
