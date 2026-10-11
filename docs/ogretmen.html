@@ -741,6 +741,7 @@ header h1{letter-spacing:.01em}
       <label>Bitiş <input type="date" id="gdTo"></label>
       <button type="button" id="btnGdCloud">Bulutla Karşılaştır</button>
       <button type="button" id="btnGdRepair">Buluttan Yeniden Al</button>
+      <button type="button" id="btnGdResend" hidden></button>
       <p class="selection-summary" id="gdMeta">Telefondaki sayılar gösteriliyor.</p>
       <div id="gdBody"></div>
     </section>
@@ -4842,7 +4843,7 @@ header h1{letter-spacing:.01em}
 
 
   // ── Gönderim Durumu: bulut / bu telefon / bekleyen sayıları ─────────────
-  var gdCloud = null, gdBusy = false;
+  var gdCloud = null, gdBusy = false, gdPhoneOnly = [];
   var GD_KINDS = [['H','Öğrenci Ödevleri'],['K','Öğretmen Kontrolü'],['X','Öğretmen Öğrenci Çalışması']];
   function gdKind(key) {
     var p = String(key).split('|'), topic = p.slice(2,-1).join('|');
@@ -4880,7 +4881,7 @@ header h1{letter-spacing:.01em}
   function gdWorkPhone() {
     var out = {}, cut = new Date(Date.now() - 390 * 864e5).toISOString();
     (wrJournalLoad()[state.userId] || []).forEach(function(x){
-      if (x.at >= cut) out[gdWorkKey(x.no,x.msg,x.at)] = {no:x.no,subj:x.subj,at:x.at};
+      if (x.at >= cut) out[gdWorkKey(x.no,x.msg,x.at)] = {no:x.no,subj:x.subj,at:x.at,msg:x.msg,name:x.name || '',cls:x.cls || ''};
     });
     return out;
   }
@@ -4920,9 +4921,12 @@ header h1{letter-spacing:.01em}
       var wAll = {};
       Object.keys(gdCloud.work).forEach(function(k){wAll[k]=gdCloud.work[k];});
       Object.keys(wPhone).forEach(function(k){if(!wAll[k])wAll[k]=wPhone[k];});
+      var inactive = gdCloud.workInactive || {};
+      total.phoneOnly = [];
       Object.keys(wAll).forEach(function(k){
-        if (wPend[k]) return;
+        if (wPend[k] || inactive[k]) return;
         if (!gdCloud.work[k] !== !wPhone[k]) { workRow(wAll[k]).diff++; total.diff++; }
+        if (!gdCloud.work[k] && wPhone[k]) total.phoneOnly.push(wPhone[k]);
       });
     }
     if (gdCloud) {
@@ -4971,6 +4975,11 @@ header h1{letter-spacing:.01em}
     if (withCloud) msg += ' (Bulut okuma: ' + new Date(gdCloud.at).toLocaleTimeString('tr-TR') + ')';
     $('gdMeta').textContent = msg;
     $('gdMeta').className = 'selection-summary' + (withCloud && res.total.diff ? ' gd-diff' : '');
+    gdPhoneOnly = (withCloud && !gdCloud.incomplete && res.total.phoneOnly) || [];
+    if ($('btnGdResend')) {
+      $('btnGdResend').hidden = !gdPhoneOnly.length;
+      $('btnGdResend').textContent = 'Buluta ulaşmamış ' + gdPhoneOnly.length + ' çalışma kaydını gönder';
+    }
   }
   // Sunucu her denemede kaldığı yerden devam eder; zaman aşımında yeniden denenir.
   async function gdApi(body, label) {
@@ -4988,7 +4997,9 @@ header h1{letter-spacing:.01em}
     var today = wrIstDate(new Date().toISOString()), from = wrIstDate(new Date(Date.now() - 390 * 864e5).toISOString());
     var w = null, rounds = 0;
     do { w = await gdApi({action:'teacher_work_report',user_id:uid,from:from,to:today}, 'Bulut okunuyor: Öğretmen Öğrenci Çalışması'); rounds++; } while (w.pending > 0 && rounds < 60);
-    return w.pending > 0 ? null : (w.rows || []);
+    if (w.pending > 0) return null;
+    var rows = w.rows || []; rows.inactive = w.inactive || [];
+    return rows;
   }
   async function gdLoadCloud() {
     if (gdBusy || !requireTeacher()) return;
@@ -5006,7 +5017,8 @@ header h1{letter-spacing:.01em}
       var w = await gdFetchWork(uid);
       if (!w) snap.incomplete = true;
       else {
-        snap.work = {}; snap.workRows = w;
+        snap.work = {}; snap.workRows = w; snap.workInactive = {};
+        (w.inactive || []).forEach(function(r){snap.workInactive[gdWorkKey(r.student_no,r.message,r.at)] = 1;});
         snap.workRows.forEach(function(r){snap.work[gdWorkKey(r.student_no,r.message,r.at)] = {no:r.student_no,subj:r.subject_code,at:r.at};});
       }
       snap.at = Date.now(); gdCloud = snap; gdRender();
@@ -5030,6 +5042,23 @@ header h1{letter-spacing:.01em}
     } catch(e) { log('Yeniden alma tamamlanamadı: ' + (e.message || e), false); }
     finally { gdBusy = false; $('btnGdRepair').disabled = false; gdRender(); }
   }
+  // Telefonun defterinde olup bulutta bulunmayan çalışma kayıtları özgün tarihleriyle yeniden gönderilir.
+  function gdResendWork() {
+    if (!gdPhoneOnly.length || !requireTeacher({ write: true })) return;
+    if (!confirm(gdPhoneOnly.length + ' çalışma kaydı özgün tarihleriyle buluta gönderilecek. Devam edilsin mi?')) return;
+    var uid = state.userId, sent = 0, failed = 0;
+    gdPhoneOnly.forEach(function(w){
+      try {
+        enqueueMutation('Öğretmen çalışması gönderimi', {action:'student_track', user_id:uid, subject_code:w.subj,
+          student_no:w.no, student_name:w.name, class_code:w.cls || gdClassOf(w.no), message:w.msg,
+          initials:$('initials').value.trim(), operation_at:w.at});
+        sent++;
+      } catch(e) { failed++; }
+    });
+    gdCloud = null; gdRender();
+    $('gdMeta').textContent = sent + ' kayıt gönderim sırasına alındı' + (failed ? ', ' + failed + ' kayıt sıraya alınamadı' : '') +
+      '. Üstteki bant boşalınca «Bulutla Karşılaştır» ile kontrol edin; reddedilen olursa kırmızı kutuda nedeni yazar.';
+  }
   function gdPreset(kind) {
     var today = wrIstDate(new Date().toISOString()), d = new Date(today + 'T12:00:00Z'), from = '';
     if (kind === 'today') from = today;
@@ -5040,6 +5069,7 @@ header h1{letter-spacing:.01em}
   if ($('btnGdCloud')) {
     $('btnGdCloud').addEventListener('click', gdLoadCloud);
     $('btnGdRepair').addEventListener('click', gdRepair);
+    if ($('btnGdResend')) $('btnGdResend').addEventListener('click', gdResendWork);
     $('gdFrom').addEventListener('change', gdRender); $('gdTo').addEventListener('change', gdRender);
     document.querySelectorAll('[data-gd-preset]').forEach(function(b){b.addEventListener('click', function(){gdPreset(b.dataset.gdPreset);});});
     document.querySelectorAll('[data-panel="dailySendStatusPanel"]').forEach(function(b){b.addEventListener('click', function(){setTimeout(gdRender,0);});});
