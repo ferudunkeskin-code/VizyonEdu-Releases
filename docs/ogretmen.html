@@ -705,12 +705,12 @@ header h1{letter-spacing:.01em}
       <p id="prepEditHint" class="hint" hidden></p>
 
       <h3 class="prep-list-heading">Bu dersteki yerel sorular</h3>
-      <p class="hint">Yalnız <strong>Hazır</strong> sorular paketlenir. Eksik soruları önce Düzenle ile tamamlayın. Paket masaüstü «Mobil Soru Paketi Al» ile alınır.</p>
+      <p class="hint">Yalnız <strong>Hazır</strong> sorular gönderilebilir. Eksik soruları önce Düzenle ile tamamlayın. Sorular yukarıda seçtiğiniz quiz talebine bulut üzerinden gider.</p>
       <div class="prep-pick-row" style="margin-bottom:8px">
         <button type="button" class="secondary" id="btnPrepSelectAll" disabled>Tümünü seç</button>
         <button type="button" class="secondary" id="btnPrepSelectNone" disabled>Seçimi kaldır</button>
-        <button type="button" id="btnPackageAndShare" disabled>Paket Yap ve Paylaş</button>
-        <label class="prep-delete-opt"><input type="checkbox" id="prepDeleteAfter"> <span>Paylaştıktan sonra telefondan sil</span></label>
+        <button type="button" id="btnPackageAndShare" disabled>Talebe Buluta Gönder</button>
+        <label class="prep-delete-opt"><input type="checkbox" id="prepDeleteAfter"> <span>Gönderdikten sonra telefondan sil</span></label>
       </div>
       <div id="prepLocalList" class="prep-local-list">Henüz kayıt yok.</div>
     </section>
@@ -3202,7 +3202,6 @@ header h1{letter-spacing:.01em}
   }
 
   function updatePrepPackageButtons() {
-    if(quizReadyPackage){quizReadyPackage=null;if($('mobileQuizPackageActions'))$('mobileQuizPackageActions').hidden=true;}
     var box = $('prepLocalList');
     var readyCount = box ? box.querySelectorAll('input.prep-q-check:not(:disabled)').length : 0;
     var selected = selectedPrepQuestionIds().length;
@@ -3211,7 +3210,7 @@ header h1{letter-spacing:.01em}
     if ($('btnPackageAndShare')) $('btnPackageAndShare').disabled = selected === 0;
   }
 
-  var quizRequestRows = [], quizRequestOwner = '', quizRequestBusy = false, quizReadyPackage = null;
+  var quizRequestRows = [], quizRequestOwner = '', quizRequestBusy = false, myQuizContribRows = [];
   function quizRequestUid() { return String(($('userId') && $('userId').value) || state.userId || ''); }
   function selectedQuizRequest() {
     if(quizRequestOwner!==quizRequestUid())return null;
@@ -3225,7 +3224,7 @@ header h1{letter-spacing:.01em}
   function renderQuizRequests() {
     var select=$('mobileQuizRequest');if(!select)return;
     var previous=quizRequestOwner===quizRequestUid()?select.value:'';
-    select.textContent='';var blank=document.createElement('option');blank.value='';blank.textContent='Talep seçin (veya serbest soru paketi)';select.appendChild(blank);
+    select.textContent='';var blank=document.createElement('option');blank.value='';blank.textContent='Talep seçin';select.appendChild(blank);
     quizRequestRows.forEach(function(r){var o=document.createElement('option');o.value=r.request_id;o.textContent=r.quiz_name+' / '+r.subject_code+' / '+r.requested_count+' soru';select.appendChild(o);});
     select.value=previous;
     renderQuizRequestInfo();
@@ -3234,16 +3233,14 @@ header h1{letter-spacing:.01em}
     if(quizRequestBusy)return false;
     if(!configurationReady() || !quizRequestUid()) {if(manual)log('Önce öğretmen kurulumunu tamamlayın.',false);return false;}
     var uid=quizRequestUid(), epoch=teacherEpoch;
-    if(quizRequestOwner!==uid){quizRequestRows=[];quizReadyPackage=null;quizRequestOwner=uid;renderQuizRequests();}
+    if(quizRequestOwner!==uid){quizRequestRows=[];quizRequestOwner=uid;myQuizContribRows=[];renderQuizRequests();}
     quizRequestBusy=true;
     try {
       var d=await api({action:'quiz_requests',user_id:uid});
       if(epoch!==teacherEpoch || uid!==quizRequestUid())return false;
-      var before=selectedQuizRequest();
       quizRequestRows=d.requests||[];
       renderQuizRequests();
-      var after=selectedQuizRequest();
-      if(before && (!after || JSON.stringify(before)!==JSON.stringify(after))) {quizReadyPackage=null;$('mobileQuizPackageActions').hidden=true;}
+      if(myQuizContribRows.length)renderMyQuizContributions();
       var key='ve-quiz-request-seen:'+uid, seen={};
       try {seen=JSON.parse(localStorage.getItem(key)||'{}');}catch(e){}
       var fresh=quizRequestRows.filter(function(r){return seen[r.request_id]!==r.updated_at;});
@@ -3254,55 +3251,20 @@ header h1{letter-spacing:.01em}
     } catch(e) {if(manual)log(e.message||String(e),false);return false;}
     finally {quizRequestBusy=false;}
   }
-  function requestPackageBlob(pack) {
-    var txt=$('mobileQuizPackageFormat').value==='txt';
-    if(!txt)return {blob:new Blob([pack.bytes],{type:'application/octet-stream'}),name:pack.fileName};
-    var chunks=[];
-    for(var i=0;i<pack.bytes.length;i+=16384)chunks.push(String.fromCharCode.apply(null,pack.bytes.subarray(i,i+16384)));
-    return {blob:new Blob(['VIZYONEDU-VZEP-V1\n'+pack.fileName+'\n'+btoa(chunks.join(''))],{type:'text/plain;charset=utf-8'}),name:pack.fileName+'.txt'};
-  }
-  function currentQuizPackage() {
-    var r=selectedQuizRequest();
-    if(!quizReadyPackage || quizReadyPackage.uid!==quizRequestUid() || quizReadyPackage.epoch!==teacherEpoch || !r || r.request_id!==quizReadyPackage.request.request_id || JSON.stringify(r)!==JSON.stringify(quizReadyPackage.request))throw new Error('Talebi seçip paketi yeniden hazırlayın.');
-    return quizReadyPackage.pack;
-  }
-  function downloadQuizPackage() {
-    try {
-      var pack=currentQuizPackage(), item=requestPackageBlob(pack), url=URL.createObjectURL(item.blob), a=document.createElement('a');
-      a.href=url;a.download=item.name;document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(url);},30000);
-      log('İndirme başlatıldı: '+item.name+'. WhatsApp → Ataç → Belge → İndirilenler içinden bu dosyayı seçin. Sorular telefonda korunuyor.',true);
-    }catch(e){log(e.message,false);}
-  }
-  async function shareQuizPackage() {
-    try {
-      var pack=currentQuizPackage();
-      var viaTop=await shareViaTopPage(Object.assign({},pack,{format:$('mobileQuizPackageFormat').value,title:quizReadyPackage.request.quiz_name,text:quizReadyPackage.request.quiz_name+' · '+pack.count+' soru'}));
-      if(viaTop.handled){
-        if(viaTop.ok){log(viaTop.downloaded?'İndirme başlatıldı. WhatsApp → Ataç → Belge → İndirilenler yoluyla gönderin. Sorular telefonda korunuyor.':'Dosya paylaşım menüsüne iletildi. WhatsApp içindeki gönderimi tamamlayın; sorular telefonda korunuyor.',true);return;}
-        if(viaTop.name==='AbortError'){log('Paylaşım iptal edildi.',false);return;}
-        throw new Error(viaTop.message || 'Üst sayfada paylaşım açılamadı.');
-      }
-      var item=requestPackageBlob(pack),file=new File([item.blob],item.name,{type:item.blob.type});
-      if(!navigator.share || (navigator.canShare && !navigator.canShare({files:[file]})))throw new Error('Dosya paylaşımı bu tarayıcıda desteklenmiyor. TXT biçimini veya Dosyayı indir düğmesini kullanın.');
-      await navigator.share({files:[file],title:quizReadyPackage.request.quiz_name,text:quizReadyPackage.request.quiz_name+' · '+pack.count+' soru'});
-      log('Dosya paylaşım menüsüne iletildi. WhatsApp içindeki gönderimi tamamlayın; sorular telefonda korunuyor.',true);
-    }catch(e){if(e.name==='AbortError')log('Paylaşım iptal edildi.',false);else log((e.message||String(e))+' Dosyayı indirip WhatsApp’tan belge olarak gönderebilirsiniz.',false);}
-  }
   function installQuizRequestPanel() {
     var anchor=$('prepSubject');if(!anchor)return;
     var panel=document.createElement('section');panel.className='card';
-    panel.innerHTML='<h3>Quiz talepleri</h3><button type="button" id="btnMobileQuizRequests">Quiz Taleplerini Al</button><label>Talep<select id="mobileQuizRequest"></select></label><p id="mobileQuizRequestInfo" class="hint"></p><p class="hint">Talepteki ders ve konuya uygun hazır soruları aşağıdaki listeden seçin. İstenen adede ulaştığınızda Paketle ve Paylaş ile dosyayı hazırlayın.</p><div id="mobileQuizPackageActions" hidden><p id="mobileQuizPackageLabel"></p><label>Dosya biçimi<select id="mobileQuizPackageFormat"><option value="txt">TXT içinde VZEP (WhatsApp)</option><option value="vzep">VZEP</option></select></label><button type="button" id="btnShareQuizRequest">WhatsApp / Paylaş</button><button type="button" id="btnDownloadQuizRequest">Dosyayı indir</button><p class="hint">Paylaşım menüsünde WhatsApp’ı seçin. Menü açılmazsa dosyayı indirip WhatsApp → Ataç → Belge → İndirilenler yoluyla gönderin.</p></div>';
+    panel.innerHTML='<h3>Quiz talepleri</h3><button type="button" id="btnMobileQuizRequests">Quiz Taleplerini Al</button><label>Talep<select id="mobileQuizRequest"></select></label><p id="mobileQuizRequestInfo" class="hint"></p><p class="hint">Talebi seçin, aşağıdaki listeden sorularınızı işaretleyin ve <strong>Talebe Buluta Gönder</strong> deyin. Sorular doğrudan Sistem Sorumlusuna ulaşır. Aynı talebe yeniden gönderirseniz önceki gönderiminizin yerine geçer.</p><h3>Gönderdiklerim</h3><button type="button" class="secondary" id="btnMyQuizContribs">Gönderdiklerimi Göster</button><div id="myQuizContribs" class="hint">Buluta gönderdiğiniz talep soruları burada görünür.</div>';
     var position=anchor.closest('label')||anchor;position.parentNode.insertBefore(panel,position);
     var notice=document.createElement('div');notice.id='mobileQuizRequestNotice';notice.className='card';notice.setAttribute('role','status');notice.hidden=true;document.body.insertBefore(notice,document.body.firstChild);
     $('btnMobileQuizRequests').onclick=function(){refreshQuizRequests(true);};
     $('mobileQuizRequest').onchange=function(){
-      quizReadyPackage=null;$('mobileQuizPackageActions').hidden=true;
       var r=selectedQuizRequest();
       if(r){var options=Array.prototype.slice.call($('prepSubject').options);var opt=options.filter(function(o){return catalogSubjectOf(o.value)===r.subject_code;})[0];if(opt){$('prepSubject').value=opt.value;$('prepSubject').dispatchEvent(new Event('change'));renderLocalQuestionList();}}
       renderQuizRequestInfo();
     };
-    $('btnShareQuizRequest').onclick=shareQuizPackage;$('btnDownloadQuizRequest').onclick=downloadQuizPackage;
-    $('prepLocalList').addEventListener('change',function(){renderQuizRequestInfo();quizReadyPackage=null;$('mobileQuizPackageActions').hidden=true;});
+    $('btnMyQuizContribs').onclick=function(){loadMyQuizContributions(true);};
+    $('prepLocalList').addEventListener('change',function(){renderQuizRequestInfo();});
     renderQuizRequests();
   }
 
@@ -3406,24 +3368,6 @@ header h1{letter-spacing:.01em}
     return { fileName: fileName, bytes: zipBytes, count: records.length, subject: subjectCode };
   }
 
-  function triggerBlobDownload(blob, fileName) {
-    // Tarayıcı application/zip görünce .zip ekleyebilir; uzantıyı zorla .vzep yap.
-    var name = String(fileName || 'paket.vzep');
-    name = name.replace(/\.zip$/i, '');
-    if (!/\.vzep$/i.test(name)) name += '.vzep';
-    var url = URL.createObjectURL(blob);
-    var a = document.createElement('a');
-    a.href = url;
-    a.download = name;
-    a.rel = 'noopener';
-    a.style.display = 'none';
-    document.body.appendChild(a);
-    a.click();
-    setTimeout(function () {
-      try { URL.revokeObjectURL(url); } catch (e) {}
-      try { a.remove(); } catch (e2) {}
-    }, 2000);
-  }
 
   // Tarayıcının kendi confirm kutusu yerine uygulama içi, okunaklı onay penceresi.
   function uiConfirm(opts) {
@@ -3466,48 +3410,34 @@ header h1{letter-spacing:.01em}
     log(ids.length + ' soru telefon hafızasından silindi.', true);
   }
 
-  // Apps Script içeriği Google'ın iç iframe'inde çalışır; web-share izni oraya verilemez.
-  // Gömülü açılışta paylaşım, üst sayfaya (github.io) postMessage ile devredilir.
-  function shareViaTopPage(pack) {
-    return new Promise(function (resolve) {
-      if (window.top === window) { resolve({ handled: false }); return; }
-      var id = 'share-' + Date.now() + '-' + Math.random().toString(36).slice(2);
-      var acked = false, done = false;
-      function finish(v) {
-        if (done) return; done = true;
-        window.removeEventListener('message', onMsg);
-        resolve(v);
-      }
-      function onMsg(e) {
-        var d = e.data;
-        if (e.source !== window.top || !d || d.id !== id) return;
-        if (d.type === 'vizyonedu-share-ack') { acked = true; return; }
-        if (d.type === 'vizyonedu-share-result') {
-          finish({ handled: true, ok: !!d.ok, downloaded: !!d.downloaded, name: d.name || '', message: d.message || '', why: d.why || '' });
-        }
-      }
-      window.addEventListener('message', onMsg);
-      try {
-        var bytes = pack.bytes.buffer.slice(pack.bytes.byteOffset, pack.bytes.byteOffset + pack.bytes.byteLength);
-        window.top.postMessage({
-          type: 'vizyonedu-share', id: id, fileName: pack.fileName, mime: 'application/octet-stream',
-          format: pack.format || 'txt', title: pack.title || 'VizyonEdu Soru Paketi', text: pack.text || (pack.count + ' soru · ' + (pack.subject || '')), bytes: bytes
-        }, '*');
-      } catch (err) { finish({ handled: false }); return; }
-      // Üst sayfa eski sürümse yanıt vermez: yedeğe düş.
-      setTimeout(function () {
-        if (acked) return;
-        // Yanıt gelmedi: yedek yola düşerken üst sayfada açılmış olabilecek pencereyi kapat.
-        try { window.top.postMessage({ type: 'vizyonedu-share-cancel', id: id }, '*'); } catch (ignoreCancel) {}
-        finish({ handled: false });
-      }, 6000);
-    });
+
+  function bytesToBase64(bytes) {
+    var chunks = [];
+    for (var i = 0; i < bytes.length; i += 16384) chunks.push(String.fromCharCode.apply(null, bytes.subarray(i, i + 16384)));
+    return btoa(chunks.join(''));
+  }
+  function quizSentJournalKey() { return 've-quiz-sent:' + quizRequestUid(); }
+  function readQuizSentJournal() { try { return JSON.parse(localStorage.getItem(quizSentJournalKey()) || '{}'); } catch (e) { return {}; } }
+  function writeQuizSentJournal(requestId, info) {
+    var all = readQuizSentJournal(); all[requestId] = info;
+    try { localStorage.setItem(quizSentJournalKey(), JSON.stringify(all)); } catch (ignore) {}
+  }
+  /** Talepteki metin belirli ana kazanımlar sayıyorsa, o konulara uymayan soruları döndürür. */
+  function questionsOffRequestTopics(request, questions) {
+    var text = String(request.main_gain || '').toLocaleLowerCase('tr-TR');
+    var known = Array.prototype.slice.call(($('prepMainGain') && $('prepMainGain').options) || []).map(function (o) { return String(o.value || '').trim(); }).filter(Boolean);
+    var named = known.filter(function (g) { return text.indexOf(g.toLocaleLowerCase('tr-TR')) >= 0; });
+    if (!named.length) return []; // talep konu belirtmiyor: öğretmenin seçimi
+    return questions.filter(function (q) { return text.indexOf(String(q.main_gain || '').toLocaleLowerCase('tr-TR')) < 0; });
   }
 
+  // Talep soruları YALNIZ buluta gönderilir (WhatsApp / dosya yolu kaldırıldı).
   async function packageAndShareSelectedQuestions() {
     if (!requireTeacher()) return;
     var code = $('prepSubject') ? $('prepSubject').value : '';
     if (!code) throw new Error('Önce ders seçin');
+    var request = selectedQuizRequest();
+    if (!request) throw new Error('Önce yukarıdan bir quiz talebi seçin. Sorular yalnız bir talebe, bulut üzerinden gönderilir.');
     var ids = selectedPrepQuestionIds();
     if (!ids.length) throw new Error('En az bir hazır soru seçin');
     var all = await listLocalQuestions(code);
@@ -3521,121 +3451,106 @@ header h1{letter-spacing:.01em}
       if (miss.length) incomplete.push((q.main_gain || q.question_id) + ' (' + miss.join(', ') + ')');
     });
     if (incomplete.length) {
-      throw new Error(
-        'Eksik sorular paketlenemez. Önce Düzenle ile tamamlayın:\n' +
-        incomplete.slice(0, 8).join('\n') +
-        (incomplete.length > 8 ? '\n…' : '')
-      );
+      throw new Error('Eksik sorular gönderilemez. Önce Düzenle ile tamamlayın:\n' + incomplete.slice(0, 8).join('\n') + (incomplete.length > 8 ? '\n…' : ''));
     }
-    var request=selectedQuizRequest();
-    if(request){
-      var requestId=request.request_id;
-      if(!await refreshQuizRequests(false))throw new Error('Talebin güncelliği doğrulanamadı. İnternete bağlanıp yeniden deneyin.');
-      request=selectedQuizRequest();
-      if(!request || request.request_id!==requestId)throw new Error('Talep kapatılmış veya değişmiş. Talepleri yeniden alın.');
-      if(catalogSubjectOf(code)!==request.subject_code)throw new Error('Seçili ders taleple uyuşmuyor.');
-      if(selected.length!==request.requested_count)throw new Error('Bu talep için tam '+request.requested_count+' soru seçin; seçilen: '+selected.length);
+    var requestId = request.request_id;
+    if (!await refreshQuizRequests(false)) throw new Error('Talebin güncelliği doğrulanamadı. İnternete bağlanıp yeniden deneyin.');
+    request = selectedQuizRequest();
+    if (!request || request.request_id !== requestId) throw new Error('Talep kapatılmış veya değişmiş. Talepleri yeniden alın.');
+    // Ders ve soru sayısı zorunlu; konu öğretmenin kararı (uyarı ile).
+    if (catalogSubjectOf(code) !== request.subject_code) throw new Error('Seçili ders taleple uyuşmuyor (' + request.subject_code + ').');
+    // Soru sayısı talepteki sayıyla AYNI olmalı (eksik/fazla gönderim SI'da karışıklık yaratıyordu).
+    if (selected.length !== Number(request.requested_count)) {
+      throw new Error('Bu talep tam ' + request.requested_count + ' soru istiyor; seçilen: ' + selected.length + '. Seçimi düzeltip yeniden deneyin.');
     }
-    var packageEpoch=teacherEpoch, packageUid=quizRequestUid();
-    log(selected.length + ' hazır soru paketleniyor…');
+    var off = questionsOffRequestTopics(request, selected);
+    if (off.length) {
+      var goTopic = await uiConfirm({ title: 'Konu uyarısı', okText: 'Yine de gönder',
+        message: off.length + ' soru talepte belirtilen konuların dışında görünüyor.',
+        detail: 'Talep: ' + request.main_gain + '\nDışarıda kalan: ' + off.map(function (q) { return q.main_gain; }).filter(function (v, i, a) { return a.indexOf(v) === i; }).join(', ') });
+      if (!goTopic) { log('Gönderim iptal edildi.', false); return; }
+    }
+    await loadMyQuizContributions(false);
+    var previous = myQuizContribRows.filter(function (c) { return c.request_id === request.request_id; })[0];
+    if (previous) {
+      var goReplace = await uiConfirm({ title: 'Önceki gönderimin yerine geçecek', okText: 'Değiştir ve gönder',
+        message: 'Bu talebe ' + previous.count + ' soruluk bir gönderiminiz var. Yeni gönderim onun yerine geçer.' });
+      if (!goReplace) { log('Gönderim iptal edildi.', false); return; }
+    }
+    var packageEpoch = teacherEpoch, packageUid = quizRequestUid();
+    log(selected.length + ' soru hazırlanıyor ve buluta gönderiliyor…');
     var pack;
-    try {
-      pack = await buildMobileQuestionPackage(selected, code, request);
-    } catch (buildErr) {
-      var bm = (buildErr && buildErr.message) ? buildErr.message : String(buildErr);
-      throw new Error('Paket oluşturulamadı: ' + bm);
-    }
-    if(packageEpoch!==teacherEpoch || packageUid!==quizRequestUid())throw new Error('Öğretmen oturumu değişti; paket iptal edildi.');
-    if(request && (JSON.stringify(ids)!==JSON.stringify(selectedPrepQuestionIds()) || code!==$('prepSubject').value))throw new Error('Soru seçimi değişti; paketi yeniden hazırlayın.');
-    if(request){
-      var activeRequest=selectedQuizRequest();
-      if(!activeRequest || JSON.stringify(activeRequest)!==JSON.stringify(request))throw new Error('Talep seçimi değişti; yeniden hazırlayın.');
-      quizReadyPackage={pack:pack,request:request,uid:packageUid,epoch:packageEpoch};
-      $('mobileQuizPackageLabel').textContent=request.quiz_name+' · '+request.subject_code+' · '+pack.count+' soru · '+pack.fileName;
-      $('mobileQuizPackageActions').hidden=false;
-      log('Talep paketi hazır. WhatsApp / Paylaş veya Dosyayı indir düğmesini kullanın.',true);
-      return;
-    }
-    // Uint8Array → Blob (bazı tarayıcılarda düz dizi gerekir)
-    var blob = new Blob([pack.bytes], { type: 'application/octet-stream' });
-    var file = null;
-    try {
-      var shareName = String(pack.fileName || 'paket.vzep').replace(/\.zip$/i, '');
-      if (!/\.vzep$/i.test(shareName)) shareName += '.vzep';
-      file = new File([blob], shareName, { type: 'application/octet-stream' });
-    } catch (fileErr) {
-      file = null;
-    }
+    try { pack = await buildMobileQuestionPackage(selected, code, request); }
+    catch (buildErr) { throw new Error('Paket oluşturulamadı: ' + ((buildErr && buildErr.message) || String(buildErr))); }
+    if (packageEpoch !== teacherEpoch || packageUid !== quizRequestUid()) throw new Error('Öğretmen oturumu değişti; gönderim iptal edildi.');
+    var d = await api({ action: 'submit_quiz_contribution', user_id: packageUid, request_id: request.request_id,
+                        package_base64: bytesToBase64(pack.bytes) });
+    writeQuizSentJournal(request.request_id, { ids: ids, count: d.count, at: d.sent_at, quiz_name: request.quiz_name });
+    log('Gönderildi: ' + request.quiz_name + ' · ' + d.count + ' soru' + (d.replaced ? ' (önceki gönderimin yerine geçti)' : '') + '. Gönderdiklerim bölümünden kontrol edebilirsiniz.', true);
+    await maybeRemovePackagedQuestions(ids);
+    await loadMyQuizContributions(false);
+  }
 
-    // 1) Web Share (dosya). iframe / izin reddi → sessizce indirmeye düş.
-    var shared = false, shareWhy = '';
-    var viaTop = await shareViaTopPage(pack);
-    if (viaTop.handled) {
-      if (viaTop.ok) {
-        log(pack.fileName + ' paylaşıma gönderildi (' + pack.count + ' soru).', true);
-        await maybeRemovePackagedQuestions(ids);
-        return;
-      }
-      if (viaTop.name === 'AbortError') { log('Paylaşım iptal edildi.', false); return; }
-      shareWhy = viaTop.why === 'can-not-share-type'
-        ? 'tarayıcı .vzep dosya türünü paylaşıma kabul etmedi'
-        : ((viaTop.name || viaTop.why || 'bilinmeyen hata') + (viaTop.message ? ' – ' + String(viaTop.message).slice(0, 90) : ''));
-    } else if (!navigator.share) shareWhy = 'bu tarayıcıda paylaşım desteği yok';
-    else if (!file) shareWhy = 'dosya nesnesi oluşturulamadı';
-    if (file && navigator.share && !viaTop.handled) {
-      var canFiles = false;
-      try {
-        canFiles = !navigator.canShare || navigator.canShare({ files: [file] });
-      } catch (canErr) {
-        canFiles = false;
-      }
-      if (!canFiles) {
-        shareWhy = 'tarayıcı bu dosya türünü paylaşıma kabul etmedi (canShare)';
-      }
-      if (canFiles) {
-        try {
-          await navigator.share({
-            files: [file],
-            title: 'VizyonEdu Soru Paketi',
-            text: pack.count + ' soru · ' + (pack.subject || '')
-          });
-          shared = true;
-          log(pack.fileName + ' paylaşıma gönderildi (' + pack.count + ' soru).', true);
-          await maybeRemovePackagedQuestions(ids);
-        } catch (shareErr) {
-          var name = (shareErr && shareErr.name) || '';
-          var msg = (shareErr && shareErr.message) || String(shareErr);
-          // Kullanıcı iptal ettiyse hata gösterme
-          if (name === 'AbortError' || /abort|cancel|iptal/i.test(msg)) {
-            log('Paylaşım iptal edildi.', false);
-            return;
-          }
-          // Permission denied / NotAllowedError → indirmeye düş
-          console.warn('navigator.share failed', shareErr);
-          shareWhy = (name || 'hata') + (name === 'NotAllowedError' ? ' — sayfa gömülü (iframe) ve web-share izni yok' : '');
+  function openContributionForCorrection(c) {
+    var select = $('mobileQuizRequest');
+    if (!select || !quizRequestRows.some(function (r) { return r.request_id === c.request_id; })) {
+      log('Bu talep artık açık değil; düzeltme gönderilemez.', false); return;
+    }
+    select.value = c.request_id; select.dispatchEvent(new Event('change'));
+    setTimeout(function () {
+      var box = $('prepLocalList'), wanted = {}, found = 0;
+      (c.questions || []).forEach(function (q) { wanted[q.question_id] = true; });
+      if (box) box.querySelectorAll('input.prep-q-check').forEach(function (el) {
+        el.checked = !!wanted[el.value] && !el.disabled; if (el.checked) found++;
+      });
+      updatePrepPackageButtons(); renderQuizRequestInfo();
+      log('Gönderdiğiniz ' + (c.questions || []).length + ' sorudan ' + found + ' tanesi telefonda bulundu ve seçildi. Düzeltip «Talebe Buluta Gönder» deyin.', true);
+      if (box && box.scrollIntoView) box.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 700);
+  }
+
+  function renderMyQuizContributions() {
+    var box = $('myQuizContribs'); if (!box) return;
+    box.textContent = '';
+    if (!myQuizContribRows.length) { box.textContent = 'Henüz buluta gönderdiğiniz talep sorusu yok.'; return; }
+    myQuizContribRows.forEach(function (c) {
+      var item = document.createElement('details'); item.className = 'card';
+      var open = quizRequestRows.some(function (r) { return r.request_id === c.request_id; });
+      var head = document.createElement('summary');
+      var when = c.sent_at ? new Date(c.sent_at).toLocaleString('tr-TR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : '';
+      head.textContent = c.error ? ('⚠ ' + c.file_name + ' · ' + c.error)
+        : ('✓ ' + c.quiz_name + ' · ' + c.subject_code + ' · ' + c.count + (c.requested_count ? '/' + c.requested_count : '') + ' soru · ' + when + (open ? '' : ' · talep kapandı'));
+      item.appendChild(head);
+      if (!c.error) {
+        var topics = document.createElement('p'); topics.className = 'hint';
+        topics.textContent = 'Konular: ' + Object.keys(c.topics || {}).map(function (t) { return t + ' (' + c.topics[t] + ')'; }).join(', ');
+        item.appendChild(topics);
+        var list = document.createElement('ol');
+        (c.questions || []).forEach(function (q) { var li = document.createElement('li'); li.textContent = q.main_gain + (q.answer_key ? ' · Cevap ' + q.answer_key : ''); list.appendChild(li); });
+        item.appendChild(list);
+        if (open) {
+          var fix = document.createElement('button'); fix.type = 'button'; fix.className = 'secondary';
+          fix.textContent = 'Düzelt ve yeniden gönder';
+          fix.onclick = function () { openContributionForCorrection(c); };
+          item.appendChild(fix);
         }
       }
-    }
+      box.appendChild(item);
+    });
+  }
 
-    if (shared) return;
-
-    // 2) İndirme yedek yolu
+  async function loadMyQuizContributions(manual) {
+    var uid = quizRequestUid(); if (!uid) return;
     try {
-      triggerBlobDownload(blob, pack.fileName);
-      log(
-        pack.fileName + ' indirildi (' + pack.count + ' soru)' +
-        (shareWhy ? ' · Paylaşım menüsü açılamadı: ' + shareWhy : '') + '. ' +
-        'Dosyayı WhatsApp / e-posta ile masaüstüne gönderin; masaüstünde Quiz → Mobil Soru Paketi Al.',
-        true
-      );
-      await maybeRemovePackagedQuestions(ids);
-    } catch (dlErr) {
-      throw new Error(
-        'Paylaşım ve indirme başarısız. Tarayıcı dosya paylaşımına izin vermiyor. ' +
-        'Chrome/Safari ile ana ekrandan (PWA) açmayı deneyin. ' +
-        ((dlErr && dlErr.message) || '')
-      );
-    }
+      if (manual && !quizRequestRows.length) await refreshQuizRequests(false);
+      var d = await api({ action: 'my_quiz_contributions', user_id: uid });
+      if (uid !== quizRequestUid()) return;
+      // Talep başına en yeni gönderim (sunucu en yeniden eskiye sıralar).
+      var seen = {};
+      myQuizContribRows = (d.contributions || []).filter(function (c) { if (!c.request_id || seen[c.request_id]) return !c.request_id; seen[c.request_id] = true; return true; });
+      renderMyQuizContributions();
+      if (manual) log(myQuizContribRows.length + ' gönderim bulutta bulundu.', true);
+    } catch (e) { if (manual) log(e.message || String(e), false); }
   }
 
 
@@ -5015,7 +4930,6 @@ header h1{letter-spacing:.01em}
 
   if ($('prepSubject')) {
     $('prepSubject').addEventListener('change', function () {
-      quizReadyPackage=null;if($('mobileQuizPackageActions'))$('mobileQuizPackageActions').hidden=true;
       fillPrepMainGains();
       updatePrepSaveEnabled();
     });
