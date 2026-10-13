@@ -88,6 +88,31 @@ button.secondary:active{background:#dde8f0}
 }
 .selection-summary{padding:8px 10px;border-radius:10px;background:#edf4fa;color:var(--navy);font-size:.85rem;margin:8px 0}
 .selection-summary.empty{background:#f4f7fa;color:var(--muted)}
+/* ── Öğrenci seçici (ders/sınıf → öğrenci) ── */
+.pick-head{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
+.pick-head h2{margin-bottom:6px}
+.pick-count{font-size:.75rem;color:var(--muted);font-weight:700}
+.pick-selected{display:flex;align-items:center;gap:8px}
+.pick-selected .selection-summary{flex:1;margin:6px 0}
+.pick-selected .selection-summary:not(.empty){background:#e6f0f8;font-weight:700;border-left:4px solid var(--navy)}
+.pick-clear{width:40px;min-width:40px;height:40px;padding:0;margin:0;border-radius:10px;background:#eef4f8;color:var(--navy);font-size:1rem}
+.student-picker input[type=search]{margin-top:4px}
+.pick-block{margin-top:10px}
+.pick-label{display:block;font-size:.72rem;font-weight:800;color:#486581;letter-spacing:.02em;text-transform:uppercase;margin:8px 0 6px}
+.chip-row{display:flex;flex-wrap:wrap;gap:6px}
+.chip{border:1px solid var(--line);background:#f8fbfd;color:var(--navy);border-radius:999px;padding:7px 12px;min-height:36px;margin:0;font-weight:700;font-size:.82rem;display:inline-flex;align-items:center;gap:6px;width:auto}
+.chip small{font-weight:700;color:var(--muted);font-size:.72rem}
+.chip.family{background:#fff;border-style:dashed;color:#486581}
+.chip.active{background:var(--navy);color:#fff;border-color:var(--navy)}
+.chip.active small{color:#cfe0ee}
+.chip.recent{background:#fff7ec;border-color:#f6d6ad;color:#7a4a12}
+.student-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;margin-top:10px}
+.student-tile{text-align:left;background:#fff;color:var(--ink);border:1px solid var(--line);border-radius:10px;padding:8px 10px;min-height:48px;margin:0;display:flex;flex-direction:column;justify-content:center;width:100%}
+.student-tile strong{font-size:.84rem;line-height:1.2}
+.student-tile small{font-size:.72rem;color:var(--muted);font-weight:600}
+.student-tile:active{background:#eef4f8}
+.search-group{font-size:.72rem;font-weight:800;color:#486581;margin:8px 2px 2px}
+@media (max-width:360px){.student-grid{grid-template-columns:1fr}}
 /* ── Ödev / Kontrol hücreleri ── */
 .homework-rows{display:flex;flex-direction:column;gap:10px;margin:12px 0}
 .homework-row{
@@ -410,18 +435,34 @@ button.busy{cursor:progress;opacity:.85;background-image:linear-gradient(90deg,r
 
     <!-- Öğrenci seçimi + Öğretmen Çalışması -->
     <section class="card compact-card" id="studentPickCard">
-      <h2>Öğrenci Genel Durumu</h2>
-      <p class="hint">Öğrenciyi seçin; aşağıdaki kısayollar bu öğrenci için açılır (masaüstü Öğrenci Genel Durumu benzeri).</p>
-      <label>Öğrenci ara
-        <input id="studentSearch" type="search" placeholder="Ad veya numara yazın…" autocomplete="off" inputmode="search">
-      </label>
-      <div id="studentSearchResults" class="search-results" hidden></div>
-      <p id="selectedStudentLine" class="selection-summary empty">Öğrenci seçilmedi.</p>
+      <div class="pick-head">
+        <h2>Öğrenci Genel Durumu</h2>
+        <span class="pick-count" id="studentCountBadge"></span>
+      </div>
+      <div class="pick-selected">
+        <p id="selectedStudentLine" class="selection-summary empty">Öğrenci seçilmedi.</p>
+        <button type="button" class="pick-clear" id="btnClearStudent" hidden aria-label="Seçimi kaldır" title="Başka öğrenci seç">✕</button>
+      </div>
       <div class="student-hub" id="studentHub" hidden>
         <button type="button" class="hub-btn" id="btnTeacherWork" disabled>Öğretmen Çalışması</button>
         <button type="button" class="hub-btn" id="btnHubHomework" disabled>Ödev ve Kontrol</button>
         <button type="button" class="hub-btn" id="btnHubMissing" disabled>Eksik Kazanım</button>
         <button type="button" class="hub-btn" id="btnHubQuiz" disabled>Uygulanmış Quiz</button>
+      </div>
+      <div id="studentPicker" class="student-picker">
+        <input id="studentSearch" type="search" placeholder="Ad veya numara ile ara…" autocomplete="off" inputmode="search" aria-label="Öğrenci ara">
+        <div id="studentSearchResults" class="search-results" hidden></div>
+        <div id="recentStudentsWrap" class="pick-block" hidden>
+          <span class="pick-label">Son seçilenler</span>
+          <div id="recentStudents" class="chip-row"></div>
+        </div>
+        <div id="classChipsWrap" class="pick-block">
+          <span class="pick-label" id="classChipsOwnLabel">Sınıflarım</span>
+          <div id="classChipsOwn" class="chip-row"></div>
+          <span class="pick-label" id="classChipsFamilyLabel" hidden>Branş arkadaşlarımın sınıfları</span>
+          <div id="classChipsFamily" class="chip-row"></div>
+        </div>
+        <div id="classStudents" class="student-grid" hidden></div>
       </div>
     </section>
 
@@ -434,9 +475,10 @@ button.busy{cursor:progress;opacity:.85;background-image:linear-gradient(90deg,r
       </label>
       <p class="hint" style="margin-top:8px">Hazır çalışma mesajı seçin (kurum onaylı):</p>
       <div class="work-templates" id="workTemplates">
-        <button type="button" class="template-btn" data-msg="Genel durum görüşüldü." disabled>Genel durum görüşüldü.</button>
-        <button type="button" class="template-btn" data-msg="Konu çalışması yapıldı." disabled>Konu çalışması yapıldı.</button>
-        <button type="button" class="template-btn" data-msg="Öğrencinin soruları çözüldü." disabled>Öğrencinin soruları çözüldü.</button>
+        <button type="button" class="template-btn" data-msg="Genel durum görüşüldü ve ödevlendirme yapıldı." disabled>Genel durum görüşüldü ve ödevlendirme yapıldı.</button>
+        <button type="button" class="template-btn" data-msg="Konu çalışması yapıldı ve soru çözüldü." disabled>Konu çalışması yapıldı ve soru çözüldü.</button>
+        <button type="button" class="template-btn" data-msg="Öğrenci soruları çözüldü." disabled>Öğrenci soruları çözüldü.</button>
+        <button type="button" class="template-btn" data-msg="Eksik kazanım çalışıldı." disabled>Eksik kazanım çalışıldı.</button>
       </div>
       <button type="button" class="secondary" id="btnCloseTeacherWork">Vazgeç</button>
     </section>
@@ -960,9 +1002,10 @@ button.busy{cursor:progress;opacity:.85;background-image:linear-gradient(90deg,r
   }
 
   var WORK_TEMPLATES = [
-    'Genel durum görüşüldü.',
-    'Konu çalışması yapıldı.',
-    'Öğrencinin soruları çözüldü.'
+    'Genel durum görüşüldü ve ödevlendirme yapıldı.',
+    'Konu çalışması yapıldı ve soru çözüldü.',
+    'Öğrenci soruları çözüldü.',
+    'Eksik kazanım çalışıldı.'
   ];
 
   function $(id) { return document.getElementById(id); }
@@ -1238,6 +1281,7 @@ button.busy{cursor:progress;opacity:.85;background-image:linear-gradient(90deg,r
         throw new Error('Kurum verileri eksik. Tüm ders ve ana kazanım listeleri yüklenmeli.');
       // Tek sürüm halinde uygula; kısmi liste kullanıma açılmaz.
       state.assignments=assignment;state.gains=data.gains;
+      try { renderStudentPicker(); } catch (pickErr) {}
       state.configuration={uid:uid,scope:mobileSession.scope_id,ready:true,pending:false,revision:data.revision,missing:(data.missing_gains||[]).map(function(m){return m.subject_name||m.subject_code;})};
       if(data.user) {teachers[uid]=data.user;state.teachers=(state.teachers || []).filter(function(x){return x.user_id!==uid;}).concat([data.user]);}
       if(!subjects.some(function(x){return x.subject_code===state.subjectCode;})){state.subjectCode=subjects[0].subject_code;state.topic='';}
@@ -2197,14 +2241,158 @@ button.busy{cursor:progress;opacity:.85;background-image:linear-gradient(90deg,r
     return (state.assignments && state.assignments.students) || [];
   }
 
+  /* ── Öğrenci seçici: Son seçilenler → Sınıf → Öğrenci (arama her an kullanılabilir) ── */
+  var pickClass = '';
+  var PICK_RECENT_MAX = 5;
+
+  function compareTr(a, b) {
+    try { return String(a).localeCompare(String(b), 'tr', { numeric: true }); }
+    catch (e) { return String(a) < String(b) ? -1 : (String(a) > String(b) ? 1 : 0); }
+  }
+
+  function ownClassSet() {
+    var set = {};
+    ((state.assignments && state.assignments.subjects) || []).forEach(function (s) {
+      (s.classes || []).forEach(function (c) { var k = String(c || '').trim(); if (k) set[k] = true; });
+    });
+    return set;
+  }
+
+  function studentsByClass() {
+    var map = {};
+    allStudents().forEach(function (s) {
+      var c = String(s.class_code || '').trim() || '—';
+      (map[c] = map[c] || []).push(s);
+    });
+    Object.keys(map).forEach(function (c) {
+      map[c].sort(function (a, b) { return compareTr(a.student_name || '', b.student_name || ''); });
+    });
+    return map;
+  }
+
+  function recentKey() { return String(state.userId || ''); }
+  function recentStudents() {
+    var all = state.recentStudentsByUser || {};
+    var known = {};
+    allStudents().forEach(function (s) { known[String(s.student_no)] = s; });
+    // Yalnız hâlâ bu öğretmenin listesinde olan öğrenciler (atama değişmiş olabilir).
+    return (all[recentKey()] || []).map(function (no) { return known[String(no)]; }).filter(Boolean);
+  }
+  function rememberRecent(s) {
+    var key = recentKey(); if (!key) return;
+    state.recentStudentsByUser = state.recentStudentsByUser || {};
+    var list = (state.recentStudentsByUser[key] || []).filter(function (no) { return String(no) !== String(s.student_no); });
+    list.unshift(String(s.student_no));
+    state.recentStudentsByUser[key] = list.slice(0, PICK_RECENT_MAX);
+  }
+
+  function studentTile(s, showClass) {
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'student-tile';
+    var name = document.createElement('strong');
+    name.textContent = s.student_name || ('No ' + s.student_no);
+    var meta = document.createElement('small');
+    meta.textContent = (showClass && s.class_code ? s.class_code + ' · ' : '') + 'No ' + s.student_no;
+    btn.appendChild(name); btn.appendChild(meta);
+    btn.addEventListener('click', function () { pickStudent(s); });
+    return btn;
+  }
+
+  function chip(label, count, cls, onClick) {
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'chip' + (cls ? ' ' + cls : '');
+    b.appendChild(document.createTextNode(label));
+    if (count != null) { var sm = document.createElement('small'); sm.textContent = count; b.appendChild(sm); }
+    b.addEventListener('click', onClick);
+    return b;
+  }
+
+  function renderStudentPicker() {
+    var picker = $('studentPicker');
+    if (!picker) return;
+    var has = !!(selectedStudent && selectedStudent.student_no);
+    var students = allStudents();
+    if ($('studentCountBadge')) $('studentCountBadge').textContent = students.length ? students.length + ' öğrenci' : '';
+    // Öğrenci seçiliyken liste kapanır; ekran kısa kalır. ✕ ile yeniden açılır.
+    picker.hidden = has;
+    if (has) return;
+    if (!state.assignments) {
+      $('classChipsWrap').hidden = true;
+      $('recentStudentsWrap').hidden = true;
+      $('classStudents').hidden = true;
+      return;
+    }
+    // Son seçilenler
+    var recent = recentStudents(), recentBox = $('recentStudents');
+    recentBox.innerHTML = '';
+    recent.forEach(function (s) {
+      recentBox.appendChild(chip((s.student_name || s.student_no), s.class_code || '', 'recent', function () { pickStudent(s); }));
+    });
+    $('recentStudentsWrap').hidden = !recent.length;
+    // Sınıflar: önce kendi sınıflarım, sonra branş arkadaşlarımın sınıfları
+    var groups = studentsByClass(), own = ownClassSet();
+    var ownList = [], famList = [];
+    Object.keys(groups).sort(compareTr).forEach(function (c) { (own[c] ? ownList : famList).push(c); });
+    if (pickClass && !groups[pickClass]) pickClass = '';
+    if (!pickClass && ownList.length === 1 && !famList.length) pickClass = ownList[0];
+    var ownBox = $('classChipsOwn'), famBox = $('classChipsFamily');
+    ownBox.innerHTML = ''; famBox.innerHTML = '';
+    ownList.forEach(function (c) {
+      ownBox.appendChild(chip(c, groups[c].length, c === pickClass ? 'active' : '', function () { selectPickClass(c); }));
+    });
+    famList.forEach(function (c) {
+      famBox.appendChild(chip(c, groups[c].length, 'family' + (c === pickClass ? ' active' : ''), function () { selectPickClass(c); }));
+    });
+    $('classChipsOwnLabel').hidden = !ownList.length;
+    $('classChipsFamilyLabel').hidden = !famList.length;
+    $('classChipsWrap').hidden = !(ownList.length || famList.length);
+    // Seçili sınıfın öğrencileri
+    var grid = $('classStudents');
+    grid.innerHTML = '';
+    if (pickClass && groups[pickClass]) {
+      groups[pickClass].forEach(function (s) { grid.appendChild(studentTile(s, false)); });
+      grid.hidden = false;
+    } else {
+      grid.hidden = true;
+    }
+  }
+
+  function selectPickClass(c) {
+    pickClass = (pickClass === c) ? '' : c;   // aynı sınıfa tekrar dokunmak listeyi kapatır
+    renderStudentPicker();
+  }
+
+  function pickStudent(s) {
+    selectStudent(s);
+    var box = $('studentSearchResults');
+    if (box) { box.hidden = true; box.innerHTML = ''; }
+    if ($('studentSearch')) $('studentSearch').value = '';
+  }
+
+  function clearSelectedStudent() {
+    selectedStudent = null;
+    delete state.selectedStudent;
+    document.querySelectorAll('.daily-panel').forEach(function (p) {
+      if (p.id === 'teacherWorkPanel') p.hidden = true;
+    });
+    updateSelectedStudentLine();
+    try { $('studentPickCard').scrollIntoView({ behavior: 'smooth', block: 'start' }); } catch (e) {}
+  }
+
   function runStudentSearch() {
     var q = normalizeSearch($('studentSearch').value);
     var box = $('studentSearchResults');
     box.innerHTML = '';
-    if (!q || q.length < 1) {
+    var browsing = ['recentStudentsWrap', 'classChipsWrap', 'classStudents'];
+    if (!q) {
       box.hidden = true;
+      renderStudentPicker();
       return;
     }
+    // Arama sırasında sınıf listesi gizlenir; sonuçlar sınıfa göre gruplu gelir.
+    browsing.forEach(function (id) { if ($(id)) $(id).hidden = true; });
     if (!state.assignments) {
       box.hidden = false;
       box.innerHTML = '<button type="button" disabled>Önce kurum bilgilerini kaydedin</button>';
@@ -2214,24 +2402,31 @@ button.busy{cursor:progress;opacity:.85;background-image:linear-gradient(90deg,r
       var name = normalizeSearch(s.student_name);
       var no = String(s.student_no || '');
       return name.indexOf(q) !== -1 || no.indexOf(q) !== -1;
-    }).slice(0, 25);
-
+    });
     if (!hits.length) {
       box.hidden = false;
       box.innerHTML = '<button type="button" disabled>Sonuç yok</button>';
       return;
     }
-    hits.forEach(function (s) {
-      var btn = document.createElement('button');
-      btn.type = 'button';
-      btn.textContent = s.student_name + ' · ' + (s.class_code || '') + ' · No ' + s.student_no;
-      btn.addEventListener('click', function () {
-        selectStudent(s);
-        box.hidden = true;
-        $('studentSearch').value = '';
-      });
-      box.appendChild(btn);
+    var limited = hits.slice(0, 40), byClass = {};
+    limited.forEach(function (s) { var c = String(s.class_code || '—'); (byClass[c] = byClass[c] || []).push(s); });
+    Object.keys(byClass).sort(compareTr).forEach(function (c) {
+      var head = document.createElement('div');
+      head.className = 'search-group';
+      head.textContent = c + ' · ' + byClass[c].length;
+      box.appendChild(head);
+      var grid = document.createElement('div');
+      grid.className = 'student-grid';
+      byClass[c].sort(function (a, b) { return compareTr(a.student_name || '', b.student_name || ''); })
+        .forEach(function (s) { grid.appendChild(studentTile(s, false)); });
+      box.appendChild(grid);
     });
+    if (hits.length > limited.length) {
+      var more = document.createElement('div');
+      more.className = 'search-group';
+      more.textContent = '… ' + (hits.length - limited.length) + ' sonuç daha; aramayı daraltın.';
+      box.appendChild(more);
+    }
     box.hidden = false;
   }
 
@@ -2242,6 +2437,8 @@ button.busy{cursor:progress;opacity:.85;background-image:linear-gradient(90deg,r
       class_code: String(s.class_code || '')
     };
     state.selectedStudent = selectedStudent;
+    if (selectedStudent.class_code) pickClass = selectedStudent.class_code;
+    rememberRecent(selectedStudent);
     updateSelectedStudentLine();
     applyStudentToHomeworkFilters(selectedStudent);
     writeState();
@@ -2254,18 +2451,20 @@ button.busy{cursor:progress;opacity:.85;background-image:linear-gradient(90deg,r
     if (line) {
       if (has) {
         line.textContent = selectedStudent.student_name +
-          ' · Sınıf: ' + (selectedStudent.class_code || '—') +
-          ' · No: ' + selectedStudent.student_no;
+          ' · ' + (selectedStudent.class_code || '—') +
+          ' · No ' + selectedStudent.student_no;
         line.classList.remove('empty');
       } else {
-        line.textContent = 'Öğrenci seçilmedi.';
+        line.textContent = 'Öğrenci seçilmedi — aşağıdan sınıf seçin ya da arayın.';
         line.classList.add('empty');
       }
     }
+    if ($('btnClearStudent')) $('btnClearStudent').hidden = !has;
     if (hub) hub.hidden = !has;
     ['btnTeacherWork', 'btnHubHomework', 'btnHubMissing', 'btnHubQuiz'].forEach(function (id) {
       if ($(id)) $(id).disabled = !has;
     });
+    renderStudentPicker();
   }
 
   /* ── Öğretmen Çalışması ── */
@@ -4701,7 +4900,7 @@ button.busy{cursor:progress;opacity:.85;background-image:linear-gradient(90deg,r
   });
 
   $('studentSearch').addEventListener('input', runStudentSearch);
-  $('studentSearch').addEventListener('focus', runStudentSearch);
+  if ($('btnClearStudent')) $('btnClearStudent').addEventListener('click', clearSelectedStudent);
   $('btnTeacherWork').addEventListener('click', openTeacherWorkPanel);
 
   if ($('btnHubHomework')) {
