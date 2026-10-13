@@ -337,6 +337,27 @@ header h1{letter-spacing:.01em}
 /* Uzun süren bulut işlemlerinde düğme meşgul görünür */
 button.busy{cursor:progress;opacity:.85;background-image:linear-gradient(90deg,rgba(255,255,255,0) 0%,rgba(255,255,255,.35) 50%,rgba(255,255,255,0) 100%);background-size:200% 100%;animation:btnbusy 1.1s linear infinite}
 @keyframes btnbusy{from{background-position:200% 0}to{background-position:-200% 0}}
+/* Sınav Sonuçları (öğretmen) */
+.ex-list{display:flex;flex-direction:column;gap:6px;margin-top:6px}
+.ex-row{border:1px solid var(--line);border-radius:12px;background:#fafcfe}
+.ex-row[open]{background:#fff;box-shadow:var(--shadow-sm)}
+.ex-row summary{list-style:none;display:grid;grid-template-columns:minmax(0,1fr) auto auto auto;align-items:center;gap:8px;padding:9px 10px;cursor:pointer}
+.ex-row summary::-webkit-details-marker{display:none}
+.ex-who{min-width:0}
+.ex-who b{display:block;font-size:.88rem;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ex-who small{font-size:.7rem;color:var(--muted)}
+.ex-num{text-align:center;min-width:44px;font-variant-numeric:tabular-nums}
+.ex-num b{display:block;font-size:.95rem;color:var(--navy)}
+.ex-num small{font-size:.6rem;color:var(--muted);text-transform:uppercase;letter-spacing:.02em}
+.ex-num.net b{font-size:1.02rem}
+.ex-row.absent .ex-num.net b{color:#9a6700}
+.ex-subj{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:6px;padding:0 10px 10px}
+.ex-chip{border:1px solid var(--line);border-radius:10px;padding:6px 8px;font-size:.74rem}
+.ex-chip .n{font-weight:700;color:var(--ink);margin-bottom:2px}
+.ex-chip .s{color:var(--muted)}
+.ex-chip .s b{color:var(--navy)}
+.ex-chip .g{color:#9a6700;font-weight:700}
+.ex-class-head{margin:10px 2px 2px;font-size:.78rem;font-weight:800;color:var(--navy)}
 </style>
   <style>
     #appStatus {
@@ -558,6 +579,15 @@ button.busy{cursor:progress;opacity:.85;background-image:linear-gradient(90deg,r
       </button>
     </section>
 
+    <h2 class="daily-heading">Sınav Sonuçları</h2>
+    <section class="daily-grid exam-grid" aria-label="Sınav Sonuçları">
+      <button type="button" class="daily-tile wide" data-panel="dailyExamPanel">
+        <span class="tile-icon">🏆</span>
+        <strong>Sınav Sonuçları</strong>
+        <small>Toplam net · sınıf sırası · kurum sırası · SI'nin yayımladığı sınavlar</small>
+      </button>
+    </section>
+
     <h2 class="daily-heading">Raporlar</h2>
     <section class="daily-grid report-grid" aria-label="Raporlar">
       <button type="button" class="daily-tile" data-panel="dailyParentReportPanel">
@@ -657,6 +687,7 @@ button.busy{cursor:progress;opacity:.85;background-image:linear-gradient(90deg,r
       .pr-view .exam-table td.net,.pr-view .exam-table td.total-net{font-weight:700;color:#173d62}
       .pr-view .exam-table td.absent{text-align:center;color:#9a6700;font-weight:800}
       .pr-view .exam-table td.exam-name{font-weight:700;max-width:140px}
+      .pr-view .exam-table td.rank{font-weight:800;color:#173d62}
       .pr-view .exam-table td.exam-date{white-space:nowrap;font-size:.68rem;color:#596776}
       .pr-view .scroll-hint{font-size:.72rem;color:#596776;margin:0 0 10px}
       .pr-view .exam-cards{display:none;flex-direction:column;gap:10px;margin-top:8px}
@@ -847,6 +878,30 @@ button.busy{cursor:progress;opacity:.85;background-image:linear-gradient(90deg,r
         </div>
         <div id="missingGainsList" class="missing-gains-list">Veri yok.</div>
       </div>
+    </section>
+
+    <section class="card daily-panel" id="dailyExamPanel" hidden>
+      <div class="quiz-head">
+        <h2>Sınav Sonuçları</h2>
+        <button type="button" class="mini-btn" id="btnExamRefresh" title="Yayımlanmış sınavları Bulut'tan yeniden oku">↻ Yenile</button>
+      </div>
+      <label>Sınav
+        <select id="examSelect"><option value="">— sınavlar alınıyor —</option></select>
+      </label>
+      <div class="filter-row">
+        <label>Sınıf
+          <select id="examClassFilter"><option value="">— tüm sınıflarım —</option></select>
+        </label>
+        <label>Sırala
+          <select id="examSort">
+            <option value="inst">Kurum sırası</option>
+            <option value="class">Sınıf · ad</option>
+          </select>
+        </label>
+      </div>
+      <p class="selection-summary" id="examSummary">Henüz sınav alınmadı.</p>
+      <div id="examList" class="ex-list"></div>
+      <p class="hint">Veli raporunda yayımlanan sonuçlardır; netler ve sıralar SI masaüstünde hesaplanır. Ayrıntı için öğrenciye dokunun.</p>
     </section>
 
 
@@ -5931,6 +5986,7 @@ button.busy{cursor:progress;opacity:.85;background-image:linear-gradient(90deg,r
       html += '<th colspan="4" class="subj-head">' + prEsc(name) + '</th>';
     });
     html += '<th rowspan="2">Toplam Net</th>';
+    html += '<th rowspan="2">Sınıf Sıra</th><th rowspan="2">Kurum Sıra</th>';
     html += '</tr><tr>';
     subjectNames.forEach(function () {
       html += '<th class="subh">D</th><th class="subh">Y</th><th class="subh">B</th><th class="subh">Net</th>';
@@ -5958,6 +6014,8 @@ button.busy{cursor:progress;opacity:.85;background-image:linear-gradient(90deg,r
       });
       var tot = r['Toplam Net'];
       html += '<td class="num total-net"><b>' + prEsc(prNum(tot)) + '</b></td>';
+      html += '<td class="num rank">' + prEsc(prNum(r['Sınıf Sıra'])) + '</td>';
+      html += '<td class="num rank">' + prEsc(prNum(r['Kurum Sıra'])) + '</td>';
       html += '</tr>';
     });
     html += '</tbody></table></div>';
@@ -5968,7 +6026,8 @@ button.busy{cursor:progress;opacity:.85;background-image:linear-gradient(90deg,r
       html += '<div class="exam-card">';
       html += '<div class="exam-card-title">' + prEsc(String(r['Sınav'] || '')) + '</div>';
       html += '<div class="exam-card-meta">' + prEsc(String(r['Güncelleme Tarihi'] || '')) +
-        ' · Toplam Net: <b>' + prEsc(prNum(r['Toplam Net'])) + '</b></div>';
+        ' · Toplam Net: <b>' + prEsc(prNum(r['Toplam Net'])) + '</b>' +
+        (r['Kurum Sıra'] != null ? ' · Sınıf ' + prEsc(prNum(r['Sınıf Sıra'])) + ' · Kurum ' + prEsc(prNum(r['Kurum Sıra'])) : '') + '</div>';
       html += '<div class="subj-grid">';
       var sub = r.subjects || {};
       subjectNames.forEach(function (name) {
@@ -6774,6 +6833,132 @@ button.busy{cursor:progress;opacity:.85;background-image:linear-gradient(90deg,r
     });
   }
 
+  // ---- Sınav Sonuçları: SI'nin veli raporlarıyla yayımladığı sınavlar (yalnız kendi sınıflarım) ----
+  var exState = { uid: '', at: 0, data: null, flight: null };
+  function exEsc(s) { return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+  function exNum(v) {
+    if (v == null || v === '') return '—';
+    if (typeof v === 'number') return (Math.round(v * 100) / 100).toString();
+    return String(v);
+  }
+  function exRankVal(v) { var n = Number(v); return (v === '' || v == null || isNaN(n)) ? Infinity : n; }
+  function exCurrent() {
+    var d = exState.data, id = $('examSelect') ? $('examSelect').value : '';
+    if (!d || !d.exams) return null;
+    return d.exams.filter(function (e) { return e.id === id; })[0] || d.exams[0] || null;
+  }
+  function exFillSelects() {
+    var sel = $('examSelect'), d = exState.data;
+    if (!sel) return;
+    var keep = sel.value;
+    sel.innerHTML = '';
+    var list = (d && d.exams) || [];
+    if (!list.length) {
+      var o0 = document.createElement('option'); o0.value = ''; o0.textContent = '— yayımlanmış sınav yok —'; sel.appendChild(o0);
+    }
+    list.forEach(function (e) {
+      var o = document.createElement('option');
+      o.value = e.id; o.textContent = e.title + (e.date ? ' — ' + e.date : '') + ' (' + e.rows.length + ')';
+      sel.appendChild(o);
+    });
+    if (keep && list.some(function (e) { return e.id === keep; })) sel.value = keep;
+    exFillClasses();
+  }
+  function exFillClasses() {
+    var sel = $('examClassFilter'), ex = exCurrent();
+    if (!sel) return;
+    var keep = sel.value, classes = [];
+    ((ex && ex.rows) || []).forEach(function (r) { if (r.class && classes.indexOf(r.class) < 0) classes.push(r.class); });
+    classes.sort(function (a, b) { return a.localeCompare(b, 'tr', { numeric: true }); });
+    sel.innerHTML = '<option value="">— tüm sınıflarım —</option>';
+    classes.forEach(function (c) { var o = document.createElement('option'); o.value = c; o.textContent = c; sel.appendChild(o); });
+    sel.value = classes.indexOf(keep) >= 0 ? keep : '';
+  }
+  function exRender() {
+    var box = $('examList'), sum = $('examSummary');
+    if (!box || !sum) return;
+    var d = exState.data;
+    if (!d) { box.innerHTML = ''; sum.textContent = 'Henüz sınav alınmadı.'; return; }
+    var ex = exCurrent();
+    if (!ex) {
+      box.innerHTML = '';
+      sum.textContent = d.reports ? 'Kendi sınıflarınızdaki ' + d.reports + ' öğrencinin raporunda sınav sonucu yok.'
+        : 'Kendi sınıflarınızdaki öğrenciler için henüz yayımlanmış veli raporu yok.';
+      return;
+    }
+    var cls = $('examClassFilter') ? $('examClassFilter').value : '';
+    var sort = $('examSort') ? $('examSort').value : 'inst';
+    var rows = ex.rows.filter(function (r) { return !cls || r.class === cls; });
+    var entered = rows.filter(function (r) { return typeof r.total === 'number'; });
+    var avg = entered.length ? entered.reduce(function (s, r) { return s + r.total; }, 0) / entered.length : null;
+    sum.textContent = rows.length + ' öğrenci' + (cls ? ' (' + cls + ')' : '') +
+      ' · giren ' + entered.length + (avg == null ? '' : ' · ortalama net ' + exNum(avg)) +
+      (rows.length - entered.length ? ' · girmedi ' + (rows.length - entered.length) : '') +
+      (d.pending ? ' · ' + d.pending + ' rapor henüz okunmadı (↻ Yenile)' : '');
+    rows.sort(function (a, b) {
+      if (sort === 'inst') {
+        var x = exRankVal(a.inst_rank) - exRankVal(b.inst_rank);
+        if (x) return x;
+      }
+      var c = String(a.class).localeCompare(String(b.class), 'tr', { numeric: true });
+      if (c) return c;
+      return String(a.student_name).localeCompare(String(b.student_name), 'tr');
+    });
+    var order = ex.subject_order || [];
+    var html = '', lastCls = null;
+    rows.forEach(function (r) {
+      if (sort === 'class' && r.class !== lastCls) { lastCls = r.class; html += '<div class="ex-class-head">' + exEsc(r.class || '—') + '</div>'; }
+      var absent = typeof r.total !== 'number';
+      html += '<details class="ex-row' + (absent ? ' absent' : '') + '"><summary>' +
+        '<span class="ex-who"><b>' + exEsc(r.student_name || r.student_no) + '</b><small>' + exEsc(r.class || '') + ' · No ' + exEsc(r.student_no) + '</small></span>' +
+        '<span class="ex-num net"><b>' + (absent ? 'G' : exEsc(exNum(r.total))) + '</b><small>Toplam net</small></span>' +
+        '<span class="ex-num"><b>' + exEsc(exNum(r.class_rank)) + '</b><small>Sınıf</small></span>' +
+        '<span class="ex-num"><b>' + exEsc(exNum(r.inst_rank)) + '</b><small>Kurum</small></span>' +
+        '</summary><div class="ex-subj">';
+      var sub = r.subjects || {}, names = order.filter(function (n) { return sub[n]; });
+      Object.keys(sub).forEach(function (n) { if (names.indexOf(n) < 0) names.push(n); });
+      names.forEach(function (n) {
+        var c = sub[n];
+        html += '<div class="ex-chip"><div class="n">' + exEsc(n) + '</div>' +
+          ((c.status === 'G' || c.status === 'g') ? '<div class="g">G (girmedi)</div>'
+            : '<div class="s">D ' + exEsc(exNum(c.D)) + ' · Y ' + exEsc(exNum(c.Y)) + ' · B ' + exEsc(exNum(c.B)) + ' · <b>Net ' + exEsc(exNum(c.Net)) + '</b></div>') +
+          '</div>';
+      });
+      html += '</div></details>';
+    });
+    box.innerHTML = html || '<div class="quiz-result-row">Bu süzmede öğrenci yok.</div>';
+  }
+  async function exLoad(manual) {
+    var uid = state.userId;
+    if (!uid) return;
+    if (exState.uid !== uid) { exState = { uid: uid, at: 0, data: null, flight: null }; exRender(); }
+    if (!manual && exState.data && !exState.data.pending && Date.now() - exState.at < 5 * 60000) { exFillSelects(); exRender(); return; }
+    if (exState.flight) return exState.flight;
+    var btn = $('btnExamRefresh');
+    var run = (async function () {
+      if (btn) btn.disabled = true;
+      if ($('examSummary') && !exState.data) $('examSummary').textContent = 'Bulut: yayımlanmış sınavlar okunuyor…';
+      var d = null, rounds = 0;
+      do {
+        d = await api({ action: 'teacher_exam_results', user_id: uid });
+        rounds++;
+        if (exState.uid !== uid) return;
+        if (d.pending > 0 && $('examSummary')) $('examSummary').textContent = 'Raporlar okunuyor… kalan ' + d.pending;
+      } while (d.pending > 0 && rounds < 20);
+      exState.data = d; exState.at = Date.now();
+      exFillSelects(); exRender();
+      if (manual) log((d.exams || []).length + ' sınav alındı.', true);
+    })();
+    exState.flight = run;
+    try { await run; }
+    catch (e) { log(e.message, false); if ($('examSummary') && !exState.data) $('examSummary').textContent = 'Sınavlar alınamadı: ' + e.message; }
+    finally { if (exState.flight === run) exState.flight = null; if (btn) btn.disabled = false; }
+  }
+  if ($('examSelect')) $('examSelect').addEventListener('change', function () { exFillClasses(); exRender(); });
+  if ($('examClassFilter')) $('examClassFilter').addEventListener('change', exRender);
+  if ($('examSort')) $('examSort').addEventListener('change', exRender);
+  if ($('btnExamRefresh')) $('btnExamRefresh').addEventListener('click', function () { exLoad(true); });
+
   document.querySelectorAll('.daily-tile').forEach(function (tile) {
     tile.addEventListener('click', function () {
       var panelId = tile.dataset.panel;
@@ -6808,6 +6993,12 @@ button.busy{cursor:progress;opacity:.85;background-image:linear-gradient(90deg,r
         if (!requireTeacher()) return;
         showPanel(panelId);
         prOpen();
+        return;
+      }
+      if (panelId === 'dailyExamPanel') {
+        if (!requireTeacher()) return;
+        showPanel(panelId);
+        exLoad(false);
         return;
       }
       if (panelId === 'dailyQuizPanel') {
