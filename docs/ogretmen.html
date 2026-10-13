@@ -3860,7 +3860,7 @@ button.busy{cursor:progress;opacity:.85;background-image:linear-gradient(90deg,r
     var nos = {};
     if (data) {
       (data.gains || []).forEach(function (g) {
-        if (g.student_no) nos[g.student_no] = true;
+        if (g.student_no && isMissingGain(g)) nos[g.student_no] = true;
       });
     }
     var html = '<option value="">— tümü —</option>';
@@ -3936,7 +3936,8 @@ button.busy{cursor:progress;opacity:.85;background-image:linear-gradient(90deg,r
     try { var t = new Date(c.fetched_at); when = ' · ' + t.toLocaleDateString('tr-TR', { day: '2-digit', month: '2-digit' }) + ' ' + t.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' }); } catch (ignoreDate) {}
     var nos = {};
     (c.results || []).forEach(function (r) { if (r.student_no) nos[r.student_no] = true; });
-    el.textContent = Object.keys(nos).length + ' öğrenci · ' + (c.gains || []).length + ' kazanım kaydı' + when;
+    var open = (c.gains || []).filter(function (g) { return isMissingGain(g) && !(g.completed_at && String(g.completed_at).trim()); }).length;
+    el.textContent = Object.keys(nos).length + ' öğrenci · ' + open + ' tamamlanmamış eksik kazanım' + when;
   }
 
   // Seçili quiz tüm alt görünümlere (Sonuçlar / Eksik Kazanımlar) uygulanır.
@@ -4128,14 +4129,31 @@ button.busy{cursor:progress;opacity:.85;background-image:linear-gradient(90deg,r
     box.innerHTML = html;
   }
 
-  function missingReasonLabel(g) {
+  // Masaüstüyle aynı: kazanım satırı yalnız «Eksik» (yanlış/boş) veya «Girmedi» ise eksiktir; «Doğru» hiç listelenmez.
+  function isMissingGain(g) {
+    var st = String(g.missing_reason || g.status || '').trim().toLocaleLowerCase('tr');
+    if (!st) return false;
+    return st !== 'doğru' && st !== 'dogru' && st !== 'd' && st !== 'tamam';
+  }
+  // Yanlış mı boş mu: öğrencinin o dersteki sonuç dizgesinde (mantıksal soru sırası) ilgili harf.
+  function missingReasonLabel(g, data) {
     var reason = String(g.missing_reason || '').trim();
     var st = String(g.status || '').trim().toUpperCase();
+    if (st === 'G' || st === 'GIRMEDI' || st === 'GİRMEDİ' || reason.toLocaleLowerCase('tr') === 'girmedi') return 'Girmedi';
     if (st === 'Y' || reason === 'Y') return 'Yanlış';
     if (st === 'B' || reason === 'B') return 'Boş';
-    if (st === 'G' || reason.toLowerCase() === 'girmedi') return 'Girmedi';
-    if (reason) return reason;
-    return st || 'Eksik';
+    var rows = (data && data.results) || [];
+    for (var i = 0; i < rows.length; i++) {
+      var r = rows[i];
+      if (String(r.student_no) !== String(g.student_no) || r.subject_code !== g.subject_code) continue;
+      var text = String(r.result || '').trim().toUpperCase();
+      if (text === 'G') return 'Girmedi';
+      var ch = text.charAt((Number(g.soru_no) || 0) - 1);
+      if (ch === 'Y') return 'Yanlış';
+      if (ch === 'B') return 'Boş';
+      break;
+    }
+    return 'Yanlış/Boş';
   }
 
   function renderMissingGains() {
@@ -4158,6 +4176,7 @@ button.busy{cursor:progress;opacity:.85;background-image:linear-gradient(90deg,r
       return;
     }
     var rows = (data.gains || []).filter(function (g) {
+      if (!isMissingGain(g)) return false;
       if (no && String(g.student_no) !== String(no)) return false;
       var done = !!(g.completed_at && String(g.completed_at).trim());
       if (mode === 'missing' && done) return false;
@@ -4184,7 +4203,7 @@ button.busy{cursor:progress;opacity:.85;background-image:linear-gradient(90deg,r
         '<strong>' + name + ' · No ' + g.student_no + ' · Soru ' + (g.soru_no || '—') + '</strong>' +
         (g.kazanim_key || '—') + '<br>' +
         'Ders: ' + (g.catalog_subject_code || g.subject_code || '—') +
-        '<span class="tag">' + missingReasonLabel(g) +
+        '<span class="tag">' + missingReasonLabel(g, data) +
         (done ? ' · ' + String(g.completed_at).slice(0, 10) + (g.completed_by ? ' ' + g.completed_by : '') : '') +
         '</span>';
       box.appendChild(el);
