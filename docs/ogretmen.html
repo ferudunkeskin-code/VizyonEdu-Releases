@@ -113,6 +113,24 @@ button.secondary:active{background:#dde8f0}
 .student-tile:active{background:#eef4f8}
 .search-group{font-size:.72rem;font-weight:800;color:#486581;margin:8px 2px 2px}
 @media (max-width:360px){.student-grid{grid-template-columns:1fr}}
+/* ── Quizler (tek panel, sekmeli) ── */
+.daily-tile.wide{grid-column:1/-1}
+.quiz-head{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.quiz-head h2{margin:0}
+button.mini-btn{width:auto;min-height:34px;padding:6px 12px;margin:0;font-size:.8rem;border-radius:10px;background:#eef4f8;color:var(--navy);box-shadow:none;flex:0 0 auto}
+.quiz-meta-row{display:flex;align-items:center;gap:8px}
+.quiz-meta-row .selection-summary{flex:1;margin:0}
+.seg-tabs{display:grid;grid-template-columns:1fr 1fr;gap:4px;padding:4px;margin:12px 0 10px;background:#eef4f8;border-radius:12px}
+button.seg-tab{margin:0;min-height:40px;border-radius:9px;background:transparent;color:var(--muted);box-shadow:none;font-weight:700}
+button.seg-tab.active{background:#fff;color:var(--navy);box-shadow:0 1px 4px #174e7826}
+.filter-row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.filter-row label{margin:0}
+.missing-gain-row{padding:10px 12px;margin:0 0 8px;border:1px solid var(--line);border-left:4px solid var(--orange);border-radius:10px;background:#fff;font-size:.85rem}
+.missing-gain-row strong{display:block;color:var(--navy);margin-bottom:2px}
+.missing-gain-row .tag{display:inline-block;margin-left:6px;padding:1px 8px;border-radius:999px;background:#fff1e3;color:#9a5000;font-size:.72rem;font-weight:700}
+.missing-gain-row.completed{border-left-color:var(--green);opacity:.8}
+.missing-gain-row.completed .tag{background:#e6f6ec;color:#1c7a43}
+.clickable-line{cursor:pointer;background:#fff4e5;color:#8a4b00}
 /* ── Ödev / Kontrol hücreleri ── */
 .homework-rows{display:flex;flex-direction:column;gap:10px;margin:12px 0}
 .homework-row{
@@ -508,22 +526,12 @@ button.busy{cursor:progress;opacity:.85;background-image:linear-gradient(90deg,r
     </section>
 
 
-    <h2 class="daily-heading">Quiz işlemleri</h2>
-    <section class="daily-grid quiz-grid" aria-label="Quiz işlemleri">
-      <button type="button" class="daily-tile" data-panel="dailyQuizFetchPanel">
-        <span class="tile-icon">☁</span>
-        <strong>Uygulanmış Quiz Al</strong>
-        <small>Yayımlanmış quiz verisi</small>
-      </button>
-      <button type="button" class="daily-tile" data-panel="dailyQuizResultsPanel">
+    <h2 class="daily-heading">Quiz</h2>
+    <section class="daily-grid quiz-grid" aria-label="Quiz">
+      <button type="button" class="daily-tile wide" data-panel="dailyQuizPanel">
         <span class="tile-icon">📊</span>
-        <strong>Quiz Sonuçları</strong>
-        <small>Kendi dersiniz</small>
-      </button>
-      <button type="button" class="daily-tile" data-panel="dailyMissingGainsPanel">
-        <span class="tile-icon">◎</span>
-        <strong>Eksik Kazanım</strong>
-        <small>Yanlış · boş · girmedi</small>
+        <strong>Quizler</strong>
+        <small>Sonuçlar · eksik kazanımlar · Bulut'tan kendiliğinden alınır</small>
       </button>
     </section>
 
@@ -792,54 +800,53 @@ button.busy{cursor:progress;opacity:.85;background-image:linear-gradient(90deg,r
       <div id="gdBody"></div>
     </section>
 
-    <section class="card daily-panel" id="dailyQuizFetchPanel" hidden>
-      <h2>Uygulanmış Quiz Verisi Al</h2>
-      <p class="hint">Bulutta yayımlanan quizleri listeler. Yalnız kendi derslerinizin sonuçları alınır.</p>
-      <button type="button" class="secondary" id="btnListQuizzes">Yayımlanmış quizleri listele</button>
-      <label>Quiz
-        <select id="quizSelect"><option value="">— önce listeleyin —</option></select>
-      </label>
-      <button type="button" id="btnFetchQuiz" disabled>Seçili quizi al</button>
-      <p class="selection-summary" id="quizFetchSummary">Henüz quiz alınmadı.</p>
-      <div class="prep-pick-row" id="quizJumpRow" hidden>
-        <button type="button" class="secondary" id="btnJumpResults">Quiz Sonuçlarına git</button>
-        <button type="button" class="secondary" id="btnJumpMissing">Eksik Kazanıma git</button>
+    <section class="card daily-panel" id="dailyQuizPanel" hidden>
+      <div class="quiz-head">
+        <h2>Quizler</h2>
+        <button type="button" class="mini-btn" id="btnListQuizzes" title="Bulut'taki quiz listesini yenile">↻ Liste</button>
       </div>
-    </section>
-
-    <section class="card daily-panel" id="dailyQuizResultsPanel" hidden>
-      <h2>Quiz Sonuçları</h2>
-      <p class="hint">Liste masaüstüyle aynı mantıkta: sınıf süzmesi, doğru/yanlış/boş veya girmedi. Önce «Uygulanmış Quiz Al» ile veri çekin.</p>
       <label>Quiz
-        <select id="resultsQuizSelect"><option value="">— quiz alın —</option></select>
+        <select id="quizSelect"><option value="">— quizler alınıyor —</option></select>
       </label>
-      <label>Sınıf
-        <select id="resultsClassFilter"><option value="">— tüm sınıflar —</option></select>
-      </label>
-      <label>Ders
-        <select id="resultsSubjectSelect"><option value="">— tüm derslerim —</option></select>
-      </label>
-      <p class="selection-summary" id="resultsStudentFilterLine" hidden></p>
-      <div id="quizResultsList" class="quiz-results-list">Veri yok.</div>
-    </section>
+      <div class="quiz-meta-row">
+        <p class="selection-summary" id="quizFetchSummary">Henüz quiz alınmadı.</p>
+        <button type="button" class="mini-btn" id="btnFetchQuiz" disabled title="Seçili quizi Bulut'tan yeniden al">↻ Yeniden al</button>
+      </div>
+      <div class="seg-tabs" role="tablist">
+        <button type="button" class="seg-tab active" data-qtab="results" role="tab">Sonuçlar</button>
+        <button type="button" class="seg-tab" data-qtab="missing" role="tab">Eksik Kazanımlar</button>
+      </div>
 
-    <section class="card daily-panel" id="dailyMissingGainsPanel" hidden>
-      <h2>Eksik Kazanım Kontrolü</h2>
-      <p class="hint">Yanlış, boş veya girmedi kazanımlar. Tamamlananlar ayrı süzülebilir.</p>
-      <label>Quiz
-        <select id="missingQuizSelect"><option value="">— quiz alın —</option></select>
-      </label>
-      <label>Öğrenci
-        <select id="missingStudentSelect"><option value="">— tümü —</option></select>
-      </label>
-      <label>Göster
-        <select id="missingStatusFilter">
-          <option value="missing">Tamamlanmamışlar</option>
-          <option value="completed">Tamamlanmışlar</option>
-          <option value="all">Tümü</option>
-        </select>
-      </label>
-      <div id="missingGainsList" class="missing-gains-list">Veri yok.</div>
+      <div class="quiz-tab" id="dailyQuizResultsPanel">
+        <select id="resultsQuizSelect" hidden><option value=""></option></select>
+        <div class="filter-row">
+          <label>Sınıf
+            <select id="resultsClassFilter"><option value="">— tüm sınıflar —</option></select>
+          </label>
+          <label>Ders
+            <select id="resultsSubjectSelect"><option value="">— tüm derslerim —</option></select>
+          </label>
+        </div>
+        <p class="selection-summary" id="resultsStudentFilterLine" hidden></p>
+        <div id="quizResultsList" class="quiz-results-list">Veri yok.</div>
+      </div>
+
+      <div class="quiz-tab" id="dailyMissingGainsPanel" hidden>
+        <select id="missingQuizSelect" hidden><option value=""></option></select>
+        <div class="filter-row">
+          <label>Öğrenci
+            <select id="missingStudentSelect"><option value="">— tümü —</option></select>
+          </label>
+          <label>Göster
+            <select id="missingStatusFilter">
+              <option value="missing">Tamamlanmamışlar</option>
+              <option value="completed">Tamamlanmışlar</option>
+              <option value="all">Tümü</option>
+            </select>
+          </label>
+        </div>
+        <div id="missingGainsList" class="missing-gains-list">Veri yok.</div>
+      </div>
     </section>
 
 
@@ -1094,7 +1101,9 @@ button.busy{cursor:progress;opacity:.85;background-image:linear-gradient(90deg,r
     if (hint && $('blockingHint')) $('blockingHint').textContent = hint;
   }
 
+  var QUIZ_TAB_OF = { dailyQuizFetchPanel: 'results', dailyQuizResultsPanel: 'results', dailyMissingGainsPanel: 'missing' };
   function showPanel(panelId) {
+    if (QUIZ_TAB_OF[panelId]) { setQuizTab(QUIZ_TAB_OF[panelId]); panelId = 'dailyQuizPanel'; }
     var target = $(panelId);
     if (!target) {
       log('Panel bulunamadı: ' + panelId, false);
@@ -3861,66 +3870,131 @@ button.busy{cursor:progress;opacity:.85;background-image:linear-gradient(90deg,r
     sel.innerHTML = html;
   }
 
-  async function listPublishedQuizzes() {
+  async function listPublishedQuizzes(options) {
+    options = options || {};
     if (!requireTeacher()) return;
     var uid = $('userId').value;
-    log('Yayımlanmış quizler listeleniyor…');
+    if (!options.quiet) log('Bulut: quiz listesi alınıyor…');
+    var keep = currentQuizName();
     var d = await api({ action: 'list_processed_quizzes', user_id: uid });
     state.quizList = d.quizzes || [];
+    state.quizListAt = Date.now();
     writeState();
-    fillQuizSelects(state.quizList[0] ? state.quizList[0].quiz_name : '');
-    if ($('btnFetchQuiz')) $('btnFetchQuiz').disabled = !state.quizList.length;
-    log(state.quizList.length + ' yayımlanmış quiz listelendi.', true);
+    var listed = state.quizList.some(function (q) { return q.quiz_name === keep; });
+    fillQuizSelects(listed ? keep : (state.quizList[0] ? state.quizList[0].quiz_name : keep));
+    if (!options.quiet) log(state.quizList.length + ' quiz listelendi.', true);
   }
 
-  async function fetchSelectedQuiz() {
+  function currentQuizName() {
+    return ($('quizSelect') && $('quizSelect').value) || state.quizSelected || '';
+  }
+  function quizMeta(qn) {
+    return (state.quizList || []).filter(function (q) { return q.quiz_name === qn; })[0] || null;
+  }
+  // Önbellekteki quiz, Bulut'ta daha yeni bir paketle (yeniden okuma) değişmişse eski sayılır.
+  function quizCacheFresh(qn) {
+    var c = state.quizCache && state.quizCache[qn], m = quizMeta(qn);
+    if (!c) return false;
+    if (!m || !m.created_at || !c.source_created_at) return true;
+    return c.source_created_at === m.created_at;
+  }
+
+  async function fetchQuiz(qn) {
     if (!requireTeacher()) return;
+    if (!qn) { log('Listeden bir quiz seçin.', false); return; }
     var uid = $('userId').value;
-    var qn = $('quizSelect') ? $('quizSelect').value : '';
-    if (!qn) {
-      log('Listeden bir quiz seçin, sonra «Seçili quizi al»a basın.', false);
-      return;
-    }
-    log('Quiz verisi alınıyor (yalnız kendi dersleriniz)…');
+    if ($('quizFetchSummary')) $('quizFetchSummary').textContent = '«' + qn + '» Bulut\'tan alınıyor…';
+    log('Bulut: «' + qn + '» alınıyor (yalnız kendi dersleriniz)…');
     var d = await api({ action: 'fetch_processed_quiz', user_id: uid, quiz_name: qn });
+    var meta = quizMeta(qn);
     state.quizCache = state.quizCache || {};
     state.quizCache[qn] = {
       quiz_name: qn,
       results: d.results || [],
       gains: d.gains || [],
-      fetched_at: new Date().toISOString()
+      fetched_at: new Date().toISOString(),
+      source_created_at: meta && meta.created_at || ''
     };
-    // localStorage can be large; strip if needed - results/gains are small
     writeState();
+    if (currentQuizName() === qn || !currentQuizName()) applyQuizSelection(qn);
+    if (!(d.result_count || 0) && !(d.gain_count || 0)) {
+      log('«' + qn + '» okundu ama sizin derslerinize ait sonuç yok. Atamaları ve quiz ders kodlarını kontrol edin.', false);
+    } else {
+      log('«' + qn + '» alındı: ' + (d.result_count || 0) + ' sonuç, ' + (d.gain_count || 0) + ' kazanım.', true);
+    }
+  }
+  function fetchSelectedQuiz() { return fetchQuiz(currentQuizName()); }
+
+  function updateQuizSummary(qn) {
+    var el = $('quizFetchSummary');
+    if ($('btnFetchQuiz')) $('btnFetchQuiz').disabled = !qn;
+    if (!el) return;
+    var c = qn && state.quizCache && state.quizCache[qn];
+    if (!qn) { el.textContent = (state.quizList || []).length ? 'Bir quiz seçin.' : 'Bulut\'ta yayımlanmış quiz yok.'; return; }
+    if (!c) { el.textContent = 'Henüz alınmadı.'; return; }
+    var when = '';
+    try { var t = new Date(c.fetched_at); when = ' · ' + t.toLocaleDateString('tr-TR', { day: '2-digit', month: '2-digit' }) + ' ' + t.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' }); } catch (ignoreDate) {}
+    var nos = {};
+    (c.results || []).forEach(function (r) { if (r.student_no) nos[r.student_no] = true; });
+    el.textContent = Object.keys(nos).length + ' öğrenci · ' + (c.gains || []).length + ' kazanım kaydı' + when;
+  }
+
+  // Seçili quiz tüm alt görünümlere (Sonuçlar / Eksik Kazanımlar) uygulanır.
+  function applyQuizSelection(qn) {
+    var keepStudent = $('missingStudentSelect') ? $('missingStudentSelect').value : '';
+    state.quizSelected = qn || '';
     fillQuizSelects(qn);
     fillResultsSubjectOptions(qn);
     fillResultsClassOptions(qn);
     fillMissingStudentOptions(qn);
-    if ($('quizFetchSummary')) {
-      $('quizFetchSummary').textContent =
-        qn + ' alındı · ' + (d.result_count || 0) + ' sonuç · ' +
-        (d.gain_count || 0) + ' kazanım kaydı (kendi dersleriniz).';
-    }
-    // 2 ve 3 panelleri bu veriyi kullanır — seçimleri senkronla ve sonuçlara geç
+    if (keepStudent) setMissingStudent(keepStudent);
+    updateQuizSummary(qn);
     renderQuizResults();
     renderMissingGains();
-    log(
-      '«' + qn + '» alındı: ' + (d.result_count || 0) + ' sonuç, ' +
-      (d.gain_count || 0) + ' kazanım. Quiz Sonuçları veya Eksik Kazanım karesine basabilirsiniz.',
-      true
-    );
-    // Otomatik Quiz Sonuçları paneline geç (kullanıcı değişikliği görsün)
-    if ($('quizJumpRow')) $('quizJumpRow').hidden = false;
-    if ((d.result_count || 0) > 0 || (d.gain_count || 0) > 0) {
-      showPanel('dailyQuizResultsPanel');
-      renderQuizResults();
-    } else {
-      log(
-        'Paket okundu ama sizin derslerinize ait sonuç/kazanım satırı yok. ' +
-        'Atamalar ve quiz ders kodlarını kontrol edin.',
-        false
-      );
+  }
+  function setMissingStudent(no) {
+    var sel = $('missingStudentSelect');
+    if (!sel) return;
+    if (no && !Array.prototype.some.call(sel.options, function (o) { return o.value === String(no); })) {
+      var o = document.createElement('option');
+      o.value = String(no);
+      o.textContent = studentNameByNo(no) + ' (' + no + ')';
+      sel.appendChild(o);
     }
+    sel.value = no ? String(no) : '';
+  }
+
+  function setQuizTab(tab) {
+    tab = tab === 'missing' ? 'missing' : 'results';
+    state.quizTab = tab;
+    if ($('dailyQuizResultsPanel')) $('dailyQuizResultsPanel').hidden = tab !== 'results';
+    if ($('dailyMissingGainsPanel')) $('dailyMissingGainsPanel').hidden = tab !== 'missing';
+    document.querySelectorAll('.seg-tab[data-qtab]').forEach(function (b) {
+      var on = b.dataset.qtab === tab;
+      b.classList.toggle('active', on);
+      b.setAttribute('aria-selected', on ? 'true' : 'false');
+    });
+  }
+
+  var quizOpenFlight = null;
+  // «Quizler» açılınca: liste 5 dakikadan eskiyse Bulut'tan yenilenir; seçili quiz yoksa
+  // ya da Bulut'ta yeniden okunmuşsa kendiliğinden alınır. Önbellekteki veri hemen gösterilir.
+  function openQuizPanel() {
+    if (!requireTeacher()) return Promise.resolve();
+    var qn = currentQuizName() || Object.keys(state.quizCache || {})[0] || '';
+    applyQuizSelection(qn);
+    if (quizOpenFlight) return quizOpenFlight;
+    quizOpenFlight = (async function () {
+      var stale = !(state.quizList || []).length || !state.quizListAt || Date.now() - state.quizListAt > 5 * 60 * 1000;
+      if (stale) await listPublishedQuizzes({ quiet: true });
+      var pick = currentQuizName() || (state.quizList[0] && state.quizList[0].quiz_name) || '';
+      if (pick && !quizCacheFresh(pick)) await fetchQuiz(pick);
+      else applyQuizSelection(pick);
+    })().catch(function (e) {
+      log(e.message || String(e), false);
+      updateQuizSummary(currentQuizName());
+    }).finally(function () { quizOpenFlight = null; });
+    return quizOpenFlight;
   }
 
   /** Masaüstü _quiz_counts_and_net: sonuç dizgesinde D/Y/B say; G = girmedi */
@@ -3997,7 +4071,7 @@ button.busy{cursor:progress;opacity:.85;background-image:linear-gradient(90deg,r
     if (line) {
       if (studentOnly) {
         line.hidden = false;
-        line.textContent = 'Süzme: ' + studentNameByNo(studentOnly) + ' (No ' + studentOnly + ') — hub’dan açıldı';
+        line.textContent = 'Yalnız ' + studentNameByNo(studentOnly) + ' (No ' + studentOnly + ') · ✕ tümünü göster';
       } else {
         line.hidden = true;
         line.textContent = '';
@@ -4005,7 +4079,7 @@ button.busy{cursor:progress;opacity:.85;background-image:linear-gradient(90deg,r
     }
     var data = qn && state.quizCache ? state.quizCache[qn] : null;
     if (!data) {
-      box.innerHTML = '<div class="quiz-result-row">Henüz veri yok. <strong>Uygulanmış Quiz Al</strong> karesinden quiz seçip alın.</div>';
+      box.innerHTML = '<div class="quiz-result-row">Henüz veri yok. Yukarıdan bir quiz seçin; Bulut\'tan kendiliğinden alınır.</div>';
       return;
     }
     fillResultsClassOptions(qn);
@@ -4080,7 +4154,7 @@ button.busy{cursor:progress;opacity:.85;background-image:linear-gradient(90deg,r
     var mode = $('missingStatusFilter') ? $('missingStatusFilter').value : 'missing';
     var data = qn && state.quizCache ? state.quizCache[qn] : null;
     if (!data) {
-      box.innerHTML = '<div class="missing-gain-row">Henüz veri yok. <strong>Uygulanmış Quiz Al</strong> ile quiz alın.</div>';
+      box.innerHTML = '<div class="missing-gain-row">Henüz veri yok. Yukarıdan bir quiz seçin; Bulut\'tan kendiliğinden alınır.</div>';
       return;
     }
     var rows = (data.gains || []).filter(function (g) {
@@ -4915,15 +4989,8 @@ button.busy{cursor:progress;opacity:.85;background-image:linear-gradient(90deg,r
       if (!selectedStudent) { log('Önce öğrenci seçin', false); return; }
       state.quizResultsStudentNo = selectedStudent.student_no;
       writeState();
-      if (!state.quizCache || !Object.keys(state.quizCache).length) {
-        showPanel('dailyQuizFetchPanel');
-        log('Önce quiz listesini alıp bir quiz seçin; ardından sonuçlar yalnız ' +
-          selectedStudent.student_name + ' için süzülür.', false);
-        listPublishedQuizzes().catch(function (e) { log(e.message, false); });
-        return;
-      }
       showPanel('dailyQuizResultsPanel');
-      renderQuizResults();
+      openQuizPanel();
       log('Quiz sonuçları: ' + selectedStudent.student_name, true);
     });
   }
@@ -4940,30 +5007,10 @@ button.busy{cursor:progress;opacity:.85;background-image:linear-gradient(90deg,r
   if ($('btnHubMissing')) {
     $('btnHubMissing').addEventListener('click', function () {
       if (!selectedStudent) { log('Önce öğrenci seçin', false); return; }
-      // Eksik kazanım paneli + öğrenci süzmesi
       showPanel('dailyMissingGainsPanel');
-      if ($('missingStudentSelect')) {
-        // seçenek yoksa ekle
-        var found = false;
-        for (var i = 0; i < $('missingStudentSelect').options.length; i++) {
-          if ($('missingStudentSelect').options[i].value === selectedStudent.student_no) {
-            found = true; break;
-          }
-        }
-        if (!found) {
-          var o = document.createElement('option');
-          o.value = selectedStudent.student_no;
-          o.textContent = selectedStudent.student_name + ' (' + selectedStudent.student_no + ')';
-          $('missingStudentSelect').appendChild(o);
-        }
-        $('missingStudentSelect').value = selectedStudent.student_no;
-      }
-      if (typeof renderMissingGains === 'function') renderMissingGains();
-      if (!state.quizCache || !Object.keys(state.quizCache).length) {
-        log('Eksik kazanım için önce «Uygulanmış Quiz Al» ile quiz verisi alın.', false);
-      } else {
-        log('Eksik kazanım: ' + selectedStudent.student_name, true);
-      }
+      setMissingStudent(selectedStudent.student_no);
+      openQuizPanel();
+      log('Eksik kazanım: ' + selectedStudent.student_name, true);
     });
   }
 
@@ -5503,12 +5550,14 @@ button.busy{cursor:progress;opacity:.85;background-image:linear-gradient(90deg,r
 
   if ($('btnListQuizzes')) {
     $('btnListQuizzes').addEventListener('click', function () {
-      listPublishedQuizzes().catch(function (e) { log(e.message, false); });
+      listPublishedQuizzes().then(function () { return openQuizPanel(); }).catch(function (e) { log(e.message, false); });
     });
   }
   if ($('quizSelect')) {
     $('quizSelect').addEventListener('change', function () {
-      if ($('btnFetchQuiz')) $('btnFetchQuiz').disabled = !$('quizSelect').value;
+      var qn = $('quizSelect').value;
+      applyQuizSelection(qn);
+      if (qn && !quizCacheFresh(qn)) fetchQuiz(qn).catch(function (e) { log(e.message, false); updateQuizSummary(qn); });
     });
   }
   if ($('btnFetchQuiz')) {
@@ -5516,19 +5565,20 @@ button.busy{cursor:progress;opacity:.85;background-image:linear-gradient(90deg,r
       fetchSelectedQuiz().catch(function (e) { log(e.message, false); });
     });
   }
-
-  if ($('btnJumpResults')) {
-    $('btnJumpResults').addEventListener('click', function () {
-      showPanel('dailyQuizResultsPanel');
+  if ($('resultsStudentFilterLine')) {
+    $('resultsStudentFilterLine').classList.add('clickable-line');
+    $('resultsStudentFilterLine').addEventListener('click', function () {
+      state.quizResultsStudentNo = '';
+      writeState();
       renderQuizResults();
     });
   }
-  if ($('btnJumpMissing')) {
-    $('btnJumpMissing').addEventListener('click', function () {
-      showPanel('dailyMissingGainsPanel');
-      renderMissingGains();
+  document.querySelectorAll('.seg-tab[data-qtab]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      setQuizTab(b.dataset.qtab);
+      if (b.dataset.qtab === 'missing') renderMissingGains(); else renderQuizResults();
     });
-  }
+  });
 
   if ($('resultsQuizSelect')) {
     $('resultsQuizSelect').addEventListener('change', function () {
@@ -6322,6 +6372,17 @@ button.busy{cursor:progress;opacity:.85;background-image:linear-gradient(90deg,r
         prOpen();
         return;
       }
+      if (panelId === 'dailyQuizPanel') {
+        if (!requireTeacher()) return;
+        // Kareden açılınca öğrenci süzmeleri kalkar (öğrenci kartındaki düğmeler ayrı)
+        state.quizResultsStudentNo = '';
+        setMissingStudent('');
+        writeState();
+        setQuizTab(state.quizTab || 'results');
+        showPanel(panelId);
+        openQuizPanel();
+        return;
+      }
       if (panelId === 'dailyReportPanel') {
         if (!requireTeacher()) return;
         showPanel(panelId);
@@ -6335,40 +6396,6 @@ button.busy{cursor:progress;opacity:.85;background-image:linear-gradient(90deg,r
           $('prepSubject').value = state.subjectCode;
         }
         fillPrepMainGains();
-      }
-      if (panelId === 'dailyQuizFetchPanel') {
-        if (!requireTeacher()) return;
-        log('Quiz listesini almak için «Yayımlanmış quizleri listele»ye basın.', true);
-      }
-      if (panelId === 'dailyQuizResultsPanel') {
-        // kareden açılınca öğrenci süzmesi kalkar (hub ayrı)
-        state.quizResultsStudentNo = '';
-        writeState();
-        var rq = $('resultsQuizSelect') && $('resultsQuizSelect').value;
-        if (!rq && state.quizCache && Object.keys(state.quizCache).length) {
-          rq = Object.keys(state.quizCache)[0];
-          if ($('resultsQuizSelect')) $('resultsQuizSelect').value = rq;
-          fillResultsSubjectOptions(rq);
-          fillResultsClassOptions(rq);
-        }
-        if (!state.quizCache || !Object.keys(state.quizCache).length) {
-          log('Önce «Uygulanmış Quiz Al» ile bir quiz seçip alın.', false);
-        }
-        renderQuizResults();
-      }
-      if (panelId === 'dailyMissingGainsPanel') {
-        // kareden açılınca hub öğrenci süzmesi kalkar
-        var mq = $('missingQuizSelect') && $('missingQuizSelect').value;
-        if (!mq && state.quizCache && Object.keys(state.quizCache).length) {
-          mq = Object.keys(state.quizCache)[0];
-          if ($('missingQuizSelect')) $('missingQuizSelect').value = mq;
-        }
-        if (mq) fillMissingStudentOptions(mq);
-        if ($('missingStudentSelect')) $('missingStudentSelect').value = '';
-        if (!state.quizCache || !Object.keys(state.quizCache).length) {
-          log('Önce «Uygulanmış Quiz Al» ile bir quiz seçip alın.', false);
-        }
-        renderMissingGains();
       }
     });
   });
@@ -6413,6 +6440,7 @@ button.busy{cursor:progress;opacity:.85;background-image:linear-gradient(90deg,r
     fillQuizSelects(lastQ);
     if(lastQ){fillResultsSubjectOptions(lastQ);fillMissingStudentOptions(lastQ);renderQuizResults();renderMissingGains();}
   }
+  setQuizTab(state.quizTab || 'results');updateQuizSummary(currentQuizName());
   async function silentBackgroundSync() {
     if(!rememberedIdentity())return;
     try {
