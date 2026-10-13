@@ -64,6 +64,7 @@ button.secondary:active{background:#dde8f0}
 .setup-toggle small{font-size:.68rem;letter-spacing:.09em;opacity:.78}
 .setup-panel{margin-bottom:8px}
 .daily-heading{margin:18px 4px 8px;font-size:.95rem;color:var(--navy)}
+.daily-heading small{font-weight:500;font-size:.78rem;opacity:.75;margin-left:4px}
 .daily-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-bottom:12px}
 .daily-tile{
   display:flex;flex-direction:column;align-items:flex-start;gap:4px;
@@ -487,7 +488,7 @@ button.busy{cursor:progress;opacity:.85;background-image:linear-gradient(90deg,r
         <button type="button" class="hub-btn" id="btnTeacherWork" disabled>Öğretmen Çalışması</button>
         <button type="button" class="hub-btn" id="btnHubHomework" disabled>Ödev ve Kontrol</button>
         <button type="button" class="hub-btn" id="btnHubMissing" disabled>Eksik Kazanım</button>
-        <button type="button" class="hub-btn" id="btnHubQuiz" disabled>Uygulanmış Quiz</button>
+        <button type="button" class="hub-btn" id="btnHubQuiz" disabled>Uygulanmış KKT</button>
       </div>
       <div id="studentPicker" class="student-picker">
         <input id="studentSearch" type="search" placeholder="Ad veya numara ile ara…" autocomplete="off" inputmode="search" aria-label="Öğrenci ara">
@@ -548,11 +549,11 @@ button.busy{cursor:progress;opacity:.85;background-image:linear-gradient(90deg,r
     </section>
 
 
-    <h2 class="daily-heading">Quiz</h2>
-    <section class="daily-grid quiz-grid" aria-label="Quiz">
+    <h2 class="daily-heading">KKT <small>Konu Kavrama Testleri</small></h2>
+    <section class="daily-grid quiz-grid" aria-label="KKT – Konu Kavrama Testleri">
       <button type="button" class="daily-tile wide" data-panel="dailyQuizPanel">
         <span class="tile-icon">📊</span>
-        <strong>Quizler</strong>
+        <strong>KKT</strong>
         <small>Sonuçlar · eksik kazanımlar · Bulut'tan kendiliğinden alınır</small>
       </button>
     </section>
@@ -758,7 +759,7 @@ button.busy{cursor:progress;opacity:.85;background-image:linear-gradient(90deg,r
       <p id="prepEditHint" class="hint" hidden></p>
 
       <h3 class="prep-list-heading">Bu dersteki yerel sorular</h3>
-      <p class="hint">Yalnız <strong>Hazır</strong> sorular gönderilebilir. Eksik soruları önce Düzenle ile tamamlayın. Sorular yukarıda seçtiğiniz quiz talebine bulut üzerinden gider.</p>
+      <p class="hint">Yalnız <strong>Hazır</strong> sorular gönderilebilir. Eksik soruları önce Düzenle ile tamamlayın. Sorular yukarıda seçtiğiniz KKT talebine bulut üzerinden gider.</p>
       <div class="prep-pick-row" style="margin-bottom:8px">
         <button type="button" class="secondary" id="btnPrepSelectAll" disabled>Tümünü seç</button>
         <button type="button" class="secondary" id="btnPrepSelectNone" disabled>Seçimi kaldır</button>
@@ -801,15 +802,15 @@ button.busy{cursor:progress;opacity:.85;background-image:linear-gradient(90deg,r
 
     <section class="card daily-panel" id="dailyQuizPanel" hidden>
       <div class="quiz-head">
-        <h2>Quizler</h2>
-        <button type="button" class="mini-btn" id="btnListQuizzes" title="Bulut'taki quiz listesini yenile">↻ Liste</button>
+        <h2>KKT</h2>
+        <button type="button" class="mini-btn" id="btnListQuizzes" title="Bulut'taki KKT listesini yenile">↻ Liste</button>
       </div>
-      <label>Quiz
-        <select id="quizSelect"><option value="">— quizler alınıyor —</option></select>
+      <label>KKT
+        <select id="quizSelect"><option value="">— KKT'ler alınıyor —</option></select>
       </label>
       <div class="quiz-meta-row">
-        <p class="selection-summary" id="quizFetchSummary">Henüz quiz alınmadı.</p>
-        <button type="button" class="mini-btn" id="btnFetchQuiz" disabled title="Seçili quizi Bulut'tan yeniden al">↻ Yeniden al</button>
+        <p class="selection-summary" id="quizFetchSummary">Henüz KKT alınmadı.</p>
+        <button type="button" class="mini-btn" id="btnFetchQuiz" disabled title="Seçili KKT'yi Bulut'tan yeniden al">↻ Yeniden al</button>
       </div>
       <div class="seg-tabs" role="tablist">
         <button type="button" class="seg-tab active" data-qtab="results" role="tab">Sonuçlar</button>
@@ -3446,7 +3447,7 @@ button.busy{cursor:progress;opacity:.85;background-image:linear-gradient(90deg,r
   async function refreshQuizRequests(manual) {
     if (quizRequestFlight) {
       var ok = await quizRequestFlight;
-      if (manual && ok) log(quizRequestRows.length + ' açık quiz talebi alındı.', true);
+      if (manual && ok) log(quizRequestRows.length + ' açık KKT talebi alındı.', true);
       return ok;
     }
     var button = $('btnMobileQuizRequests');
@@ -3475,8 +3476,8 @@ button.busy{cursor:progress;opacity:.85;background-image:linear-gradient(90deg,r
       try {seen=JSON.parse(localStorage.getItem(key)||'{}');}catch(e){}
       var fresh=quizRequestRows.filter(function(r){return seen[r.request_id]!==r.updated_at;});
       var notice=$('mobileQuizRequestNotice');
-      if(manual){quizRequestRows.forEach(function(r){seen[r.request_id]=r.updated_at;});try{localStorage.setItem(key,JSON.stringify(seen));}catch(e){}notice.hidden=true;log(quizRequestRows.length+' açık quiz talebi alındı.',true);if($('mobileQuizRequestInfo')&&!selectedQuizRequest())$('mobileQuizRequestInfo').textContent=quizRequestRows.length?quizRequestRows.length+' açık talep var; listeden seçin.':'Size açık quiz talebi yok.';}
-      else {notice.hidden=!fresh.length;notice.textContent=fresh.length+' yeni/güncellenen quiz talebi var. Soru Hazırla → Quiz Taleplerini Al.';}
+      if(manual){quizRequestRows.forEach(function(r){seen[r.request_id]=r.updated_at;});try{localStorage.setItem(key,JSON.stringify(seen));}catch(e){}notice.hidden=true;log(quizRequestRows.length+' açık KKT talebi alındı.',true);if($('mobileQuizRequestInfo')&&!selectedQuizRequest())$('mobileQuizRequestInfo').textContent=quizRequestRows.length?quizRequestRows.length+' açık talep var; listeden seçin.':'Size açık KKT talebi yok.';}
+      else {notice.hidden=!fresh.length;notice.textContent=fresh.length+' yeni/güncellenen KKT talebi var. Soru Hazırla → KKT Taleplerini Al.';}
       return true;
     } catch(e) {if(manual)log(e.message||String(e),false);return false;}
     finally {quizRequestBusy=false;}
@@ -3484,7 +3485,7 @@ button.busy{cursor:progress;opacity:.85;background-image:linear-gradient(90deg,r
   function installQuizRequestPanel() {
     var anchor=$('prepSubject');if(!anchor)return;
     var panel=document.createElement('section');panel.className='card';
-    panel.innerHTML='<h3>Quiz talepleri</h3><button type="button" id="btnMobileQuizRequests">Quiz Taleplerini Al</button><label>Talep<select id="mobileQuizRequest"></select></label><p id="mobileQuizRequestInfo" class="hint"></p><p class="hint">Talebi seçin, aşağıdaki listeden sorularınızı işaretleyin ve <strong>Talebe Buluta Gönder</strong> deyin. Sorular doğrudan Sistem Sorumlusuna ulaşır. Aynı talebe yeniden gönderirseniz önceki gönderiminizin yerine geçer.</p><h3>Gönderdiklerim</h3><button type="button" class="secondary" id="btnMyQuizContribs">Gönderdiklerimi Göster</button><div id="myQuizContribs" class="hint">Buluta gönderdiğiniz talep soruları burada görünür.</div>';
+    panel.innerHTML='<h3>KKT talepleri</h3><button type="button" id="btnMobileQuizRequests">KKT Taleplerini Al</button><label>Talep<select id="mobileQuizRequest"></select></label><p id="mobileQuizRequestInfo" class="hint"></p><p class="hint">Talebi seçin, aşağıdaki listeden sorularınızı işaretleyin ve <strong>Talebe Buluta Gönder</strong> deyin. Sorular doğrudan Sistem Sorumlusuna ulaşır. Aynı talebe yeniden gönderirseniz önceki gönderiminizin yerine geçer.</p><h3>Gönderdiklerim</h3><button type="button" class="secondary" id="btnMyQuizContribs">Gönderdiklerimi Göster</button><div id="myQuizContribs" class="hint">Buluta gönderdiğiniz talep soruları burada görünür.</div>';
     var position=anchor.closest('label')||anchor;position.parentNode.insertBefore(panel,position);
     var notice=document.createElement('div');notice.id='mobileQuizRequestNotice';notice.className='card';notice.setAttribute('role','status');notice.hidden=true;document.body.insertBefore(notice,document.body.firstChild);
     $('btnMobileQuizRequests').onclick=function(){refreshQuizRequests(true);};
@@ -3501,8 +3502,8 @@ button.busy{cursor:progress;opacity:.85;background-image:linear-gradient(90deg,r
   async function buildMobileQuestionPackage(questions, subjectCode, request) {
     if (!questions || !questions.length) throw new Error('Paketlemek için en az bir soru seçin');
     if(request){
-      if(!request.request_id || !request.quiz_name || request.subject_code!==catalogSubjectOf(subjectCode))throw new Error('Quiz talep kimliği veya dersi geçersiz.');
-      if(questions.length!==Number(request.requested_count))throw new Error('Quiz talebindeki soru sayısına ulaşılmalı.');
+      if(!request.request_id || !request.quiz_name || request.subject_code!==catalogSubjectOf(subjectCode))throw new Error('KKT talep kimliği veya dersi geçersiz.');
+      if(questions.length!==Number(request.requested_count))throw new Error('KKT talebindeki soru sayısına ulaşılmalı.');
       var requestIds={};questions.forEach(function(q){if(!q.question_id || requestIds[q.question_id])throw new Error('Eksik veya yinelenen soru kimliği.');requestIds[q.question_id]=true;});
     }
     var institution = (state.assignments && state.assignments.institution_code) || 'VIZYON';
@@ -3674,7 +3675,7 @@ button.busy{cursor:progress;opacity:.85;background-image:linear-gradient(90deg,r
     var code = $('prepSubject') ? $('prepSubject').value : '';
     if (!code) throw new Error('Önce ders seçin');
     var request = selectedQuizRequest();
-    if (!request) throw new Error('Önce yukarıdan bir quiz talebi seçin. Sorular yalnız bir talebe, bulut üzerinden gönderilir.');
+    if (!request) throw new Error('Önce yukarıdan bir KKT talebi seçin. Sorular yalnız bir talebe, bulut üzerinden gönderilir.');
     var ids = selectedPrepQuestionIds();
     if (!ids.length) throw new Error('En az bir hazır soru seçin');
     var all = await listLocalQuestions(code);
@@ -3820,7 +3821,7 @@ button.busy{cursor:progress;opacity:.85;background-image:linear-gradient(90deg,r
       sel.innerHTML = '';
       var ph = document.createElement('option');
       ph.value = '';
-      ph.textContent = names.length ? '— seçin —' : '— önce quiz alın —';
+      ph.textContent = names.length ? '— seçin —' : '— önce KKT alın —';
       sel.appendChild(ph);
       names.forEach(function (name) {
         var o = document.createElement('option');
@@ -3873,7 +3874,7 @@ button.busy{cursor:progress;opacity:.85;background-image:linear-gradient(90deg,r
     options = options || {};
     if (!requireTeacher()) return;
     var uid = $('userId').value;
-    if (!options.quiet) log('Bulut: quiz listesi alınıyor…');
+    if (!options.quiet) log('Bulut: KKT listesi alınıyor…');
     var keep = currentQuizName();
     var d = await api({ action: 'list_processed_quizzes', user_id: uid });
     state.quizList = d.quizzes || [];
@@ -3881,7 +3882,7 @@ button.busy{cursor:progress;opacity:.85;background-image:linear-gradient(90deg,r
     writeState();
     var listed = state.quizList.some(function (q) { return q.quiz_name === keep; });
     fillQuizSelects(listed ? keep : (state.quizList[0] ? state.quizList[0].quiz_name : keep));
-    if (!options.quiet) log(state.quizList.length + ' quiz listelendi.', true);
+    if (!options.quiet) log(state.quizList.length + ' KKT listelendi.', true);
   }
 
   function currentQuizName() {
@@ -3901,7 +3902,7 @@ button.busy{cursor:progress;opacity:.85;background-image:linear-gradient(90deg,r
 
   async function fetchQuiz(qn) {
     if (!requireTeacher()) return;
-    if (!qn) { log('Listeden bir quiz seçin.', false); return; }
+    if (!qn) { log('Listeden bir KKT seçin.', false); return; }
     var uid = $('userId').value;
     if ($('quizFetchSummary')) $('quizFetchSummary').textContent = '«' + qn + '» Bulut\'tan alınıyor…';
     log('Bulut: «' + qn + '» alınıyor (yalnız kendi dersleriniz)…');
@@ -3919,7 +3920,7 @@ button.busy{cursor:progress;opacity:.85;background-image:linear-gradient(90deg,r
     writeState();
     if (currentQuizName() === qn || !currentQuizName()) applyQuizSelection(qn);
     if (!(d.result_count || 0) && !(d.gain_count || 0)) {
-      log('«' + qn + '» okundu ama sizin derslerinize ait sonuç yok. Atamaları ve quiz ders kodlarını kontrol edin.', false);
+      log('«' + qn + '» okundu ama sizin derslerinize ait sonuç yok. Atamaları ve KKT ders kodlarını kontrol edin.', false);
     } else {
       log('«' + qn + '» alındı: ' + (d.result_count || 0) + ' sonuç, ' + (d.gain_count || 0) + ' kazanım.', true);
     }
@@ -3931,7 +3932,7 @@ button.busy{cursor:progress;opacity:.85;background-image:linear-gradient(90deg,r
     if ($('btnFetchQuiz')) $('btnFetchQuiz').disabled = !qn;
     if (!el) return;
     var c = qn && state.quizCache && state.quizCache[qn];
-    if (!qn) { el.textContent = (state.quizList || []).length ? 'Bir quiz seçin.' : 'Bulut\'ta yayımlanmış quiz yok.'; return; }
+    if (!qn) { el.textContent = (state.quizList || []).length ? 'Bir KKT seçin.' : 'Bulut\'ta yayımlanmış KKT yok.'; return; }
     if (!c) { el.textContent = 'Henüz alınmadı.'; return; }
     var when = '';
     try { var t = new Date(c.fetched_at); when = ' · ' + t.toLocaleDateString('tr-TR', { day: '2-digit', month: '2-digit' }) + ' ' + t.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' }); } catch (ignoreDate) {}
@@ -4082,7 +4083,7 @@ button.busy{cursor:progress;opacity:.85;background-image:linear-gradient(90deg,r
     }
     var data = qn && state.quizCache ? state.quizCache[qn] : null;
     if (!data) {
-      box.innerHTML = '<div class="quiz-result-row">Henüz veri yok. Yukarıdan bir quiz seçin; Bulut\'tan kendiliğinden alınır.</div>';
+      box.innerHTML = '<div class="quiz-result-row">Henüz veri yok. Yukarıdan bir KKT seçin; Bulut\'tan kendiliğinden alınır.</div>';
       return;
     }
     fillResultsClassOptions(qn);
@@ -4398,7 +4399,7 @@ button.busy{cursor:progress;opacity:.85;background-image:linear-gradient(90deg,r
     var mode = $('missingStatusFilter') ? $('missingStatusFilter').value : 'missing';
     var data = qn && state.quizCache ? state.quizCache[qn] : null;
     if (!data) {
-      box.innerHTML = '<div class="missing-gain-row">Henüz veri yok. Yukarıdan bir quiz seçin; Bulut\'tan kendiliğinden alınır.</div>';
+      box.innerHTML = '<div class="missing-gain-row">Henüz veri yok. Yukarıdan bir KKT seçin; Bulut\'tan kendiliğinden alınır.</div>';
       return;
     }
     var list = missingGainGroups(data, no, mode);
@@ -5249,7 +5250,7 @@ button.busy{cursor:progress;opacity:.85;background-image:linear-gradient(90deg,r
       writeState();
       showPanel('dailyQuizResultsPanel');
       openQuizPanel();
-      log('Quiz sonuçları: ' + selectedStudent.student_name, true);
+      log('KKT sonuçları: ' + selectedStudent.student_name, true);
     });
   }
   if ($('resultsClassFilter')) {
