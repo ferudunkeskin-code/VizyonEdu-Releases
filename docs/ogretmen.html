@@ -147,6 +147,11 @@ button.seg-tab.active{background:#fff;color:var(--navy);box-shadow:0 1px 4px #17
 button.mg-add-task{min-height:52px;margin:0;border:1.5px dashed #9fb6c9;background:#fff;color:var(--navy);font-size:.8rem;font-weight:700;box-shadow:none;border-radius:10px}
 .mg-actions .status-cell{min-height:52px}
 .mg-note{grid-column:1/-1;font-size:.75rem;color:var(--muted);font-style:italic}
+.ex-quick{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+.ex-counts{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:6px 0 8px}
+.ex-count{border:1px solid var(--line);border-radius:10px;padding:8px;background:#f8fbfd;text-align:center}
+.ex-count b{display:block;font-size:1.15rem;color:var(--navy)}
+.ex-count small{font-size:.7rem;color:var(--muted);font-weight:700}
 .clickable-line{cursor:pointer;background:#fff4e5;color:#8a4b00}
 /* ── Ödev / Kontrol hücreleri ── */
 .homework-rows{display:flex;flex-direction:column;gap:10px;margin:12px 0}
@@ -559,15 +564,10 @@ button.busy{cursor:progress;opacity:.85;background-image:linear-gradient(90deg,r
         <strong>Raporlama</strong>
         <small>Öğrencinin veli raporu</small>
       </button>
-      <button type="button" class="daily-tile" data-panel="dailyWorkReportPanel">
+      <button type="button" class="daily-tile" data-panel="dailyExportPanel">
         <span class="tile-icon">🗂</span>
-        <strong>Çalışma Raporum</strong>
-        <small>Öğrenci çalışmalarım · Excel</small>
-      </button>
-      <button type="button" class="daily-tile" data-panel="dailyHwReportPanel">
-        <span class="tile-icon">✅</span>
-        <strong>Ödev / Onay Raporum</strong>
-        <small>Ödev · onay · ek görev · Excel</small>
+        <strong>Verilerimi Excel’e Al</strong>
+        <small>Çalışmalar · ödev-kontrol · ek görevler</small>
       </button>
       <button type="button" class="daily-tile" data-panel="dailyReportPanel">
         <span class="tile-icon">📋</span>
@@ -576,43 +576,25 @@ button.busy{cursor:progress;opacity:.85;background-image:linear-gradient(90deg,r
       </button>
     </section>
 
-    <section class="card daily-panel" id="dailyHwReportPanel" hidden>
-      <h2>Ödev / Onay Raporum</h2>
-      <p class="hint">Yalnız sizin girdiğiniz ödev, onay/kontrol ve ek görev kayıtları. Liste cihazınızdan anında açılır; «Yenile» güncel ödev verisini yeniler. Varsayılan: son 2 hafta.</p>
-      <div class="wr-grid">
-        <label>Başlangıç <input type="date" id="hwFrom"></label>
-        <label>Bitiş <input type="date" id="hwTo"></label>
-        <label>Sınıf <select id="hwClass"><option value="">Tümü</option></select></label>
-        <label>Ders <select id="hwSubject"><option value="">Tümü</option></select></label>
-        <label>Tür <select id="hwKind"><option value="">Tümü</option><option>Ödev</option><option>Onay / Kontrol</option><option>Ek görev tanımı</option></select></label>
+    <section class="card daily-panel" id="dailyExportPanel" hidden>
+      <h2>Verilerimi Excel’e Al</h2>
+      <p class="hint">Sizin girdiğiniz bütün kayıtlar tek Excel dosyasında, üç sayfa hâlinde: <b>Öğrenci Çalışmaları</b>, <b>Ödev-Kontrol</b>, <b>Ek Görevler</b>. Varsayılan: bu eğitim yılının tamamı. Dosya yedek olarak saklanabilir.</p>
+      <div class="filter-row">
+        <label>Başlangıç <input type="date" id="exFrom"></label>
+        <label>Bitiş <input type="date" id="exTo"></label>
       </div>
-      <label>Ara <input id="hwSearch" type="search" placeholder="Öğrenci, numara veya görev…" autocomplete="off"></label>
+      <div class="ex-quick">
+        <button type="button" class="mini-btn" data-ex-range="year">Bütün yıl</button>
+        <button type="button" class="mini-btn" data-ex-range="month">Son 1 ay</button>
+        <button type="button" class="mini-btn" data-ex-range="week">Son 1 hafta</button>
+      </div>
+      <div class="ex-counts" id="exCounts"></div>
+      <p class="selection-summary" id="exSummary">Cihazdaki kayıtlar sayılıyor…</p>
       <div class="wr-actions">
-        <button type="button" class="secondary" id="btnHwSync">Yenile</button>
-        <button type="button" class="secondary" id="btnHwExport" disabled>Excel’i indir</button>
-        <button type="button" id="btnHwShare" disabled>Paylaş (WhatsApp…)</button>
+        <button type="button" class="secondary" id="btnExSync">Bulut’tan tamamla</button>
+        <button type="button" id="btnExDownload" disabled>Excel’i indir</button>
+        <button type="button" class="secondary" id="btnExShare" disabled>Paylaş (WhatsApp…)</button>
       </div>
-      <p class="hint" id="hwSummary"></p>
-      <div class="wr-table-wrap"><table class="wr-table"><thead><tr><th>Tarih</th><th>Sınıf</th><th>No</th><th>Öğrenci</th><th>Ders</th><th>Tür</th><th>Konu / Görev</th><th>Değer</th></tr></thead><tbody id="hwBody"></tbody></table></div>
-    </section>
-
-    <section class="card daily-panel" id="dailyWorkReportPanel" hidden>
-      <h2>Çalışma Raporum</h2>
-      <p class="hint">Yalnız sizin yaptığınız öğretmen–öğrenci çalışmaları (kendi sınıfınız dışındaki öğrenciler dahil). Varsayılan: son 2 hafta. Liste cihazınızdan anında açılır; «Yenile» başka cihazdaki/eski kayıtları tamamlar.</p>
-      <div class="wr-grid">
-        <label>Başlangıç <input type="date" id="wrFrom"></label>
-        <label>Bitiş <input type="date" id="wrTo"></label>
-        <label>Sınıf <select id="wrClass"><option value="">Tümü</option></select></label>
-        <label>Ders <select id="wrSubject"><option value="">Tümü</option></select></label>
-      </div>
-      <label>Öğrenci ara <input id="wrSearch" type="search" placeholder="Ad veya numara…" autocomplete="off"></label>
-      <div class="wr-actions">
-        <button type="button" class="secondary" id="btnWrLoad">Yenile</button>
-        <button type="button" class="secondary" id="btnWrExport" disabled>Excel’i indir</button>
-        <button type="button" id="btnWrShare" disabled>Paylaş (WhatsApp…)</button>
-      </div>
-      <p class="hint" id="wrSummary"></p>
-      <div class="wr-table-wrap"><table class="wr-table"><thead><tr><th>Tarih</th><th>Sınıf</th><th>No</th><th>Öğrenci</th><th>Ders</th><th>Çalışma</th></tr></thead><tbody id="wrBody"></tbody></table></div>
     </section>
 
     <section class="card daily-panel" id="dailyParentReportPanel" hidden>
@@ -6418,6 +6400,37 @@ button.busy{cursor:progress;opacity:.85;background-image:linear-gradient(90deg,r
       { name: 'xl/worksheets/sheet1.xml', data: xml }
     ]);
   }
+  // Çok sayfalı .xlsx: sheets = [{name, header, rows, widths, numCols:[i]}]
+  function wrXlsxBook(sheets) {
+    var H = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>';
+    function sheetXml(sh) {
+      var nums = sh.numCols || [];
+      function cell(v, r, c) {
+        var ref = wrColName(c) + r;
+        if (r > 1 && nums.indexOf(c) >= 0 && v !== '' && v != null && isFinite(Number(v))) return '<c r="' + ref + '"><v>' + Number(v) + '</v></c>';
+        return '<c r="' + ref + '" t="inlineStr"><is><t xml:space="preserve">' + wrEsc(v == null ? '' : v).replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g, '') + '</t></is></c>';
+      }
+      var xml = H + '<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetViews><sheetView workbookViewId="0"><pane ySplit="1" topLeftCell="A2" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews><cols>' +
+        (sh.widths || []).map(function (w, i) { return '<col min="' + (i + 1) + '" max="' + (i + 1) + '" width="' + w + '" customWidth="1"/>'; }).join('') + '</cols><sheetData>';
+      xml += '<row r="1">' + sh.header.map(function (v, i) { return cell(v, 1, i); }).join('') + '</row>';
+      sh.rows.forEach(function (row, ri) { xml += '<row r="' + (ri + 2) + '">' + row.map(function (v, ci) { return cell(v, ri + 2, ci); }).join('') + '</row>'; });
+      if (sh.rows.length) xml += '</sheetData><autoFilter ref="A1:' + wrColName(sh.header.length - 1) + (sh.rows.length + 1) + '"/></worksheet>';
+      else xml += '</sheetData></worksheet>';
+      return xml;
+    }
+    var files = [
+      { name: '[Content_Types].xml', data: H + '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/>' +
+        sheets.map(function (s, i) { return '<Override PartName="/xl/worksheets/sheet' + (i + 1) + '.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>'; }).join('') + '</Types>' },
+      { name: '_rels/.rels', data: H + '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>' },
+      { name: 'xl/workbook.xml', data: H + '<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets>' +
+        sheets.map(function (s, i) { return '<sheet name="' + wrEsc(s.name) + '" sheetId="' + (i + 1) + '" r:id="rId' + (i + 1) + '"/>'; }).join('') + '</sheets></workbook>' },
+      { name: 'xl/_rels/workbook.xml.rels', data: H + '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">' +
+        sheets.map(function (s, i) { return '<Relationship Id="rId' + (i + 1) + '" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet' + (i + 1) + '.xml"/>'; }).join('') + '</Relationships>' }
+    ];
+    sheets.forEach(function (s, i) { files.push({ name: 'xl/worksheets/sheet' + (i + 1) + '.xml', data: sheetXml(s) }); });
+    return wrZip(files);
+  }
+
   function wrBuildFile() {
     var rows = wrFiltered();
     if (!rows.length) return null;
@@ -6504,7 +6517,8 @@ button.busy{cursor:progress;opacity:.85;background-image:linear-gradient(90deg,r
     (hwJournalLoad()[uid] || []).forEach(function (x) {
       var title = (x.xid || x.xname) ? hwExtraTitle(x.subj, x.xname || ('__TEACHER_EXTRA__' + uid + '__' + x.xid)) : String(x.item || '').replace(/_/g, ' ');
       have[x.no + '|' + x.subj + '|' + x.typ + '|' + x.at] = 1;
-      push({ at: x.at, no: x.no, name: x.name, cls: x.cls, subj: x.subj, kind: x.typ === 'H' ? 'Ödev' : 'Onay / Kontrol', title: title, val: hwValue(x.typ, x.op, x.pct) }, 'j');
+      push({ at: x.at, no: x.no, name: x.name, cls: x.cls, subj: x.subj, kind: x.typ === 'H' ? 'Ödev' : 'Onay / Kontrol', title: title, val: hwValue(x.typ, x.op, x.pct),
+        typ: x.typ, item: x.xname || x.item || '', extra: !!(x.xid || x.xname), task_id: x.xid || '', op: x.op || 'set', pct: x.pct || 0 }, 'j');
     });
     // Cihazdaki güncel ödev verisinden: damgası benim baş harflerimle biten olaylar
     var ini = String(($('initials') && $('initials').value) || state.initials || '').trim().toUpperCase();
@@ -6518,7 +6532,8 @@ button.busy{cursor:progress;opacity:.85;background-image:linear-gradient(90deg,r
           if (!v || (v !== ini && !new RegExp('\\s' + ini.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '$').test(v))) return;
           if (have[p[0] + '|' + p[1] + '|' + typ + '|' + e.at]) return;
           var pm = /^%(\d+)/.exec(v);
-          push({ at: e.at, no: p[0], name: '', cls: '', subj: p[1], kind: typ === 'H' ? 'Ödev' : 'Onay / Kontrol', title: hwExtraTitle(p[1], p[2]), val: hwValue(typ, 'set', pm ? Number(pm[1]) : 0) }, 'c');
+          push({ at: e.at, no: p[0], name: '', cls: '', subj: p[1], kind: typ === 'H' ? 'Ödev' : 'Onay / Kontrol', title: hwExtraTitle(p[1], p[2]), val: hwValue(typ, 'set', pm ? Number(pm[1]) : 0),
+            typ: typ, item: p[2], extra: /^__TEACHER_EXTRA__/.test(p[2]), task_id: '', op: 'set', pct: pm ? Number(pm[1]) : 0 }, 'c');
         });
       });
     }
@@ -6527,7 +6542,8 @@ button.busy{cursor:progress;opacity:.85;background-image:linear-gradient(90deg,r
       (state.extraTasks[subj] || []).forEach(function (t) {
         if (String(t.owner_user_id || '') !== uid || t.is_active === false) return;
         var at = t.created_at || t.updated_at; if (!at) return;
-        push({ at: at, no: String(t.student_no), name: '', cls: t.class_code || '', subj: subj, kind: 'Ek görev tanımı', title: t.title, val: 'Tanımlandı' }, 't');
+        push({ at: at, no: String(t.student_no), name: '', cls: t.class_code || '', subj: subj, kind: 'Ek görev tanımı', title: t.title, val: 'Tanımlandı',
+          typ: 'TASK', item: '', extra: true, task_id: t.task_id || '', op: 'define', pct: 0, task_kind: t.kind || '' }, 't');
       });
     });
     rows.sort(function (a, b) { return a.at < b.at ? 1 : a.at > b.at ? -1 : 0; });
@@ -6615,6 +6631,148 @@ button.busy{cursor:progress;opacity:.85;background-image:linear-gradient(90deg,r
     $('hwSearch').addEventListener('input', hwRender);
   }
 
+  // ---- Verilerimi Excel'e Al: tek dosya, üç sayfa (geri yüklemeye uygun anahtar sütunlarıyla) ----
+  var exState = { busy: false };
+  function exYearStart() {
+    var d = new Date(), y = d.getMonth() >= 7 ? d.getFullYear() : d.getFullYear() - 1;   // Ağustos'tan itibaren yeni eğitim yılı
+    return y + '-09-01';
+  }
+  function exSetRange(kind) {
+    var now = new Date(), to = wrDateStr(now), from = exYearStart();
+    if (kind === 'month') from = wrDateStr(new Date(now.getTime() - 30 * 864e5));
+    if (kind === 'week') from = wrDateStr(new Date(now.getTime() - 7 * 864e5));
+    $('exFrom').value = from; $('exTo').value = to;
+    exRender();
+  }
+  function exInRange(date) {
+    var from = $('exFrom').value, to = $('exTo').value;
+    return (!from || date >= from) && (!to || date <= to);
+  }
+  function exTime(iso) {
+    try { return new Date(iso).toLocaleTimeString('tr-TR', { timeZone: 'Europe/Istanbul', hour: '2-digit', minute: '2-digit' }); } catch (e) { return ''; }
+  }
+  function exCollect() {
+    wrBuildRows(); hwBuildRows();
+    var work = wrState.rows.filter(function (r) { return exInRange(r.date); });
+    var hw = hwState.rows.filter(function (r) { return exInRange(r.date); });
+    work.sort(function (a, b) { return a.at < b.at ? -1 : a.at > b.at ? 1 : 0; });
+    hw.sort(function (a, b) { return a.at < b.at ? -1 : a.at > b.at ? 1 : 0; });
+    return { work: work, homework: hw.filter(function (r) { return !r.extra; }), extra: hw.filter(function (r) { return r.extra; }) };
+  }
+  function exRender() {
+    if (!$('exCounts')) return;
+    var c = exCollect();
+    $('exCounts').innerHTML = [['Öğrenci Çalışmaları', c.work.length], ['Ödev-Kontrol', c.homework.length], ['Ek Görevler', c.extra.length]]
+      .map(function (x) { return '<div class="ex-count"><b>' + x[1] + '</b><small>' + x[0] + '</small></div>'; }).join('');
+    var total = c.work.length + c.homework.length + c.extra.length;
+    if (!exState.busy) {
+      var synced = (wrJournalLoad()._synced || {})[state.userId];
+      $('exSummary').textContent = total
+        ? wrDisplayDate($('exFrom').value) + ' – ' + wrDisplayDate($('exTo').value) + ' · ' + total + ' kayıt' + (synced ? '' : ' · Bulut’tan henüz tamamlanmadı')
+        : 'Bu aralıkta cihazda kayıt yok. «Bulut’tan tamamla» ile başka cihazlardaki kayıtları da alın.';
+    }
+    $('btnExDownload').disabled = !total || exState.busy;
+    $('btnExShare').disabled = !total || exState.busy;
+  }
+  function exBuildFile() {
+    var c = exCollect();
+    function base(r) {
+      var st = hwStudent(r.no || r.student_no) || {};
+      return [wrDisplayDate(r.date), exTime(r.at), r.cls || r.class_code || st.class_code || '', String(r.no || r.student_no || ''),
+        r.name || r.student_name || st.student_name || '', wrSubjectName(r.subj || r.subject_code)];
+    }
+    var sheets = [
+      { name: 'Öğrenci Çalışmaları',
+        header: ['Tarih', 'Saat', 'Sınıf', 'No', 'Öğrenci', 'Ders', 'Çalışma', 'Ders Kodu', 'Kayıt Zamanı (ISO)'],
+        widths: [11, 7, 9, 8, 26, 20, 46, 18, 24], numCols: [3],
+        rows: c.work.map(function (r) { return base(r).concat([r.message, r.subject_code, r.at]); }) },
+      { name: 'Ödev-Kontrol',
+        header: ['Tarih', 'Saat', 'Sınıf', 'No', 'Öğrenci', 'Ders', 'Tür', 'Ana Kazanım', 'Değer', 'Yüzde', 'İşlem', 'Ders Kodu', 'Tür Kodu', 'Kayıt Zamanı (ISO)'],
+        widths: [11, 7, 9, 8, 26, 20, 15, 40, 12, 7, 8, 18, 8, 24], numCols: [3, 9],
+        rows: c.homework.map(function (r) { return base(r).concat([r.kind, r.title, r.val, r.pct || '', r.op, r.subj, r.typ, r.at]); }) },
+      { name: 'Ek Görevler',
+        header: ['Tarih', 'Saat', 'Sınıf', 'No', 'Öğrenci', 'Ders', 'Kayıt', 'Görev', 'Değer', 'Yüzde', 'İşlem', 'Ders Kodu', 'Görev Kimliği', 'Durum Anahtarı', 'Kayıt Zamanı (ISO)'],
+        widths: [11, 7, 9, 8, 26, 20, 16, 34, 12, 7, 8, 18, 18, 30, 24], numCols: [3, 9],
+        rows: c.extra.map(function (r) {
+          return base(r).concat([r.kind === 'Ek görev tanımı' ? 'Görev tanımı' + (r.task_kind === 'test' ? ' (test)' : '') : 'Görev durumu',
+            r.title, r.val, r.pct || '', r.op, r.subj, r.task_id || '', r.item || '', r.at]);
+        }) }
+    ];
+    var total = sheets.reduce(function (n, s) { return n + s.rows.length; }, 0);
+    if (!total) return null;
+    var who = String(($('initials') && $('initials').value) || state.initials || '').trim().toUpperCase();
+    return { blob: wrXlsxBook(sheets), name: 'VizyonEdu_Verilerim_' + (who ? who + '_' : '') + $('exFrom').value + '_' + $('exTo').value + '.xlsx', total: total };
+  }
+  async function exExport(share) {
+    var f = exBuildFile();
+    if (!f) { log('Bu aralıkta kayıt yok.', false); return; }
+    var file = null;
+    try { file = new File([f.blob], f.name, { type: f.blob.type }); } catch (ignoreFile) {}
+    if (share) {
+      try {
+        if (!file || !navigator.share || !navigator.canShare || !navigator.canShare({ files: [file] })) throw new Error('unsupported');
+        await navigator.share({ files: [file], title: 'VizyonEdu Verilerim' });
+        return;
+      } catch (e) {
+        if (e && e.name === 'AbortError') return;
+        wrDownload(f);
+        log('Paylaşım menüsü açılamadı; dosya indirildi. İndirilenler’den paylaşabilirsiniz.', false);
+        return;
+      }
+    }
+    wrDownload(f);
+    log('Excel indirildi: ' + f.name + ' · ' + f.total + ' kayıt', true);
+  }
+  // Bulut'tan tamamlama: öğretmen çalışmaları (seçili aralık) + bütün derslerin ödev/kontrol verisi.
+  async function exSync() {
+    if (exState.busy || !requireTeacher()) return;
+    exState.busy = true; $('btnExSync').disabled = true; exRender();
+    try {
+      $('exSummary').textContent = 'Bulut: öğrenci çalışmaları alınıyor…';
+      var d = null, rounds = 0;
+      do {
+        d = await api({ action: 'teacher_work_report', user_id: state.userId, from: $('exFrom').value, to: $('exTo').value });
+        rounds++;
+        if (d.pending > 0) $('exSummary').textContent = 'Bulut: öğrenci çalışmaları hazırlanıyor… ' + d.pending + ' paket kaldı';
+      } while (d.pending > 0 && rounds < 60);
+      wrJournalAdd(state.userId, (d.rows || []).map(function (r) {
+        return { at: r.at, no: String(r.student_no), name: r.student_name || '', cls: '', subj: r.subject_code, msg: r.message };
+      }));
+      var all = wrJournalLoad(); all._synced = all._synced || {}; all._synced[state.userId] = Date.now();
+      try { localStorage.setItem(WR_KEY, JSON.stringify(all)); } catch (e) {}
+      var subs = (state.assignments && state.assignments.subjects) || [];
+      for (var i = 0; i < subs.length; i++) {
+        $('exSummary').textContent = 'Bulut: ödev/kontrol · ' + wrSubjectName(subs[i].subject_code) + ' (' + (i + 1) + '/' + subs.length + ')';
+        for (var attempt = 0; attempt < 20; attempt++) {
+          var rs = null;
+          try { rs = await fetchHomeworkStatuses(subs[i].subject_code, true, true); }
+          catch (e) { if (!/hazırlanıyor|zaman aşımı/i.test(String((e && e.message) || e))) { log(wrSubjectName(subs[i].subject_code) + ': ' + (e.message || e), false); break; } }
+          if (rs && !(rs.pending > 0)) break;
+          await new Promise(function (r) { setTimeout(r, 1500); });
+        }
+      }
+      log('Bulut’tan tamamlandı.', true);
+    } catch (e) {
+      log(e.message || String(e), false);
+    } finally {
+      exState.busy = false; $('btnExSync').disabled = false; exRender();
+    }
+  }
+  function exOpen() {
+    if (!$('exFrom').value) exSetRange('year'); else exRender();
+    var all = wrJournalLoad();
+    if (!(all._synced && all._synced[state.userId])) exSync();
+  }
+  if ($('btnExSync')) {
+    $('btnExSync').addEventListener('click', exSync);
+    $('btnExDownload').addEventListener('click', function () { exExport(false).catch(function (e) { log(e.message || String(e), false); }); });
+    $('btnExShare').addEventListener('click', function () { exExport(true).catch(function (e) { log(e.message || String(e), false); }); });
+    ['exFrom', 'exTo'].forEach(function (id) { $(id).addEventListener('change', exRender); });
+    document.querySelectorAll('[data-ex-range]').forEach(function (b) {
+      b.addEventListener('click', function () { exSetRange(b.dataset.exRange); });
+    });
+  }
+
   document.querySelectorAll('.daily-tile').forEach(function (tile) {
     tile.addEventListener('click', function () {
       var panelId = tile.dataset.panel;
@@ -6640,9 +6798,9 @@ button.busy{cursor:progress;opacity:.85;background-image:linear-gradient(90deg,r
         showPanel(panelId); hwOpen();
         return;
       }
-      if (panelId === 'dailyWorkReportPanel') {
+      if (panelId === 'dailyExportPanel') {
         if (!requireTeacher()) return;
-        showPanel(panelId); wrOpen();
+        showPanel(panelId); exOpen();
         return;
       }
       if (panelId === 'dailyParentReportPanel') {
