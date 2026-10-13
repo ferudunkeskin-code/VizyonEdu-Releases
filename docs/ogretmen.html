@@ -143,6 +143,10 @@ button.seg-tab.active{background:#fff;color:var(--navy);box-shadow:0 1px 4px #17
 .mg-subj{font-size:.72rem;font-weight:700;color:var(--navy);background:#eef4f8;border-radius:999px;padding:1px 8px}
 .mg-meta .tag{padding:1px 8px;border-radius:999px;background:#fff1e3;color:#9a5000;font-size:.72rem;font-weight:700}
 .mg-row.completed .tag{background:#e6f6ec;color:#1c7a43}
+.mg-actions{margin-top:8px;grid-template-columns:repeat(auto-fill,minmax(92px,1fr))}
+button.mg-add-task{min-height:52px;margin:0;border:1.5px dashed #9fb6c9;background:#fff;color:var(--navy);font-size:.8rem;font-weight:700;box-shadow:none;border-radius:10px}
+.mg-actions .status-cell{min-height:52px}
+.mg-note{grid-column:1/-1;font-size:.75rem;color:var(--muted);font-style:italic}
 .clickable-line{cursor:pointer;background:#fff4e5;color:#8a4b00}
 /* ── Ödev / Kontrol hücreleri ── */
 .homework-rows{display:flex;flex-direction:column;gap:10px;margin:12px 0}
@@ -4006,6 +4010,7 @@ button.busy{cursor:progress;opacity:.85;background-image:linear-gradient(90deg,r
       var pick = currentQuizName() || (state.quizList[0] && state.quizList[0].quiz_name) || '';
       if (pick && !quizCacheFresh(pick)) await fetchQuiz(pick);
       else applyQuizSelection(pick);
+      if (state.quizTab === 'missing') await refreshMissingStatuses();
     })().catch(function (e) {
       log(e.message || String(e), false);
       updateQuizSummary(currentQuizName());
@@ -4271,7 +4276,128 @@ button.busy{cursor:progress;opacity:.85;background-image:linear-gradient(90deg,r
       : Object.keys(grp.reasons).map(function (r) { return grp.reasons[r] > 1 ? r + ' ×' + grp.reasons[r] : r; }).join(' · ');
     meta.appendChild(tag);
     el.appendChild(meta);
+    var acts = missingGainActions(grp);
+    if (acts) el.appendChild(acts);
     return el;
+  }
+
+  // Quiz ders kodu → öğretmenin atama ders kodu (Ödev/Kontrol bu kodla tutulur).
+  function teacherSubjectFor(grp) {
+    var subs = (state.assignments && state.assignments.subjects) || [];
+    var cls = studentClassOf(grp.student_no), best = '';
+    subs.forEach(function (s) {
+      if (s.subject_code !== grp.subject_code && catalogSubjectOf(s.subject_code) !== grp.catalog) return;
+      if (!best) best = s.subject_code;
+      if (cls && (s.classes || []).indexOf(cls) >= 0) best = s.subject_code;
+    });
+    return best;
+  }
+  function gainNameKey(name) { return statusKey('1', '', name, 'H').split('|')[2].toLocaleLowerCase('tr'); }
+  function catalogMainGain(code, name) {
+    var want = gainNameKey(name), list = state.gains[code] || [];
+    for (var i = 0; i < list.length; i++) if (gainNameKey(list[i].item_name) === want) return list[i].item_name;
+    return '';
+  }
+  function statusCellButton(title, key, target) {
+    var draft = draftStatuses[key];
+    var value = draft ? (draft.operation === 'clear' ? '' : draft.preview) : (state.statuses[key] || '');
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'status-cell' + (value ? ' filled' : '') + (draft ? ' draft' : '');
+    var t = document.createElement('span'); t.className = 'cell-title'; t.textContent = title;
+    var v = document.createElement('span'); v.className = 'cell-value'; v.textContent = value || '—';
+    btn.appendChild(t); btn.appendChild(v);
+    bindCell(btn, target);
+    return btn;
+  }
+  // Masaüstü sırası: ek görevler → Ödev → Kontrol. Dokun: işaretle/kaldır · uzun bas: %30/50/70.
+  function missingGainActions(grp) {
+    var code = teacherSubjectFor(grp), no = grp.student_no;
+    var box = document.createElement('div');
+    box.className = 'homework-actions mg-actions';
+    var main = code ? catalogMainGain(code, grp.main_gain) : '';
+    if (!main) {
+      var note = document.createElement('div');
+      note.className = 'mg-note';
+      note.textContent = code ? 'Bu ana kazanım ders listesinde yok; Ödev/Kontrol işlenemez.' : 'Bu ders size atanmamış.';
+      box.appendChild(note);
+      return box;
+    }
+    var ctx = { student_no: no, subject_code: code, class_code: studentClassOf(no), student_name: studentNameByNo(no) };
+    var keys = [];
+    ((state.extraTasks || {})[code] || []).filter(function (task) {
+      return String(task.student_no) === String(no) && task.is_active !== false && task.kind !== 'test';
+    }).forEach(function (task) {
+      var statusName = extraStatusItemName(task, main), key = statusKey(no, code, statusName, 'Ok');
+      keys.push(key);
+      box.appendChild(statusCellButton(task.title || 'Ek görev', key, { key: key, gain: statusName, itemType: 'Ok',
+        displayName: task.title || main, extraTaskId: task.task_id || '', statusItemName: statusName, mainGainLabel: main, ctx: ctx }));
+    });
+    [['H', 'Öğrenci Ödevi'], ['Ok', 'Öğretmen Kontrolü']].forEach(function (pair) {
+      var key = statusKey(no, code, main, pair[0]);
+      keys.push(key);
+      box.appendChild(statusCellButton(pair[1], key, { key: key, gain: main, itemType: pair[0], displayName: main, ctx: ctx }));
+    });
+    var add = document.createElement('button');
+    add.type = 'button';
+    add.className = 'mg-add-task';
+    add.textContent = '+ Ek görev';
+    add.title = 'Bu öğrenciye bu derste ek görev ekle';
+    add.addEventListener('click', function (ev) {
+      ev.stopPropagation();
+      openExtraTaskFor(ctx);
+    });
+    box.appendChild(add);
+    var pending = keys.filter(function (k) { return draftStatuses[k]; });
+    if (pending.length) {
+      var save = document.createElement('button');
+      save.type = 'button';
+      save.className = 'row-save';
+      save.textContent = 'Kaydet';
+      save.addEventListener('click', function (ev) {
+        ev.stopPropagation();
+        save.disabled = true;
+        approveDrafts(pending).catch(function (e) { save.disabled = false; log(e.message || String(e), false); });
+      });
+      box.appendChild(save);
+    }
+    return box;
+  }
+
+  // Ek görev formu Ödev ve Kontrol paneliyle aynı; öğrenci/ders/sınıf seçimleri ona taşınır.
+  function openExtraTaskFor(ctx) {
+    fillHomeworkSubjectOptions(ctx.subject_code);
+    fillHomeworkClassOptions(ctx.class_code, ctx.subject_code);
+    fillHomeworkStudentsForClass(ctx.class_code, ctx.student_no);
+    if ($('homeworkSubject')) $('homeworkSubject').value = ctx.subject_code;
+    if ($('homeworkClass')) $('homeworkClass').value = ctx.class_code;
+    if ($('homeworkStudent')) $('homeworkStudent').value = String(ctx.student_no);
+    state.homeworkClass = ctx.class_code;
+    state.homeworkStudent = String(ctx.student_no);
+    openExtraTaskModal();
+  }
+
+  // Eksik Kazanımlar açılınca ilgili derslerin Ödev/Kontrol durumları Bulut'tan tazelenir (10 dk'da bir).
+  var missingStatusFlight = null;
+  function refreshMissingStatuses() {
+    if (missingStatusFlight) return missingStatusFlight;
+    var qn = currentQuizName(), data = qn && state.quizCache ? state.quizCache[qn] : null;
+    if (!data) return Promise.resolve();
+    var uid = $('userId').value, codes = [];
+    missingGainGroups(data, '', 'all').forEach(function (grp) {
+      var code = teacherSubjectFor(grp);
+      if (code && codes.indexOf(code) < 0) codes.push(code);
+    });
+    codes = codes.filter(function (code) {
+      var at = (state.hwSyncAt || {})[uid + '|' + code];
+      return !at || Date.now() - at > 10 * 60 * 1000;
+    });
+    if (!codes.length) return Promise.resolve();
+    missingStatusFlight = codes.reduce(function (p, code) {
+      return p.then(function () { return fetchHomeworkStatuses(code, true).catch(function () {}); });
+    }, Promise.resolve()).then(function () { renderMissingGains(); })
+      .finally(function () { missingStatusFlight = null; });
+    return missingStatusFlight;
   }
 
   function renderMissingGains() {
@@ -4344,6 +4470,12 @@ button.busy{cursor:progress;opacity:.85;background-image:linear-gradient(90deg,r
   }
 
   function renderHomeworkRows() {
+    renderHomeworkRowsInner();
+    try {
+      if ($('dailyQuizPanel') && !$('dailyQuizPanel').hidden && $('dailyMissingGainsPanel') && !$('dailyMissingGainsPanel').hidden) renderMissingGains();
+    } catch (ignoreMissing) {}
+  }
+  function renderHomeworkRowsInner() {
     var code = $('homeworkSubject').value;
     var no = $('homeworkStudent').value;
     var rows = $('homeworkRows');
@@ -4648,7 +4780,8 @@ button.busy{cursor:progress;opacity:.85;background-image:linear-gradient(90deg,r
       percent: 0,
       preview: current ? '' : previewStamp(0),
       status_item_name: target.statusItemName || '',
-      extra_task_id: target.extraTaskId || ''
+      extra_task_id: target.extraTaskId || '',
+      ctx: target.ctx || null
     };
     renderHomeworkRows();
   }
@@ -5028,51 +5161,65 @@ button.busy{cursor:progress;opacity:.85;background-image:linear-gradient(90deg,r
     return {count:(d.statuses || []).length,extraTaskCount:(d.extra_tasks || []).length,pending:0,bad:0,incomplete:false,deviceCells:subjectCells,received:d.cells.length,full:!delta};
   }
 
+  function homeworkPanelCtx() {
+    var opt = $('homeworkStudent').selectedOptions[0];
+    return { student_no: $('homeworkStudent').value, subject_code: $('homeworkSubject').value,
+      class_code: $('homeworkClass').value, student_name: opt ? opt.textContent : '' };
+  }
+  // Taslaklar Ödev/Kontrol panelinden ya da Eksik Kazanımlar'dan gelebilir; her öğrenci + ders ayrı gönderilir.
   async function approveDrafts(onlyKeys) {
     if(!requireTeacher())return;
     var useKeys = (Array.isArray(onlyKeys) ? onlyKeys : Object.keys(draftStatuses)).filter(function (k) { return draftStatuses[k]; });
-    var changes = useKeys.map(function (k) {
-      var d = draftStatuses[k];
-      var row = {
-        main_gain: d.main_gain,
-        item_type: d.item_type,
-        operation: d.operation,
-        percent: d.percent,
-        operation_at: nextHomeworkTime(k),
-        preview_value: d.preview
-      };
-      if (d.status_item_name) row.status_item_name = d.status_item_name;
-      if (d.extra_task_id) row.extra_task_id = d.extra_task_id;
-      return row;
+    if (!useKeys.length) return;
+    var groups = {}, order = [], panelCtx = homeworkPanelCtx();
+    useKeys.forEach(function (k) {
+      var c = draftStatuses[k].ctx || panelCtx, gk = c.student_no + '|' + c.subject_code;
+      if (!groups[gk]) { groups[gk] = { ctx: c, keys: [] }; order.push(gk); }
+      groups[gk].keys.push(k);
     });
-    if (!changes.length) return;
-    var opt = $('homeworkStudent').selectedOptions[0];
-    var payload = {
-      action: 'homework_status_batch',
-      user_id: $('userId').value,
-      subject_code: $('homeworkSubject').value,
-      class_code: $('homeworkClass').value,
-      student_no: $('homeworkStudent').value,
-      student_name: opt ? opt.textContent : '',
-      initials: $('initials').value.trim(),
-      changes: changes
-    };
-    try {
-      hwJournalAdd(payload.user_id, changes.map(function (ch) {
-        return { at: ch.operation_at, no: String(payload.student_no), name: payload.student_name || '', cls: payload.class_code || '', subj: payload.subject_code,
-          item: ch.main_gain || '', xid: ch.extra_task_id || '', xname: ch.status_item_name || '', typ: ch.item_type, op: ch.operation, pct: ch.percent || 0 };
-      }));
-    } catch (ignoreHw) {}
-    enqueueMutation('Ödev/Kontrol gönderimi',payload,{onSuccess:function(){
-      fetchHomeworkStatuses(payload.subject_code,true).catch(function(){});
-    }});
+    order.forEach(function (gk) {
+      var g = groups[gk], c = g.ctx;
+      var changes = g.keys.map(function (k) {
+        var d = draftStatuses[k];
+        var row = {
+          main_gain: d.main_gain,
+          item_type: d.item_type,
+          operation: d.operation,
+          percent: d.percent,
+          operation_at: nextHomeworkTime(k),
+          preview_value: d.preview
+        };
+        if (d.status_item_name) row.status_item_name = d.status_item_name;
+        if (d.extra_task_id) row.extra_task_id = d.extra_task_id;
+        return row;
+      });
+      var payload = {
+        action: 'homework_status_batch',
+        user_id: $('userId').value,
+        subject_code: c.subject_code,
+        class_code: c.class_code,
+        student_no: c.student_no,
+        student_name: c.student_name || '',
+        initials: $('initials').value.trim(),
+        changes: changes
+      };
+      try {
+        hwJournalAdd(payload.user_id, changes.map(function (ch) {
+          return { at: ch.operation_at, no: String(payload.student_no), name: payload.student_name || '', cls: payload.class_code || '', subj: payload.subject_code,
+            item: ch.main_gain || '', xid: ch.extra_task_id || '', xname: ch.status_item_name || '', typ: ch.item_type, op: ch.operation, pct: ch.percent || 0 };
+        }));
+      } catch (ignoreHw) {}
+      enqueueMutation('Ödev/Kontrol gönderimi',payload,{onSuccess:function(){
+        fetchHomeworkStatuses(payload.subject_code,true).catch(function(){});
+      }});
+    });
     useKeys.forEach(function (k) {
       state.statuses[k] = draftStatuses[k].operation === 'clear' ? '' : draftStatuses[k].preview;
       delete draftStatuses[k];
     });
     writeState();
     renderHomeworkRows();
-
+    log('Kaydedildi; Bulut\'a gönderiliyor.', true);
   }
 
   /* ── Olay dinleyicileri ── */
@@ -5329,7 +5476,8 @@ button.busy{cursor:progress;opacity:.85;background-image:linear-gradient(90deg,r
           percent: pct,
           preview: previewStamp(pct),
           status_item_name: target.statusItemName || '',
-          extra_task_id: target.extraTaskId || ''
+          extra_task_id: target.extraTaskId || '',
+          ctx: target.ctx || null
         };
         renderHomeworkRows();
       }
@@ -5686,7 +5834,9 @@ button.busy{cursor:progress;opacity:.85;background-image:linear-gradient(90deg,r
     $('quizSelect').addEventListener('change', function () {
       var qn = $('quizSelect').value;
       applyQuizSelection(qn);
-      if (qn && !quizCacheFresh(qn)) fetchQuiz(qn).catch(function (e) { log(e.message, false); updateQuizSummary(qn); });
+      var ready = (qn && !quizCacheFresh(qn)) ? fetchQuiz(qn) : Promise.resolve();
+      ready.then(function () { if (state.quizTab === 'missing') return refreshMissingStatuses(); })
+        .catch(function (e) { log(e.message, false); updateQuizSummary(qn); });
     });
   }
   if ($('btnFetchQuiz')) {
@@ -5705,7 +5855,7 @@ button.busy{cursor:progress;opacity:.85;background-image:linear-gradient(90deg,r
   document.querySelectorAll('.seg-tab[data-qtab]').forEach(function (b) {
     b.addEventListener('click', function () {
       setQuizTab(b.dataset.qtab);
-      if (b.dataset.qtab === 'missing') renderMissingGains(); else renderQuizResults();
+      if (b.dataset.qtab === 'missing') { renderMissingGains(); refreshMissingStatuses(); } else renderQuizResults();
     });
   });
 
