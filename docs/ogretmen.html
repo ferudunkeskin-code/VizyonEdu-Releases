@@ -130,6 +130,19 @@ button.seg-tab.active{background:#fff;color:var(--navy);box-shadow:0 1px 4px #17
 .missing-gain-row .tag{display:inline-block;margin-left:6px;padding:1px 8px;border-radius:999px;background:#fff1e3;color:#9a5000;font-size:.72rem;font-weight:700}
 .missing-gain-row.completed{border-left-color:var(--green);opacity:.8}
 .missing-gain-row.completed .tag{background:#e6f6ec;color:#1c7a43}
+.mg-student{margin:0 0 12px;border:1px solid var(--line);border-radius:12px;background:#fff;overflow:hidden}
+.mg-student-head{display:flex;align-items:baseline;justify-content:space-between;gap:8px;padding:9px 12px;background:#f3f7fb;border-bottom:1px solid var(--line)}
+.mg-student-head strong{color:var(--navy);font-size:.9rem}
+.mg-student-head small{color:var(--muted);font-size:.74rem;font-weight:600}
+.mg-row{padding:10px 12px;border-left:4px solid var(--orange);border-bottom:1px solid #edf2f6}
+.mg-row:last-child{border-bottom:0}
+.mg-row.completed{border-left-color:var(--green);opacity:.8}
+.mg-main{font-weight:800;color:var(--ink);font-size:.9rem;line-height:1.3}
+.mg-alts{margin-top:3px;color:var(--muted);font-size:.78rem;line-height:1.35}
+.mg-meta{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:6px}
+.mg-subj{font-size:.72rem;font-weight:700;color:var(--navy);background:#eef4f8;border-radius:999px;padding:1px 8px}
+.mg-meta .tag{padding:1px 8px;border-radius:999px;background:#fff1e3;color:#9a5000;font-size:.72rem;font-weight:700}
+.mg-row.completed .tag{background:#e6f6ec;color:#1c7a43}
 .clickable-line{cursor:pointer;background:#fff4e5;color:#8a4b00}
 /* ── Ödev / Kontrol hücreleri ── */
 .homework-rows{display:flex;flex-direction:column;gap:10px;margin:12px 0}
@@ -3895,6 +3908,7 @@ button.busy{cursor:progress;opacity:.85;background-image:linear-gradient(90deg,r
   function quizCacheFresh(qn) {
     var c = state.quizCache && state.quizCache[qn], m = quizMeta(qn);
     if (!c) return false;
+    if (!Array.isArray(c.questions)) return false;   // ana kazanım eşlemesi olmayan eski önbellek
     if (!m || !m.created_at || !c.source_created_at) return true;
     return c.source_created_at === m.created_at;
   }
@@ -3912,6 +3926,7 @@ button.busy{cursor:progress;opacity:.85;background-image:linear-gradient(90deg,r
       quiz_name: qn,
       results: d.results || [],
       gains: d.gains || [],
+      questions: d.questions || [],
       fetched_at: new Date().toISOString(),
       source_created_at: meta && meta.created_at || ''
     };
@@ -3936,8 +3951,8 @@ button.busy{cursor:progress;opacity:.85;background-image:linear-gradient(90deg,r
     try { var t = new Date(c.fetched_at); when = ' · ' + t.toLocaleDateString('tr-TR', { day: '2-digit', month: '2-digit' }) + ' ' + t.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' }); } catch (ignoreDate) {}
     var nos = {};
     (c.results || []).forEach(function (r) { if (r.student_no) nos[r.student_no] = true; });
-    var open = (c.gains || []).filter(function (g) { return isMissingGain(g) && !(g.completed_at && String(g.completed_at).trim()); }).length;
-    el.textContent = Object.keys(nos).length + ' öğrenci · ' + open + ' tamamlanmamış eksik kazanım' + when;
+    var open = missingGainGroups(c, '', 'missing').length;
+    el.textContent = Object.keys(nos).length + ' öğrenci · ' + open + ' tamamlanmamış eksik ana kazanım' + when;
   }
 
   // Seçili quiz tüm alt görünümlere (Sonuçlar / Eksik Kazanımlar) uygulanır.
@@ -4156,6 +4171,109 @@ button.busy{cursor:progress;opacity:.85;background-image:linear-gradient(90deg,r
     return 'Yanlış/Boş';
   }
 
+  // Eski paketlerde soru tanımı yoksa kazanım anahtarı okunur metne çevrilir (masaüstü format_kazanim).
+  function readableGainKey(key) {
+    var t = String(key || '').trim();
+    if (t.indexOf('K_') === 0) t = t.slice(2);
+    t = t.replace(/_Q\d+_.+?_S\d+$/, '').replace(/_/g, ' ');
+    return t.split(/\s+/).filter(Boolean).join(' ');
+  }
+  function subjectLabelOf(code) {
+    var cat = catalogSubjectOf(code);
+    var subs = (state.assignments && state.assignments.subjects) || [];
+    for (var i = 0; i < subs.length; i++) {
+      if (subs[i].subject_code === code || catalogSubjectOf(subs[i].subject_code) === cat) {
+        return String(subs[i].subject_name || cat).replace(/_/g, ' ');
+      }
+    }
+    return String(cat || code || '—').replace(/_/g, ' ');
+  }
+  function studentClassOf(no) {
+    var list = (state.assignments && state.assignments.students) || [];
+    for (var i = 0; i < list.length; i++) if (String(list[i].student_no) === String(no)) return list[i].class_code || '';
+    return '';
+  }
+
+  /**
+   * Masaüstü _deficient_groups ile aynı fikir: yanlış/boş/girmedi soruların ana kazanımları,
+   * öğrenci + ders + ana kazanım başına TEK satır; alt kazanımlar tekrar etmeden birleşir.
+   * Satır, altındaki bütün sorular tamamlanınca «tamamlanmış» sayılır.
+   */
+  function missingGainGroups(data, onlyNo, mode) {
+    if (!data) return [];
+    var defs = {};
+    (data.questions || []).forEach(function (q) {
+      defs[q.subject_code + '|' + q.logical_no] = q;
+      var ck = (q.catalog_subject_code || catalogSubjectOf(q.subject_code)) + '|' + q.logical_no;
+      if (!defs[ck]) defs[ck] = q;
+    });
+    var groups = {}, order = [];
+    (data.gains || []).forEach(function (g) {
+      if (!isMissingGain(g)) return;
+      if (onlyNo && String(g.student_no) !== String(onlyNo)) return;
+      var cat = g.catalog_subject_code || catalogSubjectOf(g.subject_code);
+      var def = defs[g.subject_code + '|' + g.soru_no] || defs[cat + '|' + g.soru_no] || null;
+      var main = def && def.main_gain ? String(def.main_gain).trim() : readableGainKey(g.kazanim_key);
+      if (!main || main === 'Tanımsız kazanım') main = readableGainKey(g.kazanim_key) || 'Kazanım';
+      var key = g.student_no + '|' + cat + '|' + main;
+      var grp = groups[key];
+      if (!grp) {
+        grp = groups[key] = { student_no: String(g.student_no), catalog: cat, subject_code: g.subject_code,
+          main_gain: main, alts: [], reasons: {}, total: 0, done: 0, completed_at: '', completed_by: '' };
+        order.push(key);
+      }
+      ((def && def.gains) || []).forEach(function (alt) {
+        alt = String(alt || '').trim();
+        if (alt && alt !== main && grp.alts.indexOf(alt) < 0) grp.alts.push(alt);
+      });
+      var why = missingReasonLabel(g, data);
+      grp.reasons[why] = (grp.reasons[why] || 0) + 1;
+      grp.total++;
+      if (g.completed_at && String(g.completed_at).trim()) {
+        grp.done++;
+        if (String(g.completed_at) > grp.completed_at) { grp.completed_at = String(g.completed_at); grp.completed_by = g.completed_by || ''; }
+      }
+    });
+    var list = order.map(function (k) { var x = groups[k]; x.completed = x.done === x.total; return x; });
+    if (mode === 'missing') list = list.filter(function (x) { return !x.completed; });
+    else if (mode === 'completed') list = list.filter(function (x) { return x.completed; });
+    list.sort(function (a, b) {
+      return compareTr(studentNameByNo(a.student_no), studentNameByNo(b.student_no))
+        || compareTr(subjectLabelOf(a.subject_code), subjectLabelOf(b.subject_code))
+        || compareTr(a.main_gain, b.main_gain);
+    });
+    return list;
+  }
+
+  function missingGainRow(grp) {
+    var el = document.createElement('div');
+    el.className = 'mg-row' + (grp.completed ? ' completed' : '');
+    var main = document.createElement('div');
+    main.className = 'mg-main';
+    main.textContent = grp.main_gain;
+    el.appendChild(main);
+    if (grp.alts.length) {
+      var alts = document.createElement('div');
+      alts.className = 'mg-alts';
+      alts.textContent = grp.alts.join(' · ');
+      el.appendChild(alts);
+    }
+    var meta = document.createElement('div');
+    meta.className = 'mg-meta';
+    var subj = document.createElement('span');
+    subj.className = 'mg-subj';
+    subj.textContent = subjectLabelOf(grp.subject_code);
+    meta.appendChild(subj);
+    var tag = document.createElement('span');
+    tag.className = 'tag';
+    tag.textContent = grp.completed
+      ? 'Tamamlandı ' + String(grp.completed_at).slice(0, 10) + (grp.completed_by ? ' ' + grp.completed_by : '')
+      : Object.keys(grp.reasons).map(function (r) { return grp.reasons[r] > 1 ? r + ' ×' + grp.reasons[r] : r; }).join(' · ');
+    meta.appendChild(tag);
+    el.appendChild(meta);
+    return el;
+  }
+
   function renderMissingGains() {
     var box = $('missingGainsList');
     if (!box) return;
@@ -4175,38 +4293,30 @@ button.busy{cursor:progress;opacity:.85;background-image:linear-gradient(90deg,r
       box.innerHTML = '<div class="missing-gain-row">Henüz veri yok. Yukarıdan bir quiz seçin; Bulut\'tan kendiliğinden alınır.</div>';
       return;
     }
-    var rows = (data.gains || []).filter(function (g) {
-      if (!isMissingGain(g)) return false;
-      if (no && String(g.student_no) !== String(no)) return false;
-      var done = !!(g.completed_at && String(g.completed_at).trim());
-      if (mode === 'missing' && done) return false;
-      if (mode === 'completed' && !done) return false;
-      // masaüstü: eksik/girmedi odaklı; tamamlanmışlar da listede kalabilir
-      return true;
-    });
-    if (!rows.length) {
-      box.textContent = 'Bu süzmede kayıt yok.';
+    var list = missingGainGroups(data, no, mode);
+    if (!list.length) {
+      box.textContent = mode === 'completed' ? 'Tamamlanmış eksik kazanım yok.' : 'Bu süzmede eksik ana kazanım yok.';
       return;
     }
-    rows.sort(function (a, b) {
-      var c = String(a.student_no).localeCompare(String(b.student_no), 'tr');
-      if (c) return c;
-      return (a.soru_no || 0) - (b.soru_no || 0);
-    });
     box.innerHTML = '';
-    rows.forEach(function (g) {
-      var el = document.createElement('div');
-      var done = !!(g.completed_at && String(g.completed_at).trim());
-      el.className = 'missing-gain-row' + (done ? ' completed' : '');
-      var name = studentNameByNo(g.student_no);
-      el.innerHTML =
-        '<strong>' + name + ' · No ' + g.student_no + ' · Soru ' + (g.soru_no || '—') + '</strong>' +
-        (g.kazanim_key || '—') + '<br>' +
-        'Ders: ' + (g.catalog_subject_code || g.subject_code || '—') +
-        '<span class="tag">' + missingReasonLabel(g, data) +
-        (done ? ' · ' + String(g.completed_at).slice(0, 10) + (g.completed_by ? ' ' + g.completed_by : '') : '') +
-        '</span>';
-      box.appendChild(el);
+    var current = null, card = null;
+    list.forEach(function (grp) {
+      if (grp.student_no !== current) {
+        current = grp.student_no;
+        card = document.createElement('div');
+        card.className = 'mg-student';
+        var head = document.createElement('div');
+        head.className = 'mg-student-head';
+        var nm = document.createElement('strong');
+        nm.textContent = studentNameByNo(grp.student_no);
+        var sm = document.createElement('small');
+        var cls = studentClassOf(grp.student_no);
+        sm.textContent = (cls ? cls + ' · ' : '') + 'No ' + grp.student_no;
+        head.appendChild(nm); head.appendChild(sm);
+        card.appendChild(head);
+        box.appendChild(card);
+      }
+      card.appendChild(missingGainRow(grp));
     });
   }
 
