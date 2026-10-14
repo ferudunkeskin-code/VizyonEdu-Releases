@@ -1,6 +1,7 @@
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="tr" data-vz-app="VizyonEdu Öğretmen">
 <head>
+<meta name="vz-build" content="64e35e971418">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -78,5 +79,64 @@
   });
 })();
 </script>
+<!-- VizyonEdu tarayıcı güvencesi (yalnız GitHub sayfalarına build_github_page.py ekler) -->
+<style>
+#vzGuard{position:fixed;left:0;right:0;bottom:0;z-index:2147483000;padding:10px 12px calc(10px + env(safe-area-inset-bottom));display:none;font:600 14px/1.4 system-ui,-apple-system,"Segoe UI",sans-serif}
+#vzGuard .vz-box{max-width:520px;margin:0 auto;background:#fff;color:#18324a;border-radius:16px;box-shadow:0 -6px 28px #0003;padding:14px;display:flex;flex-direction:column;gap:8px;border-top:4px solid #174e78}
+#vzGuard.warn .vz-box{border-top-color:#c0392b}
+#vzGuard strong{font-size:15px;color:#174e78}#vzGuard.warn strong{color:#a13b25}
+#vzGuard p{margin:0;font-weight:500;font-size:13.5px;color:#4a5d70}
+#vzGuard .vz-row{display:flex;gap:8px;flex-wrap:wrap}
+#vzGuard button,#vzGuard a{flex:1 1 auto;border:0;border-radius:11px;min-height:44px;padding:8px 12px;font:700 14px system-ui,sans-serif;background:#174e78;color:#fff;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;cursor:pointer}
+#vzGuard .vz-2{background:#eef4f8;color:#174e78}
+</style>
+<div id="vzGuard" role="status" aria-live="polite"><div class="vz-box"><strong></strong><p></p><div class="vz-row"></div></div></div>
+<script>
+(function(){
+  'use strict';
+  var APP=document.documentElement.getAttribute('data-vz-app')||'VizyonEdu';
+  var box=document.getElementById('vzGuard');if(!box)return;
+  var ua=navigator.userAgent||'';
+  function store(k,v){try{if(v===undefined)return localStorage.getItem(k);localStorage.setItem(k,v);}catch(e){return null;}}
+  function show(kind,title,text,buttons){
+    box.className=kind;box.querySelector('strong').textContent=title;box.querySelector('p').textContent=text;
+    var row=box.querySelector('.vz-row');row.innerHTML='';
+    buttons.forEach(function(b){var el=document.createElement(b.href?'a':'button');el.textContent=b.label;if(b.href)el.href=b.href;if(b.second)el.className='vz-2';
+      el.addEventListener('click',function(e){if(b.fn){e.preventDefault();b.fn();}});row.appendChild(el);});
+    box.style.display='block';
+  }
+  function hide(){box.style.display='none';}
+  var standalone=(window.matchMedia&&matchMedia('(display-mode: standalone)').matches)||navigator.standalone===true;
+  // Uygulama içi tarayıcılar: WhatsApp, Facebook, Instagram, Android WebView («wv»).
+  var inApp=/WhatsApp|FBAN|FBAV|Instagram|Line\/|; wv\)/i.test(ua);
+  var android=/Android/i.test(ua);
+  var hint=null;
+  if(inApp){
+    var b=[];
+    if(android){b.push({label:'Chrome\'da aç',href:'intent://'+location.host+location.pathname+location.search+'#Intent;scheme=https;package=com.android.chrome;end'});}
+    b.push({label:'Daha sonra',second:true,fn:hide});
+    hint=['warn','Uygulama içinde açtınız',
+      'Bu sayfa WhatsApp gibi bir uygulamanın içinde açıldı. Kayıtlarınızın ve girişinizin kaybolmaması için sayfayı '+(android?'Chrome':'Safari')+'\'da açın ve «Ana ekrana ekle» deyin; sonra hep o simgeden girin.',b];
+  }else if(!standalone && !store('vz-home-hint-ok')){
+    hint=['','Ana ekrana ekleyin',
+      (/iPhone|iPad/i.test(ua)?'Paylaş ⬆︎ → «Ana Ekrana Ekle»':'Tarayıcı menüsü ⋮ → «Ana ekrana ekle»')+'. '+APP+' hep aynı simgeden açılırsa girişiniz ve bekleyen kayıtlarınız korunur.',
+      [{label:'Tamam',fn:function(){store('vz-home-hint-ok','1');hide();}}]];
+  }
+  if(hint)show(hint[0],hint[1],hint[2],hint[3]);
+  // Yeni sürüm: sayfanın yayındaki kopyası farklı bir yapı kimliği taşıyorsa yenile şeridi.
+  var meta=document.querySelector('meta[name="vz-build"]'),mine=meta?meta.content:'',last=0;
+  function check(){
+    if(!mine||Date.now()-last<10*60*1000)return;last=Date.now();
+    fetch(location.pathname+'?vzc='+Date.now(),{cache:'no-store'}).then(function(r){return r.ok?r.text():'';}).then(function(t){
+      var m=/<meta name="vz-build" content="([^"]+)"/.exec(t||'');
+      if(m&&m[1]!==mine)show('','Yeni sürüm var',APP+' güncellendi. Yenilemek için dokunun.',[
+        {label:'Yenile',fn:function(){location.replace(location.pathname+'?v='+m[1]);}},{label:'Sonra',second:true,fn:hide}]);
+    }).catch(function(){});
+  }
+  check();
+  document.addEventListener('visibilitychange',function(){if(document.visibilityState==='visible')check();});
+})();
+</script>
+
 </body>
 </html>
