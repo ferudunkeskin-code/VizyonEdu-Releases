@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="tr" data-vz-app="VizyonEdu Veli">
 <head>
-<meta name="vz-build" content="810f8dacc643">
+<meta name="vz-build" content="24dfdc1479b7">
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
   <meta name="theme-color" content="#173d62">
@@ -163,6 +163,33 @@ details.acc .body{padding:0 12px 10px}
 .hw .cur::after{content:" · güncel";font-weight:600;color:var(--muted);font-size:.7rem}
 .mark{font-weight:700;text-align:center;white-space:nowrap;font-size:.74rem}.mark.y{color:var(--green)}.mark.n{color:#b8c3cf}
 .src{font-size:.68rem;color:var(--muted);margin-top:8px}
+
+/* sınav ve KKT listesi: dikeyde kartlar, yatayda tablo (body.land ya da medya sorgusu) */
+.ex-card{border:1px solid var(--line);border-radius:12px;padding:10px;margin-bottom:8px}
+.ex-head{display:flex;align-items:center;justify-content:space-between;gap:8px;background:none;color:var(--ink);padding:0 0 8px;margin:0;min-height:0;text-align:left;width:100%}
+.ex-t b{display:block;font-size:.92rem;color:var(--navy)}.ex-t small{color:var(--muted);font-size:.72rem;font-weight:600}
+.ex-arrow{color:var(--muted);font-size:.9rem}
+.ex-table-wrap{display:none;overflow-x:auto;-webkit-overflow-scrolling:touch;border:1px solid var(--line);border-radius:10px}
+.ex-table{border-collapse:collapse;width:100%;font-size:.74rem;font-variant-numeric:tabular-nums}
+.ex-table th,.ex-table td{padding:5px 6px;border-bottom:1px solid #e8eef3;text-align:center;white-space:nowrap}
+.ex-table th{background:#edf4fa;color:#486581;font-size:.68rem}.ex-table th small{display:block;font-weight:600;opacity:.75}
+.ex-table th.grp{border-left:2px solid #d5e0ea;background:#dceaf6}
+.ex-table th.sub{font-size:.62rem;padding:3px 5px}.ex-table th.sub:first-child{border-left:2px solid #d5e0ea}
+.ex-table td.n,.ex-table th.n{font-weight:800;color:var(--navy)}
+.ex-table td.t{text-align:left;font-weight:700;color:var(--navy);position:sticky;left:0;background:#fff}
+.ex-table td.dt{color:var(--muted);font-size:.68rem}
+.ex-table td.b{font-weight:800;color:var(--navy);background:#f6f9fc}
+.ex-table td.g{color:var(--amber);font-weight:800}.ex-table td.m{color:#b8c3cf}
+body.land main{max-width:980px}
+body.land .gain,body.land .late,body.land .late-days{max-width:640px}  /* eksik kazanım kartları dikeydeki gibi kalır */
+body.land .ex-cards{display:none}
+body.land .ex-table-wrap{display:block}
+@media (orientation:landscape) and (min-width:480px){
+  main{max-width:980px}
+  .gain{max-width:640px}
+  .ex-cards{display:none}
+  .ex-table-wrap{display:block}
+}
 </style>
 </head>
 <body>
@@ -381,6 +408,7 @@ details.acc .body{padding:0 12px 10px}
   function reportDate(d) { return d && d.report && d.report.published_at ? dayMonth(d.report.published_at) : ''; }
   function srcBadge(src, d) {
     if (src === 'live') return '<span class="badge-live">anlık</span>';
+    if (src === 'published') return '<span class="badge-live">yayımlandı' + (d && d.published && d.published.updated_at ? ' · ' + esc(dayMonth(d.published.updated_at)) : '') + '</span>';
     var rd = reportDate(d);
     return '<span class="badge-rep">son rapordan' + (rd ? ' · ' + esc(rd) : '') + '</span>';
   }
@@ -509,24 +537,73 @@ details.acc .body{padding:0 12px 10px}
     $('btnLate').addEventListener('click', function () { ui.lateOpen = !ui.lateOpen; renderLate(d); });
   }
 
+  // ── Sınav ve KKT sonuçları: aynı görünüm. Dikey: kartlar (ilki açık). Yatay: bütün liste tek tabloda. ──
+  // rows: [{title, date, total, class_rank, inst_rank, subjects: [{name, D, Y, B, Net, status}]}] — en yeni başta
+  function scoreListHtml(rows, group) {
+    var key = cacheKey() + '|' + group, open = ui.examSel[key] == null ? 0 : Number(ui.examSel[key]);
+    function cell(s) {
+      if (s.status === 'G' || s.status === 'g') return '<span class="g">G · girmedi</span>';
+      if (s.status === '?') return '<span class="muted">—</span>';
+      return 'D ' + esc(fmtNum(s.D)) + ' · Y ' + esc(fmtNum(s.Y)) + ' · B ' + esc(fmtNum(s.B)) + ' · <b>Net ' + esc(fmtNum(s.Net)) + '</b>';
+    }
+    var html = '<div class="ex-cards">' + rows.map(function (ex, i) {
+      var chips = '<div class="chips">' + (ex.subjects || []).map(function (s) {
+        return '<div class="chip"><div class="n">' + esc(s.name) + '</div><div class="s">' + cell(s) + '</div></div>';
+      }).join('') + '</div>';
+      return '<div class="ex-card' + (i === open ? ' open' : '') + '"><button type="button" class="ex-head" data-ex="' + group + ':' + i + '">' +
+        '<span class="ex-t"><b>' + esc(ex.title) + '</b><small>' + esc(ex.date || '') + '</small></span><span class="ex-arrow">' + (i === open ? '▾' : '▸') + '</span></button>' +
+        '<div class="kpis"><div class="kpi"><b>' + esc(fmtNum(ex.total)) + '</b><small>Toplam net</small></div>' +
+        '<div class="kpi"><b>' + esc(fmtNum(ex.class_rank)) + '</b><small>Sınıf sırası</small></div>' +
+        '<div class="kpi"><b>' + esc(fmtNum(ex.inst_rank)) + '</b><small>Kurum sırası</small></div></div>' +
+        (i === open ? chips : '') + '</div>';
+    }).join('') + '<p class="src">Telefonu yan çevirince bütün liste ders ders tek tabloda görünür.</p></div>';
+    var names = [];
+    rows.forEach(function (ex) { (ex.subjects || []).forEach(function (s) { if (names.indexOf(s.name) < 0) names.push(s.name); }); });
+    html += '<div class="ex-table-wrap"><table class="ex-table"><thead><tr><th rowspan="2">' + (group === 'kkt' ? 'KKT' : 'Sınav') + '</th><th rowspan="2">Tarih</th>' +
+      names.map(function (n) { return '<th colspan="4" class="grp">' + esc(n) + '</th>'; }).join('') +
+      '<th rowspan="2">Toplam<small>net</small></th><th rowspan="2">Sınıf<small>sıra</small></th><th rowspan="2">Kurum<small>sıra</small></th></tr><tr>' +
+      names.map(function () { return '<th class="sub">D</th><th class="sub">Y</th><th class="sub">B</th><th class="sub n">Net</th>'; }).join('') +
+      '</tr></thead><tbody>' + rows.map(function (ex) {
+        var by = {};
+        (ex.subjects || []).forEach(function (s) { by[s.name] = s; });
+        return '<tr><td class="t">' + esc(ex.title) + '</td><td class="dt">' + esc(ex.date || '') + '</td>' + names.map(function (n) {
+          var s = by[n];
+          if (!s || s.status === '?') return '<td class="m" colspan="4">—</td>';
+          if (s.status === 'G' || s.status === 'g') return '<td class="g" colspan="4">G</td>';
+          return '<td>' + esc(fmtNum(s.D)) + '</td><td>' + esc(fmtNum(s.Y)) + '</td><td>' + esc(fmtNum(s.B)) + '</td><td class="n">' + esc(fmtNum(s.Net)) + '</td>';
+        }).join('') + '<td class="b">' + esc(fmtNum(ex.total)) + '</td><td class="b">' + esc(fmtNum(ex.class_rank)) + '</td><td class="b">' + esc(fmtNum(ex.inst_rank)) + '</td></tr>';
+      }).join('') + '</tbody></table></div>';
+    return html;
+  }
+  function bindScoreList(card, rerender) {
+    Array.prototype.forEach.call(card.querySelectorAll('[data-ex]'), function (b) {
+      b.addEventListener('click', function () {
+        var parts = b.getAttribute('data-ex').split(':'), key = cacheKey() + '|' + parts[0], i = Number(parts[1]);
+        var cur = ui.examSel[key] == null ? 0 : Number(ui.examSel[key]);
+        ui.examSel[key] = cur === i ? -1 : i;
+        rerender();
+      });
+    });
+  }
+
   function renderExams(d) {
     var card = $('examCard'), rows = (d.exams && d.exams.rows) || [];
     var html = '<h2>Sınav Sonuçları ' + srcBadge(d.exams && d.exams.src, d) + '</h2>';
     if (!rows.length) { card.innerHTML = html + '<div class="empty-state">Henüz yayımlanmış sınav sonucu yok.</div>'; return; }
-    var key = cacheKey(), sel = Math.min(Number(ui.examSel[key] || 0), rows.length - 1), ex = rows[sel];
-    html += '<select id="examSelect" aria-label="Sınav seçimi">' + rows.map(function (r, i) {
-      return '<option value="' + i + '"' + (i === sel ? ' selected' : '') + '>' + esc(r.title + (r.date ? ' — ' + r.date : '')) + '</option>';
-    }).join('') + '</select>';
-    html += '<div class="kpis" style="margin-top:10px"><div class="kpi"><b>' + esc(fmtNum(ex.total)) + '</b><small>Toplam net</small></div>' +
-      '<div class="kpi"><b>' + esc(fmtNum(ex.class_rank)) + '</b><small>Sınıf sırası</small></div>' +
-      '<div class="kpi"><b>' + esc(fmtNum(ex.inst_rank)) + '</b><small>Kurum sırası</small></div></div>';
-    html += '<div class="chips">' + (ex.subjects || []).map(function (s) {
-      var body = (s.status === 'G' || s.status === 'g') ? '<span class="g">G · girmedi</span>'
-        : 'D ' + esc(fmtNum(s.D)) + ' · Y ' + esc(fmtNum(s.Y)) + ' · B ' + esc(fmtNum(s.B)) + ' · <b>Net ' + esc(fmtNum(s.Net)) + '</b>';
-      return '<div class="chip"><div class="n">' + esc(s.name) + '</div><div class="s">' + body + '</div></div>';
-    }).join('') + '</div>';
-    card.innerHTML = html;
-    $('examSelect').addEventListener('change', function () { ui.examSel[key] = Number(this.value) || 0; renderExams(d); });
+    card.innerHTML = html + scoreListHtml(rows, 'exam');
+    bindScoreList(card, function () { renderExams(d); });
+  }
+
+  // KKT sonuçlarını sınav görünümüne çevir (rapordan gelen eski satırlarda net yoksa D − Y/4).
+  function kktRows(res) {
+    return (res || []).map(function (q) {
+      return { title: q.name, date: q.date, total: q.total, class_rank: q.class_rank, inst_rank: q.inst_rank,
+        subjects: (q.subjects || []).map(function (s) {
+          var net = s.Net;
+          if ((net == null || net === '') && typeof s.D === 'number' && typeof s.Y === 'number') net = Math.round((s.D - s.Y / 4) * 100) / 100;
+          return { name: s.label || s.course, D: s.D, Y: s.Y, B: s.B, Net: net, status: s.status };
+        }) };
+    });
   }
 
   var PART_COLOR = { odev: 'var(--c-odev)', onay: 'var(--c-onay)', feedback: 'var(--c-feedback)', guidance: 'var(--c-guidance)' };
@@ -566,16 +643,10 @@ details.acc .body{padding:0 12px 10px}
           : 'Bütün bileşenler son rapordan' + (rd ? ' (' + esc(rd) + ')' : '')) + '</p>';
       }
     } else {
-      html += res.length ? res.map(function (q, i) {
-        return '<details class="acc"' + (i === 0 ? ' open' : '') + '><summary>' + esc(q.name) + ' <span class="muted sm">' + esc(q.date || '') + '</span></summary><div class="body">' +
-          (q.subjects || []).map(function (s) {
-            var right = s.status === 'G' ? '<span class="g">girmedi</span>'
-              : (s.status === '?' ? '<span class="muted">—</span>' : '<b>D ' + esc(fmtNum(s.D)) + ' · Y ' + esc(fmtNum(s.Y)) + ' · B ' + esc(fmtNum(s.B)) + '</b>');
-            return '<div class="qrow"><span>' + esc(s.label || s.course) + '</span>' + right + '</div>';
-          }).join('') + '</div></details>';
-      }).join('') : '<div class="empty-state">Henüz KKT sonucu yok.</div>';
+      html += res.length ? scoreListHtml(kktRows(res), 'kkt') : '<div class="empty-state">Henüz KKT sonucu yok.</div>';
     }
     card.innerHTML = html;
+    bindScoreList(card, function () { renderKkt(d); });
     Array.prototype.forEach.call(card.querySelectorAll('[data-tab]'), function (b) {
       b.addEventListener('click', function () { ui.kktTab = b.getAttribute('data-tab'); renderKkt(d); });
     });
@@ -719,6 +790,14 @@ details.acc .body{padding:0 12px 10px}
     var b = e.target.closest ? e.target.closest('[data-no]') : null;
     if (b) selectStudent(b.getAttribute('data-no'));
   });
+  // Yatay tutuş: CSS medya sorgusuna ek olarak sınıf (bazı uygulama içi tarayıcılar sorguyu geç uygular).
+  function applyOrientation() {
+    var w = window.innerWidth || document.documentElement.clientWidth, h = window.innerHeight || document.documentElement.clientHeight;
+    document.body.classList.toggle('land', w > h && w >= 480);
+  }
+  window.addEventListener('resize', applyOrientation);
+  window.addEventListener('orientationchange', function () { setTimeout(applyOrientation, 150); });
+  applyOrientation();
   // Açıkken düzenli, öne gelince ve ağ dönünce sessizce yenile.
   setInterval(function () { if (!document.hidden) syncLive(false); }, 90000);
   document.addEventListener('visibilitychange', function () { if (!document.hidden) syncLive(false); });
