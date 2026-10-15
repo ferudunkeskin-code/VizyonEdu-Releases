@@ -1,6 +1,7 @@
 {
-  "version": "1.03.58",
-  "installer_url": "https://github.com/ferudunkeskin-code/VizyonEdu-Releases/releases/download/v1.03.58/VizyonEdu_v1.03.58_Setup.exe",
-  "sha256": "8ca82afb47f86006d4117b6d4d2490f1082e5f3193d1dea7a6b66f5035b04f52",
-  "notes": "Kurum Bilgilerini Al artık tek adım ve otomatik: SI rol, atama veya ana kazanım güncellediğinde program bunları kendisi alır. Atama yayımı eksik veriyle yapılamaz; yayımlamadan önce değişiklikler gösterilir. Quiz katkıları ve işlenmiş quizler yalnız Bulut üzerinden. Rehberlik %10 onayı. Alt bilgi çubuğunda Bulut işlemlerinin ilerleyişi. Yeni öğretmen çalışması seçenekleri. Bu sürümden sonra zorunlu güncelleme desteği vardır; lütfen güncelleyin."
+  "version": "1.03.65",
+  "installer_url": "https://github.com/ferudunkeskin-code/VizyonEdu-Releases/releases/download/v1.03.65/VizyonEdu_v1.03.65_Setup.exe",
+  "sha256": "5e5147d1138e64bfe3ac265c8f49ec20a05f6646e886a7ebf4b552002ffd07e9",
+  "min_version": "1.03.65",
+  "notes": "Veli sayfasi yenilendi. Veli Yayini (sinav ve KKT). Hazir quiz aktarimi talep quizinde de var. KKT ders sirasi duzeltildi."
 }
