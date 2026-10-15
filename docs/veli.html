@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="tr" data-vz-app="VizyonEdu Veli">
 <head>
-<meta name="vz-build" content="24dfdc1479b7">
+<meta name="vz-build" content="b43616cbbe7e">
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
   <meta name="theme-color" content="#173d62">
@@ -526,11 +526,11 @@ body.land .ex-table-wrap{display:block}
     var box = $('lateBox'), L = d.late;
     if (!L) { box.innerHTML = ''; return; }
     if (!L.count) {
-      box.innerHTML = '<div class="late ok"><span class="ic">✓</span><span>Bu dönem derse geç kalmadı</span></div>';
+      box.innerHTML = '<div class="late ok"><span class="ic">✓</span><span>Derslere zamanında geliyor</span></div>';
       return;
     }
     var html = '<button type="button" class="late warn" id="btnLate" aria-expanded="' + (ui.lateOpen ? 'true' : 'false') + '">' +
-      '<span class="ic">⏰</span><span>Bu dönem <b>' + L.count + ' kez</b> derse geç kaldı · son: ' + esc(L.days[0].label) + '</span>' +
+      '<span class="ic">⏰</span><span>Bu dönem <b>' + L.count + ' kez</b> ilk derse zamanında gelmedi · son: ' + esc(L.days[0].label) + '</span>' +
       '<span class="go">' + (ui.lateOpen ? 'gizle ‹' : 'ayrıntı ›') + '</span></button>';
     if (ui.lateOpen) html += '<div class="late-days">' + L.days.map(function (x) { return '<span>' + esc(x.label) + '</span>'; }).join('') + '</div>';
     box.innerHTML = html;
