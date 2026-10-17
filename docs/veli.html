@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="tr" data-vz-app="VizyonEdu Veli">
 <head>
-<meta name="vz-build" content="be66af5c164a">
+<meta name="vz-build" content="d7f52ec1ec53">
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
   <meta name="theme-color" content="#173d62">
@@ -190,6 +190,11 @@ body.land .ex-table-wrap{display:block}
   .ex-cards{display:none}
   .ex-table-wrap{display:block}
 }
+
+/* Misafir öğrenci: tek öneri hücresi */
+.gain .advice{margin:10px 0 4px;padding:10px 12px;border-radius:10px;background:var(--advice-bg,#fff7e6);color:var(--advice-fg,#8a4b00);border:1px solid var(--advice-bd,#f5d9a8);font-weight:600;font-size:.92rem}
+.pill.guest{background:#fff7e6;color:#8a4b00;border:1px solid #f5d9a8}
+@media (prefers-color-scheme: dark){.gain .advice,.pill.guest{background:#3a2a10;color:#f5c97a;border-color:#6b4a14}}
 </style>
 </head>
 <body>
@@ -503,7 +508,7 @@ body.land .ex-table-wrap{display:block}
       });
       return;
     }
-    $('indexNotice').innerHTML = (d.index && !d.index.ready && (d.kkt.src === 'report' || d.general.src === 'report'))
+    $('indexNotice').innerHTML = (d.index && !d.index.ready && (d.kkt.src === 'report' || (d.general && d.general.src === 'report')))
       ? '<div class="notice">Anlık veriler hazırlanıyor; şimdilik son rapordaki bilgiler gösteriliyor.</div>' : '';
     renderLate(d);
     renderExams(d);
@@ -516,7 +521,8 @@ body.land .ex-table-wrap{display:block}
     var cls = (d && d.student && d.student.class) || st.class || '';
     var at = d && d.generated_at, old = at && Date.now() - new Date(at).getTime() > 10 * 60 * 1000;
     $('who').innerHTML = '<div class="avatar">' + esc(initials(name)) + '</div>' +
-      '<div class="who-txt"><b>' + esc(name) + '</b><span>' + esc([cls, 'No ' + st.no].filter(Boolean).join(' · ')) + '</span>' +
+      '<div class="who-txt"><b>' + esc(name) + '</b><span>' + esc([cls, 'No ' + st.no].filter(Boolean).join(' · ')) +
+      (d && d.student && d.student.guest ? ' <span class="pill guest">Misafir öğrenci</span>' : '') + '</span>' +
       (at ? '<span class="pill' + (old ? ' old' : '') + '">' + (old ? 'Son alınan · ' : 'Güncel · ') + esc(dateTime(at)) + '</span>' : '') + '</div>' +
       '<button type="button" class="refresh' + (syncing ? ' spin' : '') + '" id="btnRefresh" aria-label="Yenile" title="Yenile">↻</button>';
     $('btnRefresh').addEventListener('click', function () { syncLive(true, true); });
@@ -610,6 +616,12 @@ body.land .ex-table-wrap{display:block}
   function gainCard(g) {
     var html = '<div class="gain"><div class="crs">' + esc(g.label || g.course) + '</div><h3>' + esc(g.main_gain) + '</h3>';
     if (g.alts && g.alts.length) html += '<p class="alts">' + g.alts.map(esc).join(' · ') + '</p>';
+    if (g.advice) {
+      // Misafir öğrenci: ödev/kontrol/rehberlik takibi yok; tek öneri hücresi.
+      var src = (g.quizzes || []).map(function (q) { return q.name + (q.date ? ' · ' + q.date : ''); }).join(', ');
+      return html + '<div class="advice">' + esc(g.advice) + '</div>' +
+        (src ? '<div class="done"><em>' + esc(src) + '</em></div>' : '') + '</div>';
+    }
     html += '<div class="bar">' + g.parts.map(function (p) {
       return '<i style="width:' + Math.max(0, Math.min(100, Number(p.pct) || 0)) + '%;background:' + PART_COLOR[p.k] + '"></i>';
     }).join('') + '</div>';
@@ -636,7 +648,7 @@ body.land .ex-table-wrap{display:block}
       '<button type="button" data-tab="missing" class="' + (tab === 'missing' ? 'on' : '') + '">Eksik Kazanımlar (' + def.length + ')</button></div>';
     if (tab === 'missing') {
       html += def.length ? def.map(gainCard).join('') : '<div class="empty-state">Takip edilen eksik kazanım yok.</div>';
-      if (def.length) {
+      if (def.length && !(d.student && d.student.guest)) {
         var rd = reportDate(d);
         html += '<p class="src">' + (k.src === 'live'
           ? 'Ödev, Kontrol ve Rehberlik anlık · Aylar Sonra ' + (rd ? 'son rapordan (' + esc(rd) + ')' : 'henüz raporda yok')
@@ -654,7 +666,11 @@ body.land .ex-table-wrap{display:block}
 
   function mark(v) { return v ? '<span class="mark y">' + esc(v) + '</span>' : '<span class="mark n">—</span>'; }
   function renderGeneral(d) {
-    var card = $('generalCard'), g = d.general || { topics: [], homework: [], activities: [] };
+    var card = $('generalCard');
+    // Misafir öğrenci: güncel konu, ödev ve öğretmen çalışması bölümü yok.
+    card.hidden = !!(d.student && d.student.guest);
+    if (card.hidden) { card.innerHTML = ''; return; }
+    var g = d.general || { topics: [], homework: [], activities: [] };
     var html = '<h2>Genel Bilgiler ' + srcBadge(g.src, d) + '</h2>';
     html += '<div class="sec">GÜNCEL İŞLENEN KONULAR</div>';
     html += (g.topics || []).length ? '<div class="list">' + g.topics.map(function (t) {
