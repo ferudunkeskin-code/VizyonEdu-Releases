@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="tr" data-vz-app="VizyonEdu Veli">
 <head>
-<meta name="vz-build" content="d7f52ec1ec53">
+<meta name="vz-build" content="d80cd9694e0f">
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
   <meta name="theme-color" content="#173d62">
@@ -683,9 +683,18 @@ body.land .ex-table-wrap{display:block}
         (c.rows || []).map(function (r) {
           return '<span' + (r.current ? ' class="cur"' : '') + '>' + esc(r.topic) + '</span>' + mark(r.h) + mark(r.ok);
         }).join('') + '</div>';
-      if ((c.tasks || []).length) {
-        b += '<div class="sec" style="margin-top:10px">EK GÖREVLER</div><div class="hw">' + c.tasks.map(function (t) {
+      var plain = (c.tasks || []).filter(function (t) { return t.kind !== 'guidance'; });
+      var study = (c.tasks || []).filter(function (t) { return t.kind === 'guidance'; });
+      if (plain.length) {
+        b += '<div class="sec" style="margin-top:10px">EK GÖREVLER</div><div class="hw">' + plain.map(function (t) {
           return '<span>' + esc(t.title) + '</span>' + mark(t.h) + mark(t.ok);
+        }).join('') + '</div>';
+      }
+      if (study.length) {
+        // Rehberliğin KKT sonucuna göre açtığı ek çalışma: Ödev = katıldı, Kontrol = değerlendirme.
+        b += '<div class="sec" style="margin-top:10px">REHBERLİK EK ÇALIŞMALARI</div><div class="hw">' +
+          '<span class="h">Konu</span><span class="h">Katıldı</span><span class="h">Değerlendirme</span>' + study.map(function (t) {
+          return '<span>' + esc(String(t.title || '').replace(/^Rehberlik ek çalışma · /, '')) + '</span>' + mark(t.h) + mark(t.ok);
         }).join('') + '</div>';
       }
       var sum = c.topic_count + ' konu · ' + c.homework_count + ' ödev' + ((c.tasks || []).length ? ' · ' + c.tasks.length + ' ek görev' : '');
