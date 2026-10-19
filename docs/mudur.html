@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="tr" data-vz-app="VizyonEdu Müdür">
 <head>
-<meta name="vz-build" content="9946bb679a2a">
+<meta name="vz-build" content="69206b7e8c92">
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#173f67">
@@ -44,15 +44,17 @@ button.secondary{background:#eef3f8;color:var(--navy)}
 .intro-card small{font-size:.62rem;font-weight:800;letter-spacing:.1em;color:var(--muted)}
 .intro-card strong{display:block;font-size:.88rem;color:var(--navy)}
 .intro-card button{width:auto;margin:0;min-height:38px}
-.metric-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:0 0 12px}
-.metric{background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px 8px;text-align:center;border-top:4px solid var(--c,#2f80ed)}
+.metric-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin:0 0 12px}
+.metric{background:#fff;border:1px solid var(--line);border-radius:10px;padding:6px 4px;text-align:center;border-top:3px solid var(--c,#2f80ed)}
 .metric span{display:block;font-size:.66rem;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.04em}
-.metric strong{display:block;font-size:1.3rem;color:var(--navy);font-variant-numeric:tabular-nums}
+.metric strong{display:block;font-size:1.05rem;color:var(--navy);font-variant-numeric:tabular-nums}
 .metric.blue{--c:#2f80ed}.metric.green{--c:#27ae60}.metric.orange{--c:#f2994a}.metric.purple{--c:#9b51e0}
 
 /* sorumluluk takibi */
 .acc-tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin:0 0 12px}
-.tile{border-radius:12px;padding:10px;border:1px solid var(--line);background:#f8fafc}
+.tile{border-radius:12px;padding:10px;border:1px solid var(--line);background:#f8fafc;color:var(--ink);text-align:left;margin:0;min-height:0;display:flex;flex-direction:column;align-items:flex-start;gap:2px;font-weight:400}
+.tile small{font-size:.66rem;color:var(--muted);font-weight:600}
+.tile:active{transform:scale(.98)}
 .tile b{display:block;font-size:1.35rem;color:var(--navy);font-variant-numeric:tabular-nums}
 .tile span{font-size:.72rem;color:var(--muted);font-weight:650}
 .tile.red{background:var(--red-bg);border-color:#f3c3bb}.tile.red b{color:var(--red)}
@@ -83,6 +85,7 @@ button.secondary{background:#eef3f8;color:var(--navy)}
 .subj h4 small{color:var(--muted);font-weight:600}
 .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(118px,1fr));gap:6px}
 .stat{background:#f6f9fc;border-radius:9px;padding:6px 8px;font-size:.74rem;color:var(--muted)}
+button.stat{margin:0;min-height:0;text-align:left;font-weight:400;border:1px dashed #c9d6e2;width:100%}
 .stat b{display:block;font-size:.95rem;color:var(--ink)}
 .stat.red{background:var(--red-bg)}.stat.red b{color:var(--red)}
 .stat.amber{background:var(--amber-bg)}.stat.amber b{color:var(--amber)}
@@ -95,31 +98,15 @@ button.secondary{background:#eef3f8;color:var(--navy)}
 .simple-list .it small{display:block;color:var(--muted);font-size:.72rem}
 .num-badge{font-weight:800;border-radius:8px;padding:2px 8px;font-size:.8rem;white-space:nowrap;align-self:center}
 .num-badge.red{background:var(--red-bg);color:var(--red)}.num-badge.amber{background:var(--amber-bg);color:var(--amber)}.num-badge.green{background:var(--green-bg);color:var(--green)}
+.it-btn{display:flex;justify-content:space-between;align-items:center;gap:10px;background:#fff;color:var(--ink);border:1px solid var(--line);border-radius:10px;margin:0 0 6px;text-align:left;padding:9px 11px;font-weight:400}
+.it-btn b{display:block;font-size:.86rem}.it-btn small{display:block;color:var(--muted);font-size:.72rem}
+.sheet-card{border:1px solid var(--line);border-radius:10px;padding:8px 10px;margin:0 0 6px;font-size:.84rem}
 .sec{font-size:.78rem;font-weight:800;color:var(--navy);margin:12px 0 4px;letter-spacing:.02em}
 
-/* raporlar, ayrıntılı kontroller */
-.report-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px}
-.report-btn{display:flex;flex-direction:column;align-items:flex-start;gap:2px;background:#f6f9fc;color:var(--ink);border:1px solid var(--line);margin:0;text-align:left}
-.report-btn span{font-size:1.1rem}.report-btn b{font-size:.88rem;color:var(--navy)}.report-btn small{font-size:.72rem;color:var(--muted);font-weight:600}
-.filter-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
-.filter-grid label{margin:0}
-.monitor-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px;margin-top:10px}
-.monitor-card{border:1px solid var(--line);border-left:4px solid var(--accent,#2f80ed);border-radius:12px;padding:10px}
-.monitor-card h3{margin:0;font-size:.82rem;color:var(--muted)}
-.monitor-card strong{display:block;font-size:1.3rem;color:var(--navy)}
-.monitor-card p{margin:0 0 4px;font-size:.74rem;color:var(--muted)}
-.monitor-card button{min-height:34px;padding:6px 10px;font-size:.78rem}
-.sync-progress{border:1px solid var(--line);border-radius:12px;padding:10px;margin-top:10px;font-size:.8rem}
-.sync-progress-head{display:flex;gap:10px;align-items:center}
-.sync-progress-head small{display:block;color:var(--muted)}
-.spinner{width:16px;height:16px;border-radius:50%;border:3px solid #cfe0ef;border-top-color:var(--navy);animation:spin 1s linear infinite}
-.sync-progress.done .spinner,.sync-progress.error .spinner{animation:none;border-top-color:#cfe0ef}
-@keyframes spin{to{transform:rotate(360deg)}}
-.sync-steps{display:flex;flex-wrap:wrap;gap:4px}
-.sync-step{font-size:.7rem;background:#eef3f8;border-radius:999px;padding:2px 8px;color:var(--muted)}
-.sync-step.active{background:#dceaf6;color:var(--navy)}.sync-step.done{background:var(--green-bg);color:var(--green)}.sync-step.fail{background:var(--red-bg);color:var(--red)}
-.system-panel p{font-size:.8rem;margin:0 0 6px}
-.safe-note{color:var(--muted)}
+/* öğrenci ara, alt satır */
+.report-btn{display:flex;flex-direction:column;align-items:flex-start;gap:2px;background:#fff;color:var(--ink);border:1px solid var(--line);margin:0 0 12px;text-align:left;border-radius:14px;padding:12px 14px}
+.report-btn span{font-size:1.1rem}.report-btn b{font-size:.9rem;color:var(--navy)}.report-btn small{font-size:.72rem;color:var(--muted);font-weight:600}
+.safe-note{color:var(--muted);font-size:.74rem;text-align:center;margin:4px 0}
 .logout{margin-top:6px}
 
 /* pencereler */
@@ -144,8 +131,7 @@ th{background:#edf4fa;color:#486581;font-weight:750;white-space:nowrap}
 .timeline-item strong{display:block;font-size:.86rem}
 .timeline-item p{margin:2px 0;font-size:.8rem}
 @media (max-width:520px){
-  .metric-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
-  .filter-grid{grid-template-columns:1fr}
+  .metric span{font-size:.58rem}
 }
 </style>
 </head>
@@ -203,53 +189,26 @@ th{background:#edf4fa;color:#486581;font-weight:750;white-space:nowrap}
         <div class="panel-title"><div><small>SORUMLULUK TAKİBİ</small><h2>Aksayan İşler</h2></div></div>
         <p class="hint" id="accLine">Yükleniyor…</p>
         <div id="accTiles" class="acc-tiles"></div>
-        <div id="accAlerts"></div>
-        <div class="tabs" id="accTabs">
-          <button type="button" data-acc="teachers" class="on">Öğretmenler</button>
-          <button type="button" data-acc="guidance">Rehberlik</button>
-          <button type="button" data-acc="late">İlk Ders Kaydı</button>
-        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-title"><div><small>ÖĞRETMENLER</small><h2>Öğretmen Bazında</h2></div></div>
         <div id="accBody"></div>
       </section>
 
-      <section class="panel">
-        <div class="panel-title"><div><small>RAPORLAR</small><h2>Kurum Raporları</h2></div></div>
-        <div class="report-grid">
-          <button type="button" id="btnStudents" class="report-btn"><span>👤</span><b>Öğrenci Genel Durumu</b><small>Öğrenci ara ve kayıtlarını görüntüle</small></button>
-          <button type="button" id="btnStatusAnalysis" class="report-btn"><span>▥</span><b>Kontrol Bekleyen Ödevler</b><small>Ayrıntılı veri kontrollerinden</small></button>
-          <button type="button" id="btnQuizResults" class="report-btn"><span>▤</span><b>KKT Sonucu Kapsamı</b><small>Ayrıntılı veri kontrollerinden</small></button>
-        </div>
-      </section>
+      <button type="button" id="btnStudents" class="report-btn"><span>👤</span><b>Öğrenci Ara</b><small>Öğrencinin kayıtlarını görüntüle</small></button>
 
-      <section class="panel">
-        <div class="panel-title"><div><small>AYRINTILI</small><h2>Veri Kontrolleri</h2></div></div>
-        <p class="hint">Paketleri doğrudan tarar; birkaç dakika sürebilir. Filtreler yalnız bu bölüm içindir.</p>
-        <div class="filter-grid">
-          <label>Dönem<select id="period"><option value="7">Son 7 gün</option><option value="30">Son 30 gün</option><option value="0">Tüm dönem</option></select></label>
-          <label>Sınıf<select id="classFilter"><option value="">Tüm sınıflar</option></select></label>
-          <label>Ders<select id="subjectFilter"><option value="">Tüm dersler</option></select></label>
-        </div>
-        <button type="button" id="btnDetails" class="secondary">Ayrıntılı kontrolleri yükle</button>
-        <section class="sync-progress" id="syncProgress" hidden aria-live="polite">
-          <div class="sync-progress-head">
-            <span class="spinner" id="syncSpinner"></span>
-            <div><strong id="syncTitle">Kurum verileri hazırlanıyor…</strong><small id="syncElapsed">0 sn</small></div>
-          </div>
-          <p id="syncCurrent">Drive bağlantısı kuruluyor…</p>
-          <div id="syncSteps" class="sync-steps"></div>
-        </section>
-        <section class="monitor-grid" id="monitorGrid"></section>
-      </section>
-
-      <section class="panel system-panel">
-        <div class="panel-title"><div><small>SİSTEM</small><h2>Veri Güncelliği</h2></div></div>
-        <p id="systemStatus">—</p>
-        <p class="safe-note">Bu portal kayıt eklemez, değiştirmez veya silmez.</p>
-      </section>
-
+      <p class="safe-note" id="systemStatus">Bu portal kayıt eklemez, değiştirmez veya silmez.</p>
       <button id="btnLogout" type="button" class="logout secondary">Oturumu Kapat</button>
     </div>
   </main>
+
+  <div class="modal" id="sheetModal" hidden>
+    <div class="modal-sheet">
+      <div class="modal-head"><div><small id="sheetSubtitle">AKSAYAN İŞ</small><h2 id="sheetTitle">—</h2><p id="sheetLine"></p></div><button type="button" class="close" data-close="sheetModal">×</button></div>
+      <div id="sheetBody"></div>
+    </div>
+  </div>
 
   <div class="modal" id="detailModal" hidden>
     <div class="modal-sheet">
@@ -283,32 +242,6 @@ th{background:#edf4fa;color:#486581;font-weight:750;white-space:nowrap}
   var snapshot = null;
   var activeManager = null, mobileSession = null;
   var statusTimer = null;
-  var progressTimer = null;
-  var progressStarted = 0;
-  var progressIndex = 0;
-  var accents = ['#eb5757', '#f2994a', '#2f80ed', '#9b51e0', '#eb5757', '#27ae60'];
-
-  // Önce kritik metrikler (ekran dolsun), sonra ikincil
-  var STAGE_PRIMARY = [
-    ['current_gain_missing', 'Güncel ana kazanım kayıtları'],
-    ['main_gain_missing', 'Ana kazanım listeleri'],
-    ['homework_control', 'Ödev ve öğretmen kontrolü']
-  ];
-  var STAGE_SECONDARY = [
-    ['quiz_gain_incomplete', 'KKT kazanım kontrolleri'],
-    ['student_tracking', 'Öğretmen–öğrenci çalışmaları'],
-    ['quiz_coverage', 'KKT sonucu kapsamı']
-  ];
-  var progressLabels = [
-    'Öğretmen listesi',
-    'Öğretmen atamaları (tek tek)',
-    'Güncel ana kazanım kayıtları',
-    'Ana kazanım listeleri',
-    'Ödev ve öğretmen kontrolü',
-    'KKT kazanım kontrolleri',
-    'Öğretmen–öğrenci çalışmaları',
-    'KKT sonucu kapsamı'
-  ];
 
   function notify(message, type) {
     var box = $('status');
@@ -318,7 +251,7 @@ th{background:#edf4fa;color:#486581;font-weight:750;white-space:nowrap}
     statusTimer = setTimeout(function () { box.className = ''; }, 4200);
   }
 
-  var BUILD = '2026-10-15a';
+  var BUILD = '2026-10-19a';
   function isAuthError(e) {
     return !!e && (e.code === 'AUTH_REQUIRED' || /Oturum doğrulanamadı|AUTH_REQUIRED/i.test(String(e.message || e)));
   }
@@ -385,67 +318,11 @@ th{background:#edf4fa;color:#486581;font-weight:750;white-space:nowrap}
     }
   }
 
-  function startProgress() {
-    clearInterval(progressTimer);
-    progressStarted = Date.now();
-    progressIndex = 0;
-    $('syncProgress').hidden = false;
-    $('syncProgress').className = 'sync-progress';
-    $('syncTitle').textContent = 'Kurum verileri hazırlanıyor…';
-    $('syncCurrent').textContent = 'Veriler hazırlanıyor…';
-    $('syncElapsed').textContent = '0 sn';
-    $('syncSteps').innerHTML = progressLabels.map(function (label) {
-      return '<span class="sync-step">' + escapeHtml(label) + '</span>';
-    }).join('');
-    progressTimer = setInterval(function () {
-      var seconds = Math.floor((Date.now() - progressStarted) / 1000);
-      $('syncElapsed').textContent = seconds + ' sn';
-      if (seconds >= 25) {
-        $('syncCurrent').textContent =
-          ($('syncCurrent').dataset.label || 'Veri alınıyor') +
-          ' · İnternet bağlantısına göre bu adım biraz sürebilir.';
-      }
-    }, 1000);
-  }
 
-  function markStep(index, state) {
-    var steps = $('syncSteps').querySelectorAll('.sync-step');
-    if (steps[index]) {
-      steps[index].className = 'sync-step' + (state ? ' ' + state : '');
-    }
-  }
-
-  function finishProgress(operations, failed) {
-    clearInterval(progressTimer);
-    var elapsed = Math.max(1, Math.round((Date.now() - progressStarted) / 1000));
-    $('syncProgress').className = 'sync-progress ' + (failed ? 'error' : 'done');
-    $('syncTitle').textContent = failed ? 'Kurum verileri kısmen hazır' : 'Kurum verileri hazır';
-    $('syncCurrent').textContent = failed
-      ? (failed + ' bölüm alınamadı; diğer sonuçlar kullanılabilir.')
-      : 'Bütün kontroller tamamlandı.';
-    $('syncElapsed').textContent = elapsed + ' sn';
-    $('syncSteps').innerHTML = (operations || []).map(function (item) {
-      return '<span class="sync-step ' + (item.ok ? 'done' : 'fail') + '">' +
-        escapeHtml(item.label) +
-        (item.detail ? ' · ' + escapeHtml(item.detail) : '') +
-        '</span>';
-    }).join('');
-  }
-
-  function failProgress(error) {
-    clearInterval(progressTimer);
-    $('syncProgress').className = 'sync-progress error';
-    $('syncTitle').textContent = 'Kurum verileri alınamadı';
-    $('syncCurrent').textContent = (error && error.message) || 'Ağ bağlantısı kesildi';
-  }
-
-  async function stageApi(request, label) {
-    $('syncCurrent').textContent = label + ' alınıyor…';
-    $('syncCurrent').dataset.label = label;
-    try {
-      return await api(request);
-    } catch (firstError) {
-      $('syncCurrent').textContent = label + ' — bir kez daha deneniyor…';
+  async function stageApi(request) {
+    try { return await api(request); }
+    catch (firstError) {
+      if (isAuthError(firstError)) throw firstError;
       await new Promise(function (resolve) { setTimeout(resolve, 1200); });
       return api(request);
     }
@@ -524,17 +401,10 @@ th{background:#edf4fa;color:#486581;font-weight:750;white-space:nowrap}
     try { sessionStorage.removeItem(KEY); } catch (ignore2) {}
   }
 
+
   function commonBody(extra) {
-    var body = {
-      action: 'manager_dashboard',
-      user_id: activeManager.user_id,
-      period_days: $('period').value,
-      class_code: $('classFilter').value,
-      subject_code: $('subjectFilter').value
-    };
-    if (extra) {
-      Object.keys(extra).forEach(function (k) { body[k] = extra[k]; });
-    }
+    var body = { action: 'manager_dashboard', user_id: activeManager.user_id };
+    Object.keys(extra || {}).forEach(function (k) { body[k] = extra[k]; });
     return body;
   }
 
@@ -575,13 +445,13 @@ th{background:#edf4fa;color:#486581;font-weight:750;white-space:nowrap}
       return false;
     });
   }
-  function cacheKey() {
-    return 'snap|' + activeManager.user_id + '|' + $('period').value + '|' + $('classFilter').value + '|' + $('subjectFilter').value;
-  }
+
+  function cacheKey() { return 'snap2|' + activeManager.user_id; }
   function saveCache() {
     if (!activeManager || !snapshot) return Promise.resolve();
     return kvSet(cacheKey(), { savedAt: Date.now(), snapshot: snapshot });
   }
+
   function setBg(text, kind) {
     var el = $('bgSync');
     if (!el) return;
@@ -589,224 +459,51 @@ th{background:#edf4fa;color:#486581;font-weight:750;white-space:nowrap}
     el.textContent = text || '';
     el.className = 'hint bg-sync' + (kind ? ' ' + kind : '');
   }
-  function putMetric(metric) {
-    var list = snapshot.metrics = snapshot.metrics || [];
-    for (var i = 0; i < list.length; i++) {
-      if (list[i].key === metric.key) { list[i] = metric; return; }
-    }
-    list.push(metric);
-  }
-  function wait(ms) { return new Promise(function (resolve) { setTimeout(resolve, ms); }); }
 
-  async function runStages(stages, operations, startIndex, silent) {
-    var failed = 0;
-    for (var i = 0; i < stages.length; i++) {
-      var key = stages[i][0];
-      var label = stages[i][1];
-      var stepIndex = startIndex + i;
-      progressIndex = stepIndex;
-      if (!silent) markStep(stepIndex, 'active'); else setBg('Arkaplanda güncelleniyor: ' + label + '…');
-      try {
-        var part = await stageApi(commonBody({ stage: key }), label);
-        // İlk kullanımda sunucu paket dizinini birkaç turda kurar; bitene kadar sessizce sürdür.
-        for (var again = 0; part.pending > 0 && again < 40; again++) {
-          var msg = label + ' · veriler hazırlanıyor (' + part.pending + ' kayıt kaldı)…';
-          if (silent) setBg(msg); else $('syncCurrent').textContent = msg;
-          await wait(1500);
-          part = await stageApi(commonBody({ stage: key }), label);
-        }
-        putMetric(part.metric);
-        operations.push({ label: label, detail: String(part.metric.value), ok: true });
-        if (!silent) markStep(stepIndex, 'done');
-        render(snapshot);
-        saveCache();
-        if (!silent) notify(label + ' tamamlandı.', 'ok');
-      } catch (error) {
-        failed++;
-        operations.push({ label: label, detail: 'Alınamadı', ok: false });
-        if (!silent) markStep(stepIndex, 'fail');
-        var had = (snapshot.metrics || []).some(function (m) { return m.key === key; });
-        if (!had && !silent) {
-          putMetric({ key: key, title: label, value: '—', subtitle: 'Bağlantı hatası · Yenile ile tekrar deneyin', headers: [], rows: [] });
-          render(snapshot);
-        }
-        if (!silent) notify(label + ' alınamadı; diğer işlemlere devam ediliyor.', 'error');
-      }
-    }
-    return failed;
-  }
-
-  /**
-   * options.forceContext: atama context'ini sunucuda yenile (ilk giriş / Yenile)
-   * options.silent: hafızadaki veri ekranda kalır; yeni veri arkaplanda sessizce gelir
-   */
+  /** Öğrenci listesi ve sayılar (arkaplanda, ekran beklemez). */
+  var refreshToken = 0;
   async function refresh(options) {
     options = options || {};
-    var silent = !!options.silent;
     if (!activeManager) throw new Error('Müdür oturumu bulunamadı.');
     var token = ++refreshToken;
-    if (silent) setBg('Arkaplanda güncelleniyor…'); else { startProgress(); notify('Öğretmen listesi alınıyor…'); markStep(0, 'active'); }
-
+    setBg('Arkaplanda güncelleniyor…');
     var base;
     try {
-      base = await stageApi(
-        commonBody({ stage: 'base', refresh_context: options.forceContext ? 1 : 0 }),
-        'Öğretmen listesi'
-      );
+      base = await stageApi(commonBody({ stage: 'base', refresh_context: options.forceContext ? 1 : 0 }));
     } catch (error) {
       if (isAuthError(error)) { sessionLost(); return; }
-      if (silent) { setBg('Güncelleme alınamadı; hafızadaki veri gösteriliyor. Yenile ile tekrar deneyin.', 'error'); return; }
-      failProgress(error);
-      throw error;
-    }
-    if (token !== refreshToken) return;   // kullanıcı bu arada filtre değiştirdi
-
-    if (silent && snapshot) {
-      snapshot = Object.assign({}, snapshot, base, { metrics: snapshot.metrics || [], students: snapshot.students || [] });
-    } else {
-      snapshot = Object.assign({}, base, { metrics: [], students: [] });
-    }
-    render(snapshot);
-    if (!silent) markStep(0, 'done');
-
-    var teachers = base.teachers || [];
-    var operations = [{
-      label: 'Öğretmen listesi',
-      detail: teachers.length + ' öğretmen' +
-        (base.context_cached || (base.system && base.system.context_from_cache) ? ' · önbellek' : ''),
-      ok: true
-    }];
-
-    // 1) Her öğretmenin ataması ayrı istek — zaman aşımını önler
-    if (!silent) markStep(1, 'active');
-    var teacherFailed = 0;
-    for (var ti = 0; ti < teachers.length; ti++) {
-      if (token !== refreshToken) return;
-      var teacher = teachers[ti];
-      var tLabel = (teacher.display_name || teacher.user_id || 'Öğretmen') +
-        ' (' + (ti + 1) + '/' + teachers.length + ')';
-      if (silent) setBg('Arkaplanda güncelleniyor: atama ' + tLabel + '…');
-      else if ($('syncCurrent')) $('syncCurrent').textContent = 'Atama yükleniyor: ' + tLabel;
-      try {
-        var part = await stageApi(
-          commonBody({ stage: 'teacher_assign', teacher_id: teacher.user_id, refresh_context: options.forceContext ? 1 : 0 }),
-          tLabel
-        );
-        snapshot.counts = part.counts || snapshot.counts;
-        snapshot.filters = part.filters || snapshot.filters;
-        snapshot.students = part.students || snapshot.students;
-        snapshot.system = part.system || snapshot.system;
-        snapshot.teachers_loaded = part.teachers_loaded;
-        render(snapshot);
-        operations.push({
-          label: 'Atama: ' + (teacher.display_name || teacher.user_id),
-          detail: (part.counts && part.counts.students != null ? part.counts.students + ' öğrenci birikmiş' : 'tamam') +
-            (part.context_cached ? ' · önbellek' : ''),
-          ok: true
-        });
-      } catch (errT) {
-        teacherFailed++;
-        operations.push({ label: 'Atama: ' + (teacher.display_name || teacher.user_id), detail: 'Alınamadı', ok: false });
-        if (!silent) notify(tLabel + ' ataması alınamadı; devam ediliyor.', 'error');
-      }
-    }
-    if (!silent) markStep(1, teacherFailed ? 'fail' : 'done');
-    saveCache();
-
-    // Sorumluluk özeti (hazır, hızlı) her açılışta; paket tarayan ayrıntılı kontroller yalnız istenince.
-    loadAccountability().catch(function (e) { if (isAuthError(e)) sessionLost(); });
-    var failed = teacherFailed;
-    if (options.details) {
-      failed += await runStages(STAGE_PRIMARY, operations, 2, silent);
-      if (token !== refreshToken) return;
-      failed += await runStages(STAGE_SECONDARY, operations, 2 + STAGE_PRIMARY.length, silent);
-      if (token !== refreshToken) return;
-    }
-
-    snapshot.generated_at = snapshot.generated_at || new Date().toISOString();
-    snapshot.cached_at = Date.now();
-    await saveCache();
-    if (silent || !options.details) {
-      setBg(failed ? ('Güncelleme kısmen tamamlandı (' + failed + ' bölüm alınamadı); mevcut veri korundu. Yenile ile tekrar deneyin.') : 'Güncel: ' + new Date().toLocaleString('tr-TR'), failed ? 'error' : 'ok');
+      setBg('Güncelleme alınamadı; hafızadaki veri gösteriliyor. Yenile ile tekrar deneyin.', 'error');
       return;
     }
-    finishProgress(operations, failed);
-    if (failed) {
-      notify('Kurum sayfası açıldı; ' + failed + ' adımda hata oluştu.', 'error');
-    } else {
-      notify('Tüm öğretmen verileri yüklendi. Sonraki açılışta hafızadan gösterilir.', 'ok');
-    }
+    if (token !== refreshToken) return;
+    snapshot = Object.assign({}, snapshot || {}, base);
+    render(snapshot);
+    snapshot.generated_at = snapshot.generated_at || new Date().toISOString();
+    await saveCache();
+    setBg('');
   }
 
-  /**
-   * Açılış/filtre/Yenile: hafızada veri varsa hemen onu göster, yenisini arkaplanda getir.
-   * Hafıza yoksa (ilk kurulum) tüm veriyi ilerleme göstergesiyle alır ve hafızaya yazar.
-   */
-  var refreshToken = 0;
+  /** Açılış / Yenile: hafızadaki veri hemen gösterilir, yenisi arkaplanda gelir. */
   async function openDashboard(opts) {
     opts = opts || {};
-    loadAccountability().catch(function (e) { if (isAuthError(e)) sessionLost(); });
-    var cached = opts.manual ? null : await kvGet(cacheKey());
-    if (!cached && opts.manual && snapshot && snapshot.metrics && snapshot.metrics.length) {
-      // Yenile: ekrandaki veri kalsın, yenisi arkaplanda gelsin
-      return refresh({ silent: true, forceContext: true });
+    loadAccountability({ force: !!opts.manual }).catch(function (e) { if (isAuthError(e)) sessionLost(); });
+    if (!snapshot) {
+      var cached = await kvGet(cacheKey());
+      if (cached && cached.snapshot && cached.snapshot.counts) { snapshot = cached.snapshot; render(snapshot); }
     }
-    if (cached && cached.snapshot && cached.snapshot.counts && cached.snapshot.filters) {
-      snapshot = cached.snapshot;
-      $('syncProgress').hidden = true;
-      render(snapshot);
-      var age = Date.now() - (cached.savedAt || 0);
-      setBg('Hafızadan gösteriliyor (' + formatDate(cached.savedAt) + ') · arkaplanda güncelleniyor…');
-      refresh({ silent: true, forceContext: age > 6 * 3600 * 1000 }).catch(function (e) {
-        setBg('Güncelleme alınamadı: ' + (e && e.message || e), 'error');
-      });
-      return;
-    }
-    // İlk kurulum da sessiz: panel hemen açılır, veriler geldikçe kartlar eklenir.
-    $('syncProgress').hidden = true;
-    snapshot = null;
-    $('monitorGrid').innerHTML = '';
-    setBg('İlk kurulum: veriler arkaplanda alınıyor, geldikçe burada görünecek…');
-    return refresh({ silent: true, forceContext: true });
-  }
-
-  function refillSelect(select, items, valueFn, label) {
-    var old = select.value;
-    select.innerHTML = '<option value="">' + label + '</option>';
-    (items || []).forEach(function (item) {
-      var option = document.createElement('option');
-      option.value = valueFn(item);
-      option.textContent = item.name || item;
-      select.appendChild(option);
-    });
-    select.value = old;
+    var age = snapshot ? Date.now() - Number(snapshot.cached_at || 0) : Infinity;
+    return refresh({ forceContext: !!opts.manual || age > 6 * 3600 * 1000 });
   }
 
   function render(data) {
     $('updatedAt').textContent = formatDate(data.generated_at);
-    $('countStudents').textContent = data.counts.students;
-    $('countClasses').textContent = data.counts.classes;
-    $('countTeachers').textContent = data.counts.teachers;
-    $('countSubjects').textContent = data.counts.subjects;
-    refillSelect($('classFilter'), data.filters.classes, function (x) { return x; }, 'Tüm sınıflar');
-    refillSelect($('subjectFilter'), data.filters.subjects, function (x) { return x.code; }, 'Tüm dersler');
-    $('monitorGrid').innerHTML = '';
-    (data.metrics || []).forEach(function (metric, index) {
-      var card = document.createElement('article');
-      card.className = 'monitor-card';
-      card.style.setProperty('--accent', accents[index % accents.length]);
-      card.innerHTML =
-        '<h3>' + escapeHtml(metric.title) + '</h3>' +
-        '<strong>' + escapeHtml(metric.value) + '</strong>' +
-        '<p>' + escapeHtml(metric.subtitle) + '</p>' +
-        '<button type="button">Ayrıntıları Gör</button>';
-      card.querySelector('button').onclick = function () { openMetric(metric); };
-      $('monitorGrid').appendChild(card);
-    });
-    $('systemStatus').textContent =
-      (data.system && data.system.mode ? data.system.mode : 'Salt okunur') +
-      ' · ' + (data.system && data.system.assignment_users != null ? data.system.assignment_users : '—') +
-      ' öğretmen ataması · ' + formatDate(data.system && data.system.last_refresh) + ' · s.' + BUILD;
+    if (data.counts) {
+      $('countStudents').textContent = data.counts.students;
+      $('countClasses').textContent = data.counts.classes;
+      $('countTeachers').textContent = data.counts.teachers;
+      $('countSubjects').textContent = data.counts.subjects;
+    }
+    data.cached_at = data.cached_at || Date.now();
   }
 
   function openMetric(metric) {
@@ -837,20 +534,6 @@ th{background:#edf4fa;color:#486581;font-weight:750;white-space:nowrap}
     });
     $('detailEmpty').hidden = !!(metric.rows && metric.rows.length);
     $('detailModal').hidden = false;
-  }
-
-  function reportMetric(key) {
-    if (!snapshot || !snapshot.metrics || !snapshot.metrics.length) {
-      notify('Bu rapor «Ayrıntılı kontrolleri yükle» ile gelir; önce o düğmeye basın.', 'error');
-      return;
-    }
-    for (var i = 0; i < snapshot.metrics.length; i++) {
-      if (snapshot.metrics[i].key === key) {
-        openMetric(snapshot.metrics[i]);
-        return;
-      }
-    }
-    notify('Bu gösterge henüz yüklenmedi. «Ayrıntılı kontrolleri yükle» düğmesine basın.', 'error');
   }
 
   function sessionLost() {
@@ -927,7 +610,8 @@ th{background:#edf4fa;color:#486581;font-weight:750;white-space:nowrap}
   }
 
   // ───────────── Sorumluluk Takibi (sunucudaki hazır özet: MudurOzet.js) ─────────────
-  var acc = null, accTab = 'teachers', accOnlyFlagged = true, accOpen = {}, accAllAlerts = false;
+  // ───────────── Aksayan İşler (sunucudaki hazır özet: MudurOzet.js) ─────────────
+  var acc = null, accOnlyFlagged = true, accOpen = {};
   async function loadAccountability() {
     if (!activeManager) return;
     var key = 'acc|' + activeManager.user_id;
@@ -947,51 +631,123 @@ th{background:#edf4fa;color:#486581;font-weight:750;white-space:nowrap}
   }
   function cls(level) { return level === 'red' ? 'red' : level === 'amber' ? 'amber' : 'green'; }
   function sum(list, f) { return (list || []).reduce(function (a, x) { return a + (Number(f(x)) || 0); }, 0); }
+  function eachSubject(s, fn) { (s.teachers || []).forEach(function (t) { t.subjects.forEach(function (x) { fn(t, x); }); }); }
+  function dayText(n) { return n + ' gün'; }
+
+  var TILES = [
+    { key: 'red', label: 'Kırmızı uyarılı öğretmen' },
+    { key: 'untreated', label: 'Takipsiz eksik kazanım' },
+    { key: 'control', label: 'Kontrol bekleyen ödev' },
+    { key: 'guidance', label: 'Rehberlik onayı bekleyen' },
+    { key: 'late', label: 'İlk ders kaydı eksik sınıf' }
+  ];
+  function tileValues(s) {
+    var v = { untreated: 0, control: 0, current: 0 };
+    eachSubject(s, function (t, x) { v.untreated += x.untreated || 0; v.control += x.control || 0; v.current += x.control_current || 0; });
+    v.red = s.counts.red_teachers;
+    v.guidance = (s.guidance || {}).total_pending || 0;
+    v.late = ((s.late || {}).classes || []).length;
+    return v;
+  }
   function renderAcc() {
     if (!acc) return;
     if (!acc.ready) {
       $('accLine').textContent = acc.message || 'Özet hazır değil.';
-      $('accTiles').innerHTML = ''; $('accAlerts').innerHTML = ''; $('accBody').innerHTML = '';
+      $('accTiles').innerHTML = ''; $('accBody').innerHTML = '';
       return;
     }
-    var s = acc.snapshot, th = s.thresholds || {};
+    var s = acc.snapshot, th = s.thresholds || {}, v = tileValues(s);
     if ($('countStudents').textContent === '—') {
       $('countStudents').textContent = s.counts.students; $('countClasses').textContent = s.counts.classes;
       $('countTeachers').textContent = s.counts.teachers; $('countSubjects').textContent = s.counts.subjects;
     }
-    $('accLine').innerHTML = 'Özet: <b>' + escapeHtml(formatDate(s.built_at)) + '</b> · 30 dakikada bir hazırlanır · ' + escapeHtml(s.kkt_filter || '') +
-      (acc.stale ? ' · <span style="color:var(--red)">özet 3 saatten eski: tetikleyiciyi kontrol edin</span>' : '');
-    var untreated = 0, control = 0;
-    (s.teachers || []).forEach(function (t) { untreated += sum(t.subjects, function (x) { return x.untreated; }); control += sum(t.subjects, function (x) { return x.control; }); });
-    var tiles = [
-      [s.counts.red_teachers ? 'red' : 'green', s.counts.red_teachers + ' / ' + (s.teachers || []).length, 'Kırmızı uyarılı öğretmen'],
-      [untreated ? 'red' : 'green', untreated, 'Takipsiz eksik kazanım (' + th.untreated + '+ gün)'],
-      [control ? 'amber' : 'green', control, 'Kontrol bekleyen ödev'],
-      [s.guidance.total_pending ? 'amber' : 'green', s.guidance.total_pending, 'Rehberlik onayı bekleyen'],
-      [(s.late.classes || []).length ? 'amber' : 'green', (s.late.classes || []).length, 'İlk ders kaydı eksik sınıf']
-    ];
-    $('accTiles').innerHTML = tiles.map(function (t) { return '<div class="tile ' + t[0] + '"><b>' + escapeHtml(t[1]) + '</b><span>' + escapeHtml(t[2]) + '</span></div>'; }).join('');
-    var alerts = s.alerts || [], shown = accAllAlerts ? alerts : alerts.slice(0, 6);
-    $('accAlerts').innerHTML = alerts.length ? '<div class="alerts">' + shown.map(function (a) {
-      return '<div class="alert ' + cls(a.level) + '"><i></i><div><b>' + escapeHtml(a.who) + '</b>' + (a.what ? ' · ' + escapeHtml(a.what) : '') +
-        '<small>' + escapeHtml(a.text) + '</small></div></div>';
-    }).join('') + (alerts.length > shown.length ? '<button type="button" class="linkbtn" id="accMoreAlerts">Tüm uyarılar (' + alerts.length + ')</button>' : '') + '</div>'
-      : '<p class="hint ok">Aksayan iş görünmüyor.</p>';
-    if ($('accMoreAlerts')) $('accMoreAlerts').onclick = function () { accAllAlerts = true; renderAcc(); };
-    Array.prototype.forEach.call(document.querySelectorAll('[data-acc]'), function (b) { b.classList.toggle('on', b.getAttribute('data-acc') === accTab); });
-    if (accTab === 'teachers') renderAccTeachers(s);
-    else if (accTab === 'guidance') renderAccGuidance(s);
-    else renderAccLate(s);
+    $('accLine').innerHTML = 'Özet: <b>' + escapeHtml(formatDate(s.built_at)) + '</b> · ' + escapeHtml(s.kkt_filter || '') +
+      ' · ayrıntı için kutucuğa dokunun' +
+      (acc.stale ? ' · <span style="color:var(--red)">özet 3 saatten eski</span>' : '');
+    var levels = { red: v.red ? 'red' : 'green', untreated: v.untreated ? 'red' : 'green', control: v.control ? 'amber' : 'green',
+      guidance: v.guidance ? 'amber' : 'green', late: v.late ? 'amber' : 'green' };
+    var notes = { red: (s.teachers || []).length + ' öğretmenden', untreated: th.untreated + '+ gündür ödev/kontrol yok',
+      control: 'bitmiş konularda' + (v.current ? ' · ' + v.current + ' işleniyor' : ''), guidance: 'öğretmen kısmı tamam', late: 'son okul günlerinde' };
+    $('accTiles').innerHTML = TILES.map(function (t) {
+      return '<button type="button" class="tile ' + levels[t.key] + '" data-tile="' + t.key + '"><b>' + escapeHtml(v[t.key]) + '</b><span>' +
+        escapeHtml(t.label) + '</span><small>' + escapeHtml(notes[t.key]) + '</small></button>';
+    }).join('');
+    Array.prototype.forEach.call($('accTiles').querySelectorAll('[data-tile]'), function (b) {
+      b.onclick = function () { openTile(s, b.getAttribute('data-tile')); };
+    });
+    renderAccTeachers(s);
   }
+
+  // ── kutucuk ayrıntısı (alttan açılan sayfa) ──
+  function sheet(subtitle, title, line, html) {
+    $('sheetSubtitle').textContent = subtitle; $('sheetTitle').textContent = title; $('sheetLine').textContent = line || '';
+    $('sheetBody').innerHTML = html;
+    $('sheetModal').hidden = false;
+  }
+  function rowItem(attrs, main, small, badge, level) {
+    return '<button type="button" class="it-btn"' + attrs + '><span><b>' + escapeHtml(main) + '</b>' + (small ? '<small>' + escapeHtml(small) + '</small>' : '') +
+      '</span><span class="num-badge ' + (level || 'amber') + '">' + escapeHtml(badge) + '</span></button>';
+  }
+  function openTile(s, key) {
+    var th = s.thresholds || {}, html = '', rows = [];
+    if (key === 'red') {
+      var red = (s.teachers || []).filter(function (t) { return t.status === 'red'; });
+      html = red.length ? red.map(function (t) {
+        var flags = [];
+        t.subjects.forEach(function (x) { x.flags.forEach(function (f) { if (f[0] === 'red') flags.push(x.label + ': ' + f[1]); }); });
+        return '<div class="sheet-card"><b>' + escapeHtml(t.name) + '</b><ul class="flags">' + flags.map(function (f) { return '<li class="red">' + escapeHtml(f) + '</li>'; }).join('') + '</ul></div>';
+      }).join('') : '<p class="hint ok">Kırmızı uyarılı öğretmen yok.</p>';
+      return sheet('AKSAYAN İŞ', 'Kırmızı uyarılı öğretmenler', red.length + ' öğretmen', html);
+    }
+    if (key === 'untreated' || key === 'control') {
+      eachSubject(s, function (t, x) { if (x[key]) rows.push({ t: t, x: x }); });
+      rows.sort(function (a, b) { return b.x[key] - a.x[key]; });
+      html = rows.length ? rows.map(function (r) {
+        var small = r.x.classes.join(', ') + (key === 'control' ? ' · en eski ' + dayText(r.x.control_oldest) : '');
+        var level = key === 'untreated' || r.x.control_oldest > th.control ? 'red' : 'amber';
+        return rowItem(' data-uid="' + escapeHtml(r.t.uid) + '" data-cat="' + escapeHtml(r.x.cat) + '"', r.t.name + ' · ' + r.x.label, small, r.x[key], level);
+      }).join('') : '<p class="hint ok">Yok.</p>';
+      sheet('AKSAYAN İŞ', key === 'control' ? 'Kontrol bekleyen ödevler' : 'Takipsiz eksik kazanımlar',
+        key === 'control' ? 'Güncel konudan önceki (bitmiş) konularda öğrenci ödevi var, öğretmen kontrolü yok. Kırmızı: ' + th.control + ' günden eski.'
+          : 'KKT\'den ' + th.untreated + '+ gün geçmiş, ne ödev ne kontrol girilmiş eksik ana kazanımlar.', html);
+      Array.prototype.forEach.call($('sheetBody').querySelectorAll('[data-uid]'), function (b) {
+        b.onclick = function () { openAccDetail(s, b.getAttribute('data-uid'), b.getAttribute('data-cat'), key); };
+      });
+      return;
+    }
+    if (key === 'guidance') {
+      var g = s.guidance || {};
+      html = (g.pending || []).length ? g.pending.map(function (p, i) {
+        return rowItem(' data-g="' + i + '"', p.cls, 'en eski ' + dayText(p.oldest), p.count, 'amber');
+      }).join('') : '<p class="hint ok">Onay bekleyen yok.</p>';
+      html += '<div class="sec">REHBER ÖĞRETMENLER · son 14 günde verilen onay</div><div class="simple-list">' + (g.users || []).map(function (u) {
+        return '<div class="it"><div>' + escapeHtml(u.name) + '</div><span class="num-badge ' + (u.approvals14 ? 'green' : 'amber') + '">' + u.approvals14 + ' onay</span></div>';
+      }).join('') + '</div>';
+      sheet('AKSAYAN İŞ', 'Rehberlik onayı bekleyenler', 'Öğretmen kısmı (ödev + kontrol) tamam, rehberlik onayı girilmemiş eksik kazanımlar.', html);
+      Array.prototype.forEach.call($('sheetBody').querySelectorAll('[data-g]'), function (b) {
+        b.onclick = function () {
+          var p = g.pending[Number(b.getAttribute('data-g'))];
+          openMetric({ title: 'Rehberlik onayı bekleyen · ' + p.cls, subtitle: 'ÖĞRETMEN KISMI TAMAM', headers: ['Öğrenci', 'Ana kazanım', 'Bekleyen (gün)'], rows: p.rows || [] });
+        };
+      });
+      return;
+    }
+    var L = s.late || {}, days = L.school_days || [];
+    html = (L.classes || []).length ? '<div class="simple-list">' + L.classes.map(function (c) {
+      return '<div class="it"><div>' + escapeHtml(c.cls) + '<small>' + escapeHtml(c.days.map(function (d) { var p = d.split('-'); return Number(p[2]) + '.' + p[1]; }).join(', ')) +
+        '</small></div><span class="num-badge ' + (c.missing >= 3 ? 'red' : 'amber') + '">' + c.missing + ' gün</span></div>';
+    }).join('') + '</div>' : '<p class="hint ok">Bütün sınıflar her gün kayıt girmiş.</p>';
+    sheet('AKSAYAN İŞ', 'İlk ders kaydı eksik sınıflar', 'Son ' + days.length + ' okul gününde «Derse Zamanında Gelmeyenler» kaydı girilmeyen günler.', html);
+  }
+
   function renderAccTeachers(s) {
     var th = s.thresholds || {};
+    var flagged = (s.teachers || []).filter(function (t) { return t.status !== 'green'; }).length;
     var list = (s.teachers || []).filter(function (t) { return !accOnlyFlagged || t.status !== 'green'; });
     var html = '<label class="toggle"><input type="checkbox" id="accOnly"' + (accOnlyFlagged ? ' checked' : '') + '> Yalnız uyarısı olanlar (' +
-      (s.teachers || []).filter(function (t) { return t.status !== 'green'; }).length + ' / ' + (s.teachers || []).length + ')</label>';
+      flagged + ' / ' + (s.teachers || []).length + ')</label>';
     html += list.length ? list.map(function (t) {
-      var open = !!accOpen[t.uid];
-      var sub = t.subjects.map(function (x) { return x.label; }).join(', ');
-      var body = '';
+      var open = !!accOpen[t.uid], body = '';
       if (open) {
         body = '<div class="pbody">' + t.subjects.map(function (x) {
           var topicLvl = x.topic_days === null || x.topic_days > th.topic ? 'red' : '';
@@ -999,15 +755,14 @@ th{background:#edf4fa;color:#486581;font-weight:750;white-space:nowrap}
           return '<div class="subj"><h4>' + escapeHtml(x.label) + ' <small>' + escapeHtml(x.classes.join(', ')) + ' · ' + x.students + ' öğrenci</small></h4>' +
             '<div class="stats">' +
             '<div class="stat ' + topicLvl + '">Güncel konu<b>' + (x.topic_days === null ? 'girilmemiş' : x.topic_days + ' gün önce') + '</b>' + escapeHtml(x.topic || '') + '</div>' +
-            '<div class="stat ' + ctrlLvl + '">Kontrol bekleyen<b>' + x.control + '</b>' + (x.control ? 'en eski ' + x.control_oldest + ' gün' : '') + '</div>' +
-            '<div class="stat ' + (x.untreated ? 'red' : '') + '">Takipsiz eksik kazanım<b>' + x.untreated + ' / ' + x.deficient + '</b>' + th.untreated + '+ gün işlem yok</div>' +
+            '<button type="button" class="stat ' + ctrlLvl + '" data-det="control" data-uid="' + escapeHtml(t.uid) + '" data-cat="' + escapeHtml(x.cat) + '">Kontrol bekleyen<b>' + x.control + '</b>' +
+              (x.control ? 'en eski ' + x.control_oldest + ' gün' : '') + (x.control_current ? ' · ' + x.control_current + ' işleniyor' : '') + '</button>' +
+            '<button type="button" class="stat ' + (x.untreated ? 'red' : '') + '" data-det="untreated" data-uid="' + escapeHtml(t.uid) + '" data-cat="' + escapeHtml(x.cat) + '">Takipsiz eksik<b>' + x.untreated + ' / ' + x.deficient + '</b>' + th.untreated + '+ gün</button>' +
             '<div class="stat ' + (!x.tracks && x.students ? 'amber' : '') + '">Öğrenci çalışması<b>' + x.tracks + '</b>son ' + th.tracks + ' gün</div>' +
-            '<div class="stat">Ek görev<b>' + x.tasks30 + '</b>son 30 gün</div></div>' +
-            (x.flags.length ? '<ul class="flags">' + x.flags.map(function (f) { return '<li class="' + cls(f[0]) + '">' + escapeHtml(f[1]) + '</li>'; }).join('') + '</ul>' : '') +
-            '<div class="row-actions">' + (x.untreated ? '<button type="button" class="secondary" data-det="untreated" data-uid="' + escapeHtml(t.uid) + '" data-cat="' + escapeHtml(x.cat) + '">Takipsiz eksik kazanımlar</button>' : '') +
-            (x.control ? '<button type="button" class="secondary" data-det="control" data-uid="' + escapeHtml(t.uid) + '" data-cat="' + escapeHtml(x.cat) + '">Kontrol bekleyenler</button>' : '') + '</div></div>';
+            '<div class="stat">Ek görev<b>' + x.tasks30 + '</b>son 30 gün</div></div></div>';
         }).join('') + '</div>';
       }
+      var sub = t.subjects.map(function (x) { return x.label; }).join(', ');
       return '<div class="person"><button type="button" data-person="' + escapeHtml(t.uid) + '"><span style="display:flex;align-items:center;gap:6px"><i class="dot ' + cls(t.status) + '"></i><span><b>' + escapeHtml(t.name) + '</b><small>' + escapeHtml(sub) + '</small></span></span>' +
         '<span class="num-badge ' + cls(t.status) + '">' + (t.red ? t.red + ' kırmızı' : t.amber ? t.amber + ' uyarı' : 'yolunda') + '</span></button>' + body + '</div>';
     }).join('') : '<p class="hint ok">Uyarısı olan öğretmen yok.</p>';
@@ -1026,26 +781,7 @@ th{background:#edf4fa;color:#486581;font-weight:750;white-space:nowrap}
     var det = (t.details || {})[cat] || {}, subj = t.subjects.filter(function (x) { return x.cat === cat; })[0] || {};
     openMetric(kind === 'untreated'
       ? { title: t.name + ' · ' + (subj.label || cat), subtitle: 'TAKİPSİZ EKSİK KAZANIM (ödev de kontrol de yok)', headers: ['Sınıf', 'Öğrenci', 'Ana kazanım', 'KKT\'den bu yana (gün)'], rows: det.untreated || [] }
-      : { title: t.name + ' · ' + (subj.label || cat), subtitle: 'KONTROL BEKLEYEN ÖDEV (öğrenci ödevi var, öğretmen kontrolü yok)', headers: ['Sınıf', 'Öğrenci', 'Konu', 'Ödevden bu yana (gün)'], rows: det.control || [] });
-  }
-  function renderAccGuidance(s) {
-    var g = s.guidance || {};
-    var html = '<div class="sec">REHBER ÖĞRETMENLER · son 14 günde verilen onay</div><div class="simple-list">' + ((g.users || []).length ? g.users.map(function (u) {
-      return '<div class="it"><div>' + escapeHtml(u.name) + '</div><span class="num-badge ' + (u.approvals14 ? 'green' : 'amber') + '">' + u.approvals14 + ' onay</span></div>';
-    }).join('') : '<p class="hint">Rol dosyasında rehberlik kullanıcısı yok.</p>') + '</div>';
-    html += '<div class="sec">ONAY BEKLEYEN EKSİK KAZANIMLAR · öğretmen kısmı (ödev + kontrol) tamam</div><div class="simple-list">' + ((g.pending || []).length ? g.pending.map(function (p) {
-      return '<div class="it"><div>' + escapeHtml(p.cls) + '<small>en eski ' + p.oldest + ' gün</small></div><span class="num-badge amber">' + p.count + '</span></div>';
-    }).join('') : '<p class="hint ok">Onay bekleyen yok.</p>') + '</div>';
-    html += '<p class="hint" style="margin-top:8px">Rehberlik onayı masaüstünden Auto-Bulut ile gelir; gönderilmemiş onaylar burada bekliyor görünür.</p>';
-    $('accBody').innerHTML = html;
-  }
-  function renderAccLate(s) {
-    var L = s.late || {}, days = L.school_days || [];
-    var html = '<p class="hint">Son ' + days.length + ' okul günü (kurumda en az bir sınıfın kayıt girdiği günler). Liste, o günlerde «Derse Zamanında Gelmeyenler» kaydı girilmeyen sınıflardır.</p>';
-    html += (L.classes || []).length ? '<div class="simple-list">' + L.classes.map(function (c) {
-      return '<div class="it"><div>' + escapeHtml(c.cls) + '<small>' + escapeHtml(c.days.map(function (d) { var p = d.split('-'); return Number(p[2]) + '.' + p[1]; }).join(', ')) + '</small></div><span class="num-badge ' + (c.missing >= 3 ? 'red' : 'amber') + '">' + c.missing + ' gün</span></div>';
-    }).join('') + '</div>' : '<p class="hint ok">Bütün sınıflar her gün kayıt girmiş.</p>';
-    $('accBody').innerHTML = html;
+      : { title: t.name + ' · ' + (subj.label || cat), subtitle: 'KONTROL BEKLEYEN ÖDEV (bitmiş konular)', headers: ['Sınıf', 'Öğrenci', 'Konu', 'Ödevden bu yana (gün)'], rows: det.control || [] });
   }
 
   function run(button, fn) {
@@ -1058,36 +794,16 @@ th{background:#edf4fa;color:#486581;font-weight:750;white-space:nowrap}
 
   $('btnLoadManagers').onclick = function () { run(this, loadManagers); };
   $('btnLogin').onclick = function () { run(this, login); };
-  $('btnRefresh').onclick = function () {
-    run(this, function () { return openDashboard({ manual: true }); });
-  };
-  function filterChanged() {
-    if (snapshot && snapshot.metrics && snapshot.metrics.length) run(null, function () { return refresh({ details: true }); });
-  }
-  $('period').onchange = filterChanged;
-  $('classFilter').onchange = filterChanged;
-  $('subjectFilter').onchange = filterChanged;
-  $('btnStudents').onclick = function () {
-    $('studentModal').hidden = false;
-    renderStudents();
-  };
+  $('btnRefresh').onclick = function () { run(this, function () { return openDashboard({ manual: true }); }); };
+  $('btnStudents').onclick = function () { $('studentModal').hidden = false; renderStudents(); };
   $('studentSearch').oninput = renderStudents;
-  $('btnStatusAnalysis').onclick = function () { reportMetric('homework_control'); };
-  $('btnQuizResults').onclick = function () { reportMetric('quiz_coverage'); };
   $('btnLogout').onclick = logout;
-  $('btnDetails').onclick = function () { run(this, function () { return refresh({ details: true }); }); };
-  Array.prototype.forEach.call(document.querySelectorAll('[data-acc]'), function (b) {
-    b.onclick = function () { accTab = b.getAttribute('data-acc'); renderAcc(); };
-  });
   Array.prototype.forEach.call(document.querySelectorAll('[data-close]'), function (button) {
     button.onclick = function () { $(button.getAttribute('data-close')).hidden = true; };
   });
   Array.prototype.forEach.call(document.querySelectorAll('.modal'), function (modal) {
-    modal.addEventListener('click', function (event) {
-      if (event.target === modal) modal.hidden = true;
-    });
+    modal.addEventListener('click', function (event) { if (event.target === modal) modal.hidden = true; });
   });
-
   try {
     var saved = {};
     try { saved = JSON.parse(localStorage.getItem(KEY) || sessionStorage.getItem(KEY) || '{}'); } catch (ignore) { saved = {}; }
