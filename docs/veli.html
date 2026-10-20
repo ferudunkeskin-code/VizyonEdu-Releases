@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="tr" data-vz-app="VizyonEdu Veli">
 <head>
-<meta name="vz-build" content="35240e34c5b4">
+<meta name="vz-build" content="7b7ad0ab269e">
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
   <meta name="theme-color" content="#173d62">
@@ -212,7 +212,7 @@ body.land .ex-table-wrap{display:block}
     <!-- Giriş -->
     <section class="card login-card" id="loginCard">
       <div class="brand-mark">V</div>
-      <h2>Veli girişi</h2>
+      <h2>Veli / öğrenci girişi</h2>
       <p class="hint">Erişim kodu bağlantıyla dolar; kurumda kayıtlı telefon numaranızı yazın. Kod ilk giriş yaptığınız telefona bağlanır.</p>
       <label>Erişim kodu
         <input id="parentCode" type="text" inputmode="text" autocomplete="one-time-code"
@@ -248,7 +248,7 @@ body.land .ex-table-wrap{display:block}
     </div>
   </main>
 
-  <footer>Veriler yalnızca size bağlı öğrenci için gösterilir. İç öğretmen notları paylaşılmaz.</footer>
+  <footer id="pageFooter">Veriler yalnızca size bağlı öğrenci için gösterilir. İç öğretmen notları paylaşılmaz.</footer>
   <script>window.VIZYONEDU_API_URL = "https://script.google.com/macros/s/AKfycbyQMRl__AbxTccropfdMou8lNT6pYzIeEAT1kewkrPZW8BJGPjYi6ZzrXAYoDCHi1U/exec";</script>
   <script>(function () {
   var KEY = 'vizyonedu_parent_session_v2';
@@ -261,7 +261,7 @@ body.land .ex-table-wrap{display:block}
 
   function emptyState() {
     return { parentCode: '', sessionToken: '', parentLabel: '', students: [], activeNo: '', liveCache: {},
-      isAdmin: false, adminRole: '', adminClass: '', adminQuery: '' };
+      isAdmin: false, isStudent: false, adminRole: '', adminClass: '', adminQuery: '' };
   }
   function $(id) { return document.getElementById(id); }
 
@@ -292,6 +292,7 @@ body.land .ex-table-wrap{display:block}
       state.activeNo = s.activeNo || '';
       state.liveCache = legacy ? {} : (s.liveCache || {});
       state.isAdmin = !!s.isAdmin;
+      state.isStudent = !!s.isStudent;
       state.adminRole = s.adminRole || '';
       state.adminClass = s.adminClass || '';
       if (legacy) { writeState(); OLD_KEYS.forEach(function (k) { try { localStorage.removeItem(k); } catch (e) {} }); }
@@ -305,7 +306,7 @@ body.land .ex-table-wrap{display:block}
     }
     var data = { parentCode: state.parentCode, sessionToken: state.sessionToken, parentLabel: state.parentLabel,
       students: state.students, activeNo: state.activeNo, liveCache: state.liveCache || {}, isAdmin: !!state.isAdmin,
-      adminRole: state.adminRole || '', adminClass: state.adminClass || '' };
+      isStudent: !!state.isStudent, adminRole: state.adminRole || '', adminClass: state.adminClass || '' };
     try { localStorage.setItem(KEY, JSON.stringify(data)); }
     catch (e) { data.liveCache = {}; try { localStorage.setItem(KEY, JSON.stringify(data)); } catch (e2) {} }
   }
@@ -424,15 +425,22 @@ body.land .ex-table-wrap{display:block}
   function showLogin() {
     $('loginCard').hidden = false;
     $('sessionArea').hidden = true;
-    $('portalTitle').textContent = 'Veli Portalı';
+    $('portalTitle').textContent = 'Öğrenci Takibi';
     $('headerSub').textContent = '';
+    setFooter(false);
   }
+  var FOOTER_PARENT = 'Veriler yalnızca size bağlı öğrenci için gösterilir. İç öğretmen notları paylaşılmaz.';
+  var FOOTER_STUDENT = 'Bu sayfada yalnızca sizin bilgileriniz gösterilir. İç öğretmen notları paylaşılmaz.';
+  function setFooter(student) { if ($('pageFooter')) $('pageFooter').textContent = student ? FOOTER_STUDENT : FOOTER_PARENT; }
   function showSession() {
     $('loginCard').hidden = true;
     $('sessionArea').hidden = false;
     var adm = !!state.isAdmin;
     $('portalTitle').textContent = adm ? 'Yönetim · Öğrenci Takibi' : 'Öğrenci Takibi';
-    $('headerSub').textContent = adm ? ((state.adminRole || state.parentLabel || 'Yönetim') + ' · salt okunur') : (state.parentLabel || '');
+    var stu = !adm && !!state.isStudent;
+    $('headerSub').textContent = adm ? ((state.adminRole || state.parentLabel || 'Yönetim') + ' · salt okunur')
+      : stu ? ((state.parentLabel || '') + ' · öğrenci') : (state.parentLabel || '');
+    setFooter(stu);
     $('studentCard').hidden = !adm && state.students.length < 2;
     $('studentCardTitle').textContent = adm ? 'Öğrenci seçimi' : 'Öğrencileriniz';
     $('parentLabelLine').textContent = adm ? 'Sınıf seçin veya ad / numara yazın.' : 'Öğrenciler arasında geçiş yapabilirsiniz.';
@@ -790,6 +798,7 @@ body.land .ex-table-wrap{display:block}
       if ($('parentPhone')) $('parentPhone').value = '';
       state.parentLabel = d.parent_label || 'Veli';
       state.isAdmin = !!d.is_admin;
+      state.isStudent = !!d.is_student;
       state.adminRole = d.admin_role || '';
       state.students = d.students || [];
       state.activeNo = state.isAdmin ? '' : (state.students.length ? String(state.students[0].no) : '');
@@ -812,6 +821,7 @@ body.land .ex-table-wrap{display:block}
     state.parentLabel = d.parent_label || state.parentLabel;
     state.students = d.students || state.students;
     state.isAdmin = !!d.is_admin;
+    state.isStudent = !!d.is_student;
     state.adminRole = d.admin_role || '';
     if (!state.students.some(function (s) { return String(s.no) === String(state.activeNo); })) {
       state.activeNo = (state.isAdmin || !state.students.length) ? '' : String(state.students[0].no);
