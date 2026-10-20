@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="tr" data-vz-app="VizyonEdu Veli">
 <head>
-<meta name="vz-build" content="d80cd9694e0f">
+<meta name="vz-build" content="35240e34c5b4">
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
   <meta name="theme-color" content="#173d62">
@@ -255,6 +255,7 @@ body.land .ex-table-wrap{display:block}
   var OLD_KEYS = ['vizyonedu_parent_session_v1'];
   var DEVICE_KEY = 'vizyonedu_parent_device_v1';
   var sessionVersion = 0;
+  var photos = {}, photoAsked = {};  // öğrenci fotoğrafları yalnız bellekte
   var state = emptyState();
   var ui = { kktTab: '', examSel: {}, lateOpen: false, actMore: false };
 
@@ -310,6 +311,7 @@ body.land .ex-table-wrap{display:block}
   }
   function clearState() {
     sessionVersion += 1;
+    photos = {}; photoAsked = {};
     state = emptyState();
     ui = { kktTab: '', examSel: {}, lateOpen: false, actMore: false };
     try { localStorage.removeItem(KEY); } catch (e) {}
@@ -520,12 +522,34 @@ body.land .ex-table-wrap{display:block}
     var name = (d && d.student && d.student.name) || st.name || ('Öğrenci ' + st.no);
     var cls = (d && d.student && d.student.class) || st.class || '';
     var at = d && d.generated_at, old = at && Date.now() - new Date(at).getTime() > 10 * 60 * 1000;
-    $('who').innerHTML = '<div class="avatar">' + esc(initials(name)) + '</div>' +
+    var photo = photos[cacheKey()];
+    $('who').innerHTML = '<div class="avatar">' + (photo ? '<img src="' + esc(photo) + '" alt="">' : esc(initials(name))) + '</div>' +
       '<div class="who-txt"><b>' + esc(name) + '</b><span>' + esc([cls, 'No ' + st.no].filter(Boolean).join(' · ')) +
       (d && d.student && d.student.guest ? ' <span class="pill guest">Misafir öğrenci</span>' : '') + '</span>' +
       (at ? '<span class="pill' + (old ? ' old' : '') + '">' + (old ? 'Son alınan · ' : 'Güncel · ') + esc(dateTime(at)) + '</span>' : '') + '</div>' +
       '<button type="button" class="refresh' + (syncing ? ' spin' : '') + '" id="btnRefresh" aria-label="Yenile" title="Yenile">↻</button>';
     $('btnRefresh').addEventListener('click', function () { syncLive(true, true); });
+    loadPhoto(st);
+  }
+
+  // Öğrenci fotoğrafı: yalnız bellekte (cihaza kaydedilmez); öğrenci başına oturumda bir kez istenir.
+  async function loadPhoto(st) {
+    var key = cacheKey(), no = studentKey(st && st.no), session = sessionVersion;
+    if (!no || !state.sessionToken || photoAsked[key]) return;
+    photoAsked[key] = true;
+    try {
+      var r = await api({ action: 'parent_photo', student_no: no, parent_code: state.parentCode });
+      if (session !== sessionVersion || studentKey(r.student_no) !== no) return;
+      if (typeof r.photo === 'string' && /^data:image\/(jpeg|png|webp);base64,/.test(r.photo)) {
+        photos[key] = r.photo;
+        if (cacheKey() === key && $('who')) {
+          var box = $('who').querySelector('.avatar');
+          if (box) box.innerHTML = '<img src="' + esc(r.photo) + '" alt="">';
+        }
+      }
+    } catch (e) {
+      // Sunucu henüz güncellenmediyse veya fotoğraf yoksa baş harfler kalır.
+    }
   }
 
   function renderLate(d) {
