@@ -1,7 +1,7 @@
 {
-  "version": "1.03.77",
-  "installer_url": "https://github.com/ferudunkeskin-code/VizyonEdu-Releases/releases/download/v1.03.77/VizyonEdu_v1.03.77_Setup.exe",
-  "sha256": "7895e2eaae2f84850aa0d6dac7e8dc55e9953d578836ce0a6e8f7abc6fd0db5e",
+  "version": "1.03.78",
+  "installer_url": "https://github.com/ferudunkeskin-code/VizyonEdu-Releases/releases/download/v1.03.78/VizyonEdu_v1.03.78_Setup.exe",
+  "sha256": "7daed2ddf648c579f820f8db82753b0aaffb542880fb190d3b4b7d9ac24e0b30",
   "min_version": "1.03.65",
-  "notes": ""
+  "notes": "KKT Ek Görevlendirme güncellemesi"
 }
