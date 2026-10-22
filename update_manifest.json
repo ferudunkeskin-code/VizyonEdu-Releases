@@ -1,7 +1,6 @@
 {
-  "version": "1.03.81",
-  "installer_url": "https://github.com/ferudunkeskin-code/VizyonEdu-Releases/releases/download/v1.03.81/VizyonEdu_v1.03.81_Setup.exe",
-  "sha256": "2786fca5541d212adad42a2622dee247bacd6f2c298f99ef5e92c5518cf3ee05",
-  "min_version": "1.03.65",
+  "version": "1.03.82",
+  "installer_url": "https://github.com/ferudunkeskin-code/VizyonEdu-Releases/releases/download/v1.03.82/VizyonEdu_v1.03.82_Setup.exe",
+  "sha256": "6718c470599d87a009527609de60da0011e8348ba91fed9e60a8dfc0fd1a43ce",
   "notes": ""
 }
