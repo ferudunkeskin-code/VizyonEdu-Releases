@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="tr" data-vz-app="VizyonEdu Veli">
 <head>
-<meta name="vz-build" content="7b7ad0ab269e">
+<meta name="vz-build" content="2d387f4f73aa">
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
   <meta name="theme-color" content="#173d62">
@@ -158,7 +158,8 @@ details.acc .body{padding:0 12px 10px}
 .list .it{display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px solid #eef2f6;font-size:.84rem}
 .list .it:last-child{border-bottom:0}.list .it small{display:block;color:var(--muted);font-size:.72rem}
 .hw{display:grid;grid-template-columns:1fr auto auto;gap:6px 10px;font-size:.8rem;align-items:center}
-.hw .h{font-size:.66rem;color:var(--muted);font-weight:700;text-transform:uppercase}
+.hw .h{font-size:.66rem;color:var(--muted);font-weight:700;text-transform:uppercase;line-height:1.15;text-align:center}
+.hw .h:first-child{text-align:left}
 .hw .cur{font-weight:700}
 .hw .cur::after{content:" · güncel";font-weight:600;color:var(--muted);font-size:.7rem}
 .mark{font-weight:700;text-align:center;white-space:nowrap;font-size:.74rem}.mark.y{color:var(--green)}.mark.n{color:#b8c3cf}
@@ -709,21 +710,23 @@ body.land .ex-table-wrap{display:block}
       return '<div class="it"><div>' + esc(t.label) + '<small>' + esc(t.teacher || '') + '</small></div>' +
         '<div style="text-align:right">' + esc(t.topic) + '<small>' + esc(t.date || '') + '</small></div></div>';
     }).join('') + '</div>' : '<p class="muted sm">Güncel konu girilmemiş.</p>';
-    html += '<div class="sec">DERS DERS ÖDEV · KONTROL · EK GÖREV</div>';
+    // Veli «Ödev / Kontrol»u anlamıyordu: kimin yaptığı başlıkta yazar (iki satır; konu sütunu daralmasın).
+    var HW_HEAD = '<span class="h">Öğrenci<br>Ödev</span><span class="h">Öğretmen<br>Kontrol</span>';
+    html += '<div class="sec">DERS DERS ÖĞRENCİ ÖDEV · ÖĞRETMEN KONTROL · EK GÖREV</div>';
     html += (g.homework || []).length ? g.homework.map(function (c, i) {
-      var b = '<div class="hw"><span class="h">Konu</span><span class="h">Ödev</span><span class="h">Kontrol</span>' +
+      var b = '<div class="hw"><span class="h">Konu</span>' + HW_HEAD +
         (c.rows || []).map(function (r) {
           return '<span' + (r.current ? ' class="cur"' : '') + '>' + esc(r.topic) + '</span>' + mark(r.h) + mark(r.ok);
         }).join('') + '</div>';
       var plain = (c.tasks || []).filter(function (t) { return t.kind !== 'guidance'; });
       var study = (c.tasks || []).filter(function (t) { return t.kind === 'guidance'; });
       if (plain.length) {
-        b += '<div class="sec" style="margin-top:10px">EK GÖREVLER</div><div class="hw">' + plain.map(function (t) {
+        b += '<div class="sec" style="margin-top:10px">EK GÖREVLER</div><div class="hw"><span class="h">Görev</span>' + HW_HEAD + plain.map(function (t) {
           return '<span>' + esc(t.title) + '</span>' + mark(t.h) + mark(t.ok);
         }).join('') + '</div>';
       }
       if (study.length) {
-        // Rehberliğin KKT sonucuna göre açtığı ek çalışma: Ödev = katıldı, Kontrol = değerlendirme.
+        // Rehberliğin KKT sonucuna göre açtığı ek çalışma: Öğrenci Ödev = katıldı, Öğretmen Kontrol = değerlendirme.
         b += '<div class="sec" style="margin-top:10px">REHBERLİK EK ÇALIŞMALARI</div><div class="hw">' +
           '<span class="h">Konu</span><span class="h">Katıldı</span><span class="h">Değerlendirme</span>' + study.map(function (t) {
           return '<span>' + esc(String(t.title || '').replace(/^Rehberlik ek çalışma · /, '')) + '</span>' + mark(t.h) + mark(t.ok);
