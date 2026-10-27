@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="tr" data-vz-app="VizyonEdu Veli">
 <head>
-<meta name="vz-build" content="2d387f4f73aa">
+<meta name="vz-build" content="7f6203896d9c">
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
   <meta name="theme-color" content="#173d62">
@@ -38,6 +38,7 @@ main{max-width:640px;margin:0 auto;padding:12px 12px 40px}
 }
 .card h2{margin:0 0 10px;font-size:1.02rem;color:var(--navy);display:flex;justify-content:space-between;align-items:center;gap:8px}
 .hint{color:var(--muted);font-size:.82rem;margin:0 0 12px}
+.privacy-note{font-size:.72rem;margin:12px 0 0;line-height:1.35}
 label{display:flex;flex-direction:column;gap:6px;font-size:.78rem;font-weight:750;color:#486581;margin:10px 0}
 input,select{
   width:100%;border:1px solid #cbd8e3;border-radius:10px;background:#fff;
@@ -162,7 +163,7 @@ details.acc .body{padding:0 12px 10px}
 .hw .h:first-child{text-align:left}
 .hw .cur{font-weight:700}
 .hw .cur::after{content:" · güncel";font-weight:600;color:var(--muted);font-size:.7rem}
-.mark{font-weight:700;text-align:center;white-space:nowrap;font-size:.74rem}.mark.y{color:var(--green)}.mark.n{color:#b8c3cf}
+.mark{font-weight:700;text-align:center;white-space:nowrap;font-size:.74rem}.mark.y{color:var(--green)}.mark.n{color:#b8c3cf}.mark.p{color:var(--amber)}.tk{font-size:1rem;margin-right:3px;vertical-align:-1px}.tk.y{color:var(--green)}.tk.p{color:var(--amber)}.tk.n{color:#b8c3cf}.marknote{margin:2px 0 8px}
 .src{font-size:.68rem;color:var(--muted);margin-top:8px}
 
 /* sınav ve KKT listesi: dikeyde kartlar, yatayda tablo (body.land ya da medya sorgusu) */
@@ -697,7 +698,16 @@ body.land .ex-table-wrap{display:block}
     });
   }
 
-  function mark(v) { return v ? '<span class="mark y">' + esc(v) + '</span>' : '<span class="mark n">—</span>'; }
+  // Veli «tarih + paraf»ı tek başına anlamıyordu: başına onay işareti (✔). «%50 …» kısmi yapılmıştır (turuncu).
+  function mark(v) {
+    v = String(v || '').trim();
+    if (!v) return '<span class="mark n">—</span>';
+    var part = /^%\s*\d+/.test(v) && !/^%\s*100\b/.test(v);
+    return '<span class="mark ' + (part ? 'p' : 'y') + '" title="' + (part ? 'Kısmen yapıldı' : 'Yapıldı') +
+      ' (tarih ve öğretmen parafı)"><b class="tk">✔</b>' + esc(v) + '</span>';
+  }
+  var MARK_NOTE = '<p class="muted sm marknote"><b class="tk y">✔</b> yapıldı / kontrol edildi (yanında tarih ve öğretmen parafı) · ' +
+    '<b class="tk p">✔</b> %… kısmen · <b class="tk n">—</b> henüz yok</p>';
   function renderGeneral(d) {
     var card = $('generalCard');
     // Misafir öğrenci: güncel konu, ödev ve öğretmen çalışması bölümü yok.
@@ -713,6 +723,7 @@ body.land .ex-table-wrap{display:block}
     // Veli «Ödev / Kontrol»u anlamıyordu: kimin yaptığı başlıkta yazar (iki satır; konu sütunu daralmasın).
     var HW_HEAD = '<span class="h">Öğrenci<br>Ödev</span><span class="h">Öğretmen<br>Kontrol</span>';
     html += '<div class="sec">DERS DERS ÖĞRENCİ ÖDEV · ÖĞRETMEN KONTROL · EK GÖREV</div>';
+    if ((g.homework || []).length) html += MARK_NOTE;
     html += (g.homework || []).length ? g.homework.map(function (c, i) {
       var b = '<div class="hw"><span class="h">Konu</span>' + HW_HEAD +
         (c.rows || []).map(function (r) {
