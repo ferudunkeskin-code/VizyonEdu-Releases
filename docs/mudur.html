@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="tr" data-vz-app="VizyonEdu Müdür">
 <head>
-<meta name="vz-build" content="3eba3dbff5b8">
+<meta name="vz-build" content="7f745dcce396">
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#173f67">
@@ -132,6 +132,23 @@ th{background:#edf4fa;color:#486581;font-weight:750;white-space:nowrap}
 .timeline-item small,.timeline-item span{color:var(--muted);font-size:.72rem}
 .timeline-item strong{display:block;font-size:.86rem}
 .timeline-item p{margin:2px 0;font-size:.8rem}
+/* devamsızlık */
+.att-bar{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:8px}
+.att-bar input,.att-bar button{width:auto;margin:0;min-height:36px}
+.att-enter{border:1px solid var(--line);border-radius:10px;padding:8px 10px;margin-bottom:10px;background:#f8fbfe}
+.att-enter select{width:100%}
+.att-students{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:4px;margin:6px 0}
+.att-students label{display:flex;gap:6px;align-items:center;font-size:.82rem;background:#fff;border:1px solid #e3eaf1;border-radius:8px;padding:6px}
+.att-students input{width:auto;margin:0}
+.att-card{border:1px solid var(--line);border-radius:10px;padding:8px 10px;margin:0 0 6px;font-size:.84rem}
+.att-card b{color:var(--navy)}
+.att-card small{display:block;color:var(--muted);font-size:.72rem}
+.att-type{display:inline-block;font-size:.68rem;font-weight:800;border-radius:6px;padding:1px 6px;margin-right:4px;background:var(--amber-bg);color:var(--amber)}
+.att-type.absent_day{background:var(--red-bg);color:var(--red)}
+.att-card .row-actions a,.att-card .row-actions button{display:inline-flex;align-items:center;width:auto;min-height:32px;padding:6px 10px;font-size:.76rem;margin:0;border-radius:8px;text-decoration:none}
+.wa{background:#1f9d55;color:#fff;border:0;font-weight:700}
+.wa-done{background:var(--green-bg);color:var(--green);border:1px solid #bfe3cc;font-weight:700}
+.att-warn{background:var(--amber-bg);color:#7a4a12;border-radius:10px;padding:8px 10px;margin:0 0 8px;font-size:.8rem}
 @media (max-width:520px){
   .metric span{font-size:.58rem}
 }
@@ -198,9 +215,10 @@ th{background:#edf4fa;color:#486581;font-weight:750;white-space:nowrap}
         <div id="accBody"></div>
       </section>
 
+      <button type="button" id="btnAttendance" class="report-btn"><span>📋</span><b>Devamsızlık / Geç Gelenler</b><small>Günün listesi · veliye WhatsApp bildirimi · öğretmen yerine geç gelen girişi</small></button>
       <button type="button" id="btnStudents" class="report-btn"><span>👤</span><b>Öğrenci Ara</b><small>Öğrencinin kayıtlarını görüntüle</small></button>
 
-      <p class="safe-note" id="systemStatus">Bu portal kayıt eklemez, değiştirmez veya silmez.</p>
+      <p class="safe-note" id="systemStatus">Bu portal yalnız geç gelen kaydı ve «veliye bildirildi» işareti yazar; başka kayıt eklemez, değiştirmez veya silmez.</p>
       <button id="btnLogout" type="button" class="logout secondary">Oturumu Kapat</button>
     </div>
   </main>
@@ -217,6 +235,24 @@ th{background:#edf4fa;color:#486581;font-weight:750;white-space:nowrap}
       <div class="modal-head"><div><small id="detailSubtitle">AYRINTI</small><h2 id="detailTitle">—</h2></div><button type="button" class="close" data-close="detailModal">×</button></div>
       <div class="table-wrap"><table><thead id="detailHead"></thead><tbody id="detailBody"></tbody></table></div>
       <p class="empty" id="detailEmpty" hidden>Kayıt bulunamadı.</p>
+    </div>
+  </div>
+
+  <div class="modal" id="attModal" hidden>
+    <div class="modal-sheet">
+      <div class="modal-head"><div><small>DEVAMSIZLIK</small><h2 id="attTitle">Geç Gelenler ve Gelmeyenler</h2><p id="attLine"></p></div><button type="button" class="close" data-close="attModal">×</button></div>
+      <div class="att-bar">
+        <input id="attDate" type="date">
+        <button type="button" id="attReload" class="secondary">Yenile</button>
+        <button type="button" id="attEnterBtn">+ Geç Gelen Gir</button>
+      </div>
+      <div id="attEnter" class="att-enter" hidden>
+        <label>Sınıf <select id="attClass"><option value="">— sınıf seçin —</option></select></label>
+        <p class="hint" id="attClassLine"></p>
+        <div id="attStudents" class="att-students"></div>
+        <div class="row-actions"><button type="button" id="attSave">Kaydet</button><button type="button" id="attCancel" class="secondary">Vazgeç</button></div>
+      </div>
+      <div id="attBody"></div>
     </div>
   </div>
 
@@ -358,7 +394,8 @@ th{background:#edf4fa;color:#486581;font-weight:750;white-space:nowrap}
     notify('Müdür hesapları alınıyor…');
     var data = await api({ action: 'teachers' });
     var list = (data.teachers || []).filter(function (u) {
-      return String(u.role || '').toLowerCase() === 'admin';
+      var r = String(u.role || '').toLowerCase();
+      return r === 'admin' || r === 'system';   // müdür ve SI (devamsızlık bildirimi için)
     });
     managers = {};
     $('managerId').innerHTML = '<option value="">— seçin —</option>';
@@ -366,13 +403,15 @@ th{background:#edf4fa;color:#486581;font-weight:750;white-space:nowrap}
       managers[u.user_id] = u;
       var o = document.createElement('option');
       o.value = u.user_id;
-      o.textContent = u.display_name || u.user_id;
+      o.textContent = (u.display_name || u.user_id) + (String(u.role || '').toLowerCase() === 'system' ? ' (SI)' : '');
       $('managerId').appendChild(o);
     });
     $('managerFields').hidden = !list.length;
     if (!list.length) throw new Error('Müdür (admin) hesabı bulunamadı.');
     notify(list.length + ' müdür hesabı listelendi.', 'ok');
   }
+
+  function roleLabel(u) { return String(u && u.role || '').toLowerCase() === 'system' ? 'SI' : 'Müdür'; }
 
   async function login() {
     var user = managers[$('managerId').value];
@@ -383,7 +422,7 @@ th{background:#edf4fa;color:#486581;font-weight:750;white-space:nowrap}
     mobileSession = session;
     activeManager = user;
     saveSession();
-    $('managerLine').textContent = user.display_name + ' · Müdür · Salt okunur';
+    $('managerLine').textContent = user.display_name + ' · ' + roleLabel(user);
     $('loginCard').hidden = true;
     $('dashboard').hidden = false;
     $('managerPassword').value = '';
@@ -833,6 +872,119 @@ th{background:#edf4fa;color:#486581;font-weight:750;white-space:nowrap}
         : { title: title, subtitle: 'ÖĞRETMEN KONTROL BEKLEYEN (ödevi girilmiş, bitmiş konular)', headers: ['Sınıf', 'Öğrenci', 'Konu', 'Ödevden bu yana (gün)'], rows: det.control || [] });
   }
 
+  // ───────────── Devamsızlık / geç gelenler (Devam.js) ─────────────
+  var ATT_MONTHS = ['Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran', 'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık'];
+  var ATT_DAYS = ['Pazar', 'Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma', 'Cumartesi'];
+  var ATT_INST = 'Vizyon';
+  function attDayText(iso) {
+    var p = String(iso || '').split('-').map(Number);
+    if (p.length !== 3 || !p[0]) return String(iso || '');
+    var d = new Date(Date.UTC(p[0], p[1] - 1, p[2], 12));
+    return p[2] + ' ' + ATT_MONTHS[p[1] - 1] + ' ' + ATT_DAYS[d.getUTCDay()];
+  }
+  function attTime(iso) {
+    try { var d = new Date(iso); if (!isFinite(d)) return ''; return ('0' + d.getHours()).slice(-2) + ':' + ('0' + d.getMinutes()).slice(-2); }
+    catch (e) { return ''; }
+  }
+  /** Veliye gidecek metin (masaüstündeki attendance_message ile aynı). */
+  function devamMessage(item, dayIso, todayIso, inst, time) {
+    var when = dayIso === todayIso ? 'bugün (' + attDayText(dayIso) + ')' : attDayText(dayIso) + ' günü';
+    var name = String(item.name || '').trim() || 'öğrenciniz';
+    var lesson = String(item.lesson || '').trim();
+    var body;
+    if (item.type === 'absent_day') body = when + ' kurumumuza gelmemiştir.';
+    else if (item.type === 'absent_lesson') body = when + ' ' + (lesson ? lesson + ' dersine' : 'derse') + ' katılmamıştır.';
+    else body = when + ' ' + (lesson ? lesson + ' dersine' : 'derse') + ' zamanında gelmemiştir' + (time ? ' (yoklama saati ' + time + ')' : '') + '.';
+    return 'Sayın Veli, öğrenciniz ' + name + ' ' + body + ' Bilgilerinize sunarız. — ' + (inst || ATT_INST);
+  }
+  function waLink(phone10, text) {
+    return 'https://wa.me/90' + String(phone10 || '').replace(/\D/g, '').slice(-10) + '?text=' + encodeURIComponent(text);
+  }
+  var att = null;
+  async function loadAttendance() {
+    var day = $('attDate').value || '';
+    $('attBody').innerHTML = '<p>Yükleniyor…</p>';
+    att = await api({ action: 'manager_attendance', user_id: activeManager.user_id, date: day });
+    if (!$('attDate').value) $('attDate').value = att.date;
+    $('attDate').max = att.today;
+    $('attEnterBtn').hidden = att.date !== att.today;
+    renderAttendance();
+  }
+  function renderAttendance() {
+    var a = att, html = '';
+    $('attLine').textContent = attDayText(a.date) + (a.date === a.today ? ' (bugün)' : '') + ' · ' + a.items.length + ' kayıt';
+    if (!a.folder_ready) html += '<p class="att-warn">«Derse Zamanında Gelmeyenler» klasörü kurulmamış; SI masaüstünde kanal ağacını kurun.</p>';
+    if ((a.corrections || []).length) {
+      html += '<p class="att-warn"><b>Bildirildikten sonra listeden çıkarılanlar</b> — veliye düzeltme bilgisi verin: ' +
+        a.corrections.map(function (c) { return escapeHtml((c.name || 'No ' + c.no) + ' (' + c.class_code + ', ' + c.type_label + ')'); }).join(', ') + '</p>';
+    }
+    if (!a.items.length) html += '<p class="empty">Bu gün için kayıt yok.</p>';
+    html += a.items.map(function (it, i) {
+      var t = attTime(it.at);
+      var meta = [it.class_code, it.lesson, it.source + (it.by_name ? ': ' + it.by_name : '') + (t ? ' · ' + t : '')].filter(Boolean).join(' · ');
+      var msgText = devamMessage(it, a.date, a.today, ATT_INST, it.type === 'late' ? t : '');
+      var buttons = it.parents.length ? it.parents.map(function (p, j) {
+        if (p.sent) {
+          return '<button type="button" class="wa-done" data-undo="' + i + ':' + j + '" title="Geri almak için dokunun">✓ ' + escapeHtml(p.label) +
+            ' bildirildi · ' + escapeHtml((p.sent.by_name || '') + ' ' + attTime(p.sent.at)) + '</button>';
+        }
+        return '<a class="wa" target="_blank" rel="noopener" href="' + escapeHtml(waLink(p.phone, msgText)) + '" data-send="' + i + ':' + j + '">WhatsApp · ' + escapeHtml(p.label) + '</a>';
+      }).join('') : '<small>Veli telefonu yok (erişim kodu verilmemiş). SI masaüstünden gönderin.</small>';
+      return '<div class="att-card"><span class="att-type ' + escapeHtml(it.type) + '">' + escapeHtml(it.type_label) + '</span><b>' +
+        escapeHtml(it.name || 'No ' + it.no) + '</b><small>' + escapeHtml(meta) + (it.note ? ' · ' + escapeHtml(it.note) : '') + '</small>' +
+        '<div class="row-actions">' + buttons + '</div></div>';
+    }).join('');
+    $('attBody').innerHTML = html;
+    Array.prototype.forEach.call($('attBody').querySelectorAll('[data-send]'), function (el) {
+      el.addEventListener('click', function () {
+        var ij = el.getAttribute('data-send').split(':').map(Number);
+        markSent(att.items[ij[0]], att.items[ij[0]].parents[ij[1]], false);
+      });
+    });
+    Array.prototype.forEach.call($('attBody').querySelectorAll('[data-undo]'), function (el) {
+      el.onclick = function () {
+        var ij = el.getAttribute('data-undo').split(':').map(Number);
+        if (confirm('«Bildirildi» işareti kaldırılsın mı?')) markSent(att.items[ij[0]], att.items[ij[0]].parents[ij[1]], true);
+      };
+    });
+  }
+  function markSent(item, parent, undo) {
+    api({ action: 'manager_attendance_sent', user_id: activeManager.user_id, date: att.date, key: item.key,
+      phone: parent.phone, undo: !!undo })
+      .then(function (r) { parent.sent = r.sent; renderAttendance(); })
+      .catch(function (e) { notify('İşaret kaydedilemedi: ' + (e.message || e), 'error'); });
+  }
+  function openLateEntry() {
+    var sel = $('attClass'), keep = sel.value;
+    sel.innerHTML = '<option value="">— sınıf seçin —</option>' + Object.keys(att.classes || {}).sort(function (x, y) {
+      return x.localeCompare(y, 'tr', { numeric: true });
+    }).map(function (c) { return '<option>' + escapeHtml(c) + '</option>'; }).join('');
+    sel.value = keep;
+    $('attEnter').hidden = false;
+    fillLateStudents();
+  }
+  function fillLateStudents() {
+    var c = $('attClass').value, box = $('attStudents');
+    if (!c) { box.innerHTML = ''; $('attClassLine').textContent = ''; return; }
+    var prev = (att.late_by_class || {})[c], late = {};
+    ((prev && prev.late) || []).forEach(function (n) { late[String(n)] = true; });
+    $('attClassLine').textContent = prev ? 'Bu sınıf için bugün kayıt var: ' + (prev.by_name || '') + ' · ' + attTime(prev.at) +
+      '. Kaydet, listeyi yenisiyle değiştirir.' : 'Bu sınıf için bugün henüz kayıt yok. Geç gelenleri işaretleyin (kimse yoksa boş kaydedin).';
+    box.innerHTML = (att.classes[c] || []).slice().sort(function (x, y) { return String(x.name).localeCompare(String(y.name), 'tr'); })
+      .map(function (s) {
+        return '<label><input type="checkbox" value="' + escapeHtml(s.no) + '"' + (late[String(s.no)] ? ' checked' : '') + '>' + escapeHtml(s.name || s.no) + '</label>';
+      }).join('');
+  }
+  async function saveLate() {
+    var c = $('attClass').value;
+    if (!c) throw new Error('Sınıf seçin.');
+    var late = Array.prototype.map.call($('attStudents').querySelectorAll('input:checked'), function (x) { return x.value; });
+    await api({ action: 'manager_late_save', user_id: activeManager.user_id, date: att.today, class_code: c, late: late });
+    notify(c + ': ' + late.length + ' geç gelen kaydedildi.', 'ok');
+    $('attEnter').hidden = true;
+    await loadAttendance();
+  }
+
   function run(button, fn) {
     if (button) button.disabled = true;
     Promise.resolve()
@@ -845,6 +997,16 @@ th{background:#edf4fa;color:#486581;font-weight:750;white-space:nowrap}
   $('btnLogin').onclick = function () { run(this, login); };
   $('btnRefresh').onclick = function () { run(this, function () { return openDashboard({ manual: true }); }); };
   $('btnStudents').onclick = function () { $('studentModal').hidden = false; renderStudents(); };
+  $('btnAttendance').onclick = function () {
+    $('attModal').hidden = false; $('attEnter').hidden = true;
+    run(null, loadAttendance);
+  };
+  $('attReload').onclick = function () { run(this, loadAttendance); };
+  $('attDate').onchange = function () { $('attEnter').hidden = true; run(null, loadAttendance); };
+  $('attEnterBtn').onclick = function () { if (att) openLateEntry(); };
+  $('attClass').onchange = fillLateStudents;
+  $('attSave').onclick = function () { run(this, saveLate); };
+  $('attCancel').onclick = function () { $('attEnter').hidden = true; };
   $('studentSearch').oninput = renderStudents;
   $('btnLogout').onclick = logout;
   Array.prototype.forEach.call(document.querySelectorAll('[data-close]'), function (button) {
@@ -861,7 +1023,7 @@ th{background:#edf4fa;color:#486581;font-weight:750;white-space:nowrap}
       // Bu cihazda daha önce giriş yapıldı: şifre sormadan hafızadan aç, yenisini arkaplanda al.
       mobileSession = saved.session;
       activeManager = saved.user;
-      $('managerLine').textContent = (activeManager.display_name || '') + ' · Müdür · Salt okunur';
+      $('managerLine').textContent = (activeManager.display_name || '') + ' · ' + roleLabel(activeManager);
       $('loginCard').hidden = true;
       $('dashboard').hidden = false;
       openDashboard().catch(function (e) {
