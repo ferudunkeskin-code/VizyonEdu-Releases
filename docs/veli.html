@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="tr" data-vz-app="VizyonEdu Veli">
 <head>
-<meta name="vz-build" content="7f6203896d9c">
+<meta name="vz-build" content="9d8b32a4f1da">
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
   <meta name="theme-color" content="#173d62">
@@ -163,7 +163,7 @@ details.acc .body{padding:0 12px 10px}
 .hw .h:first-child{text-align:left}
 .hw .cur{font-weight:700}
 .hw .cur::after{content:" · güncel";font-weight:600;color:var(--muted);font-size:.7rem}
-.mark{font-weight:700;text-align:center;white-space:nowrap;font-size:.74rem}.mark.y{color:var(--green)}.mark.n{color:#b8c3cf}.mark.p{color:var(--amber)}.tk{font-size:1rem;margin-right:3px;vertical-align:-1px}.tk.y{color:var(--green)}.tk.p{color:var(--amber)}.tk.n{color:#b8c3cf}.marknote{margin:2px 0 8px}
+.mark{font-weight:700;text-align:center;white-space:nowrap;font-size:.74rem}.mark.y{color:var(--green)}.mark.n{color:#b8c3cf}.mark.p{color:var(--amber)}.tk{font-size:1rem;margin-right:3px;vertical-align:-1px}.tk.y{color:var(--green)}.tk.p{color:var(--amber)}.tk.n{color:#b8c3cf}.marknote{margin:2px 0 8px}.gaps{margin:8px 0 2px;border-top:1px dashed #e3e8ee;padding-top:8px}.gaps-h{font-weight:800;color:#9a3412;font-size:.82rem;margin-bottom:4px}.gaps-h small{font-weight:600;color:var(--muted);margin-left:4px}.gap{margin:4px 0 6px;font-size:.82rem}.gap b{color:var(--navy,#173d62)}.gap ul{margin:2px 0 0 18px;padding:0}.gap li{margin:1px 0}.ex-table tr.gap-row td>div{position:sticky;left:6px;max-width:92vw}.ex-table tr.gap-row td{text-align:left;white-space:normal;font-size:.74rem;background:#fff8f1;color:#4a3b2c;padding:4px 6px;line-height:1.35}
 .src{font-size:.68rem;color:var(--muted);margin-top:8px}
 
 /* sınav ve KKT listesi: dikeyde kartlar, yatayda tablo (body.land ya da medya sorgusu) */
@@ -595,7 +595,7 @@ body.land .ex-table-wrap{display:block}
         '<div class="kpis"><div class="kpi"><b>' + esc(fmtNum(ex.total)) + '</b><small>Toplam net</small></div>' +
         '<div class="kpi"><b>' + esc(fmtNum(ex.class_rank)) + '</b><small>Sınıf sırası</small></div>' +
         '<div class="kpi"><b>' + esc(fmtNum(ex.inst_rank)) + '</b><small>Kurum sırası</small></div></div>' +
-        (i === open ? chips : '') + '</div>';
+        (i === open ? chips + gapsHtml(ex) : '') + '</div>';
     }).join('') + '<p class="src">Telefonu yan çevirince bütün liste ders ders tek tabloda görünür.</p></div>';
     var names = [];
     rows.forEach(function (ex) { (ex.subjects || []).forEach(function (s) { if (names.indexOf(s.name) < 0) names.push(s.name); }); });
@@ -611,9 +611,26 @@ body.land .ex-table-wrap{display:block}
           if (!s || s.status === '?') return '<td class="m" colspan="4">—</td>';
           if (s.status === 'G' || s.status === 'g') return '<td class="g" colspan="4">G</td>';
           return '<td>' + esc(fmtNum(s.D)) + '</td><td>' + esc(fmtNum(s.Y)) + '</td><td>' + esc(fmtNum(s.B)) + '</td><td class="n">' + esc(fmtNum(s.Net)) + '</td>';
-        }).join('') + '<td class="b">' + esc(fmtNum(ex.total)) + '</td><td class="b">' + esc(fmtNum(ex.class_rank)) + '</td><td class="b">' + esc(fmtNum(ex.inst_rank)) + '</td></tr>';
+        }).join('') + '<td class="b">' + esc(fmtNum(ex.total)) + '</td><td class="b">' + esc(fmtNum(ex.class_rank)) + '</td><td class="b">' + esc(fmtNum(ex.inst_rank)) + '</td></tr>' +
+          // Yatay tabloda: eksik kazanımlar sınavın hemen altında tek satır (bütün sütunlar boyunca)
+          ((ex.gaps || []).length ? '<tr class="gap-row"><td colspan="' + (5 + names.length * 4) + '"><div>' + gapsInline(ex) + '</div></td></tr>' : '');
       }).join('') + '</tbody></table></div>';
     return html;
+  }
+  // Eksik kazanımlar (yayınevi kazanım tablosuyla okunan sınav). Dikey kartta ders ders liste.
+  function gapsHtml(ex) {
+    var g = ex.gaps || [];
+    if (!g.length) return '';
+    var count = g.reduce(function (n, x) { return n + x.items.length; }, 0);
+    return '<div class="gaps"><div class="gaps-h">Eksik kazanımlar <small>' + count + ' kazanım</small></div>' +
+      g.map(function (x) {
+        return '<div class="gap"><b>' + esc(x.name) + '</b><ul>' + x.items.map(function (t) { return '<li>' + esc(t) + '</li>'; }).join('') + '</ul></div>';
+      }).join('') + '<p class="muted sm">Öğrencinin bu kazanımlardaki soruların yarısından çoğunu yanlış ya da boş bıraktığı konular.</p></div>';
+  }
+  function gapsInline(ex) {
+    return '<span class="gaps-h">Eksik kazanımlar:</span> ' + (ex.gaps || []).map(function (x) {
+      return '<b>' + esc(x.name) + ':</b> ' + x.items.map(esc).join(' · ');
+    }).join(' &nbsp;|&nbsp; ');
   }
   function bindScoreList(card, rerender) {
     Array.prototype.forEach.call(card.querySelectorAll('[data-ex]'), function (b) {
