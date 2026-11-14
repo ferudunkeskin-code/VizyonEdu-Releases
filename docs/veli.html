@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="tr" data-vz-app="VizyonEdu Veli">
 <head>
-<meta name="vz-build" content="7ea71d8ac152">
+<meta name="vz-build" content="8fa2cbee3c73">
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
   <meta name="theme-color" content="#173d62">
@@ -200,6 +200,24 @@ body.land .ex-table-wrap{display:block}
 .gain .advice{margin:10px 0 4px;padding:10px 12px;border-radius:10px;background:var(--advice-bg,#fff7e6);color:var(--advice-fg,#8a4b00);border:1px solid var(--advice-bd,#f5d9a8);font-weight:600;font-size:.92rem}
 .pill.guest{background:#fff7e6;color:#8a4b00;border:1px solid #f5d9a8}
 @media (prefers-color-scheme: dark){.gain .advice,.pill.guest{background:#3a2a10;color:#f5c97a;border-color:#6b4a14}}
+
+/* Cevaplarım ve cevap anahtarı (SI açınca; kartın içinde açılır bölüm) */
+.answers{margin:10px 0 4px}
+.answers>.pill{min-height:0;width:auto;padding:6px 14px;border-radius:999px;font-size:.78rem;font-weight:700;background:#fff;color:var(--navy);border:1px solid var(--line);font-family:inherit;line-height:1.3;margin-top:0}
+.answers>.pill.on{background:#eef4f8}
+.ans-note{margin:10px 0 4px;font-size:.8rem;color:var(--muted);background:#f6f8fa;border-radius:8px;padding:8px 10px}
+.ans-legend{font-size:.74rem;color:var(--muted);margin:10px 0 4px;line-height:2.6}
+.ans-sub{margin-top:10px}
+.ans-h{font-weight:700;font-size:.82rem;margin-bottom:4px}
+.ans-grid{display:flex;flex-wrap:wrap;gap:4px}
+.ans{display:inline-flex;flex-direction:column;align-items:center;justify-content:center;width:34px;min-height:42px;border-radius:6px;border:1px solid var(--line);background:#fff;vertical-align:middle}
+.ans small{font-size:.56rem;color:var(--muted);line-height:1.1}
+.ans b{font-size:.95rem;line-height:1.2}
+.ans em{font-style:normal;font-size:.62rem;line-height:1.1;color:var(--green);font-weight:700}
+.ans.ok{background:#e7f6ec;border-color:#9bd3ae;color:#14532d}
+.ans.bad{background:#fdeaea;border-color:#f0a8a8;color:#991b1b}
+.ans.blank{background:#f1f2f4;border-color:#cfd3da;color:#555}
+.ans.void{background:#fff8e1;border-color:#e6d28a;color:#7a5b00}
 </style>
 </head>
 <body>
@@ -598,7 +616,7 @@ body.land .ex-table-wrap{display:block}
         '<div class="kpis"><div class="kpi"><b>' + esc(fmtNum(ex.total)) + '</b><small>Toplam net</small></div>' +
         '<div class="kpi"><b>' + esc(fmtNum(ex.class_rank)) + '</b><small>Sınıf sırası</small></div>' +
         '<div class="kpi"><b>' + esc(fmtNum(ex.inst_rank)) + '</b><small>Kurum sırası</small></div></div>' +
-        (i === open ? chips + (gapsShown() ? gapsHtml(ex) : '') : '') + '</div>';
+        (i === open ? chips + answersHtml(ex, group + ':' + i) + (gapsShown() ? gapsHtml(ex) : '') : '') + '</div>';
     }).join('') + '<p class="src">Telefonu yan çevirince bütün liste ders ders tek tabloda görünür.</p></div>';
     var names = [];
     rows.forEach(function (ex) { (ex.subjects || []).forEach(function (s) { if (names.indexOf(s.name) < 0) names.push(s.name); }); });
@@ -619,6 +637,41 @@ body.land .ex-table-wrap{display:block}
           ((ex.gaps || []).length && gapsShown() ? '<tr class="gap-row"><td colspan="' + (5 + names.length * 4) + '"><div>' + gapsInline(ex) + '</div></td></tr>' : '');
       }).join('') + '</tbody></table></div>';
     return html;
+  }
+  // ── Cevaplarım ve cevap anahtarı: SI açınca (varsayılan sınavdan 3 gün sonra) kartın içinde açılır bölüm. ──
+  // ex.answers: [{name, res: 'DYB…', key: doğru şıklar, ans: öğrencinin şıkları ('' = bilinmiyor)}] — kendi kitapçık sırası.
+  function answersDate(iso) {
+    var d = new Date(iso);
+    if (isNaN(d.getTime())) return '';
+    function p(n) { return (n < 10 ? '0' : '') + n; }
+    return p(d.getDate()) + '.' + p(d.getMonth() + 1) + '.' + d.getFullYear();
+  }
+  function answerBox(no, res, key, ans) {
+    var cls = res === 'D' ? 'ok' : res === 'Y' ? 'bad' : res === 'B' ? 'blank' : 'void';
+    var mine = res === 'B' ? '–' : (ans && ans !== '-' ? ans : (res === 'D' ? key : res === 'Y' ? '✗' : '–'));
+    if (res === 'İ') mine = 'İ';
+    var right = (res === 'Y' || res === 'B') && key && key !== '?' ? '<em>' + esc(key) + '</em>' : '';
+    var tip = res === 'D' ? 'doğru' : res === 'Y' ? 'yanlış' : res === 'B' ? 'boş' : res === 'İ' ? 'iptal' : '';
+    return '<span class="ans ' + cls + '" title="' + no + '. soru: ' + tip + '"><small>' + no + '</small><b>' + esc(mine) + '</b>' + right + '</span>';
+  }
+  function answersHtml(ex, id) {
+    var list = ex.answers || [];
+    if (!list.length) {
+      var when = ex.answers_at ? answersDate(ex.answers_at) : '';
+      return when ? '<p class="ans-note">Cevap anahtarı ve işaretlediğiniz cevaplar <b>' + esc(when) + '</b> tarihinde burada açılacak.</p>' : '';
+    }
+    var open = !!(ui.ansOpen || {})[cacheKey() + '|' + id];
+    var html = '<div class="answers"><button type="button" class="pill' + (open ? ' on' : '') + '" data-ans="' + esc(id) + '" aria-expanded="' + open + '">' +
+      (open ? 'Cevaplarımı gizle' : 'Cevaplarım ve cevap anahtarı') + '</button>';
+    if (!open) return html + '</div>';
+    html += '<p class="ans-legend"><span class="ans ok"><b>A</b></span> doğru &nbsp; <span class="ans bad"><b>B</b><em>D</em></span> yanlış (küçük harf: doğru şık) &nbsp; ' +
+      '<span class="ans blank"><b>–</b><em>C</em></span> boş</p>';
+    list.forEach(function (s) {
+      var res = String(s.res || ''), key = String(s.key || ''), ans = String(s.ans || ''), boxes = '';
+      for (var i = 0; i < res.length; i++) boxes += answerBox(i + 1, res.charAt(i), key.charAt(i), ans.charAt(i));
+      html += '<div class="ans-sub"><div class="ans-h">' + esc(s.name) + '</div><div class="ans-grid">' + boxes + '</div></div>';
+    });
+    return html + '<p class="muted sm">Numaralar kendi kitapçığınızdaki soru numaralarıdır.</p></div>';
   }
   // Eksik kazanımları göster / gizle: varsayılan açık; tercih bu cihazda hatırlanır.
   var GAPS_KEY = 'vizyon_veli_eksik_kazanim_gizli';
@@ -659,6 +712,14 @@ body.land .ex-table-wrap{display:block}
         rerender();
       });
     });
+    Array.prototype.forEach.call(card.querySelectorAll('[data-ans]'), function (b) {
+      b.addEventListener('click', function () {
+        var key = cacheKey() + '|' + b.getAttribute('data-ans');
+        ui.ansOpen = ui.ansOpen || {};
+        ui.ansOpen[key] = !ui.ansOpen[key];
+        rerender();
+      });
+    });
   }
 
   function renderExams(d) {
@@ -675,6 +736,7 @@ body.land .ex-table-wrap{display:block}
   function kktRows(res) {
     return (res || []).map(function (q) {
       return { title: q.name, date: q.date, total: q.total, class_rank: q.class_rank, inst_rank: q.inst_rank,
+        answers: q.answers, answers_at: q.answers_at,
         subjects: (q.subjects || []).map(function (s) {
           var net = s.Net;
           if ((net == null || net === '') && typeof s.D === 'number' && typeof s.Y === 'number') net = Math.round((s.D - s.Y / 4) * 100) / 100;
