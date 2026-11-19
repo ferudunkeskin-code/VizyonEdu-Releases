@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="tr" data-vz-app="VizyonEdu Müdür">
 <head>
-<meta name="vz-build" content="7fe0561f0dd9">
+<meta name="vz-build" content="a46b7637f3b2">
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#173f67">
@@ -956,11 +956,19 @@ th{background:#edf4fa;color:#486581;font-weight:750;white-space:nowrap}
           (kind === 'control' ? '<td class="n">' + escapeHtml(r[2]) + ' gün</td>' : '') + '</tr>';
       }).join('') + '</tbody></table>';
   }
+  /** Güncel konu satırı. Eski özette sıra alanı yoktur: o zaman yalnız konu adı yazılır (girilmemiş denmez). */
+  function hwTopicText(x) {
+    if (x.topic_pos != null) return 'güncel konu ' + x.topic_pos + '.' + (x.topic ? ' (' + x.topic + ')' : '');
+    if (x.topic_unmatched) return 'güncel konu «' + x.topic + '» kazanım listesinde bulunamadı';
+    if (x.topic) return 'güncel konu: ' + x.topic;
+    if (x.topic_pos === undefined) return '';
+    return 'güncel konu girilmemiş';
+  }
   function hwSubjectHtml(t, x, grace) {
     if (!x.homework && !x.control) return '';
     var det = (t.details || {})[x.cat] || {};
-    var pos = x.topic_pos == null ? 'güncel konu girilmemiş' : 'güncel konu ' + x.topic_pos + '.' + (x.topic ? ' (' + x.topic + ')' : '');
-    var html = '<div class="subj"><h4>' + escapeHtml(subjName(x)) + ' <small>' + escapeHtml(x.students ? x.students + ' öğrenci · ' : '') + escapeHtml(pos) + '</small></h4>';
+    var pos = hwTopicText(x);
+    var html = '<div class="subj"><h4>' + escapeHtml(subjName(x)) + ' <small>' + escapeHtml([x.students ? x.students + ' öğrenci' : '', pos].filter(Boolean).join(' · ')) + '</small></h4>';
     if (x.homework) html += '<div class="hw-sec">Ödev eksik · ' + x.homework + '</div>' +
       hwTopicTable(hwByTopic(graceRows(det.homework_topics, x, grace, 3), 'homework'), 'homework', t.uid, x.cat, x.students);
     if (x.control) html += '<div class="hw-sec">Kontrol eksik · ' + x.control + '</div>' +
