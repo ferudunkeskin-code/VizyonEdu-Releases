@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="tr" data-vz-app="VizyonEdu Müdür">
 <head>
-<meta name="vz-build" content="22bf9f3cb103">
+<meta name="vz-build" content="b9df5b18af92">
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#173f67">
@@ -152,6 +152,22 @@ th{background:#edf4fa;color:#486581;font-weight:750;white-space:nowrap}
 @media (max-width:520px){
   .metric span{font-size:.58rem}
 }
+
+/* Aksayan Ödev Kontrol (kapalı kutu) */
+.group-toggle{display:flex;align-items:center;gap:8px;width:100%;margin:0 0 12px;min-height:52px;padding:0 16px;border-radius:14px;
+  border:1px solid var(--line);background:linear-gradient(180deg,#fbfdfe,#eef5fa);color:var(--navy);font-weight:800;font-size:1rem;text-align:left}
+.group-toggle .gt-arrow{margin-left:auto}
+.group-toggle[aria-expanded="true"]{background:#e6f0f8;border-color:#9cc3e4}
+.hw-badges{display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end}
+.hw-win{font-size:.74rem;color:var(--muted);margin:0 0 6px}
+.hw-tbl{width:100%;border-collapse:collapse;font-size:.76rem;margin:4px 0 8px}
+.hw-tbl th{background:#edf4fa;color:#486581;text-align:left;padding:4px 6px;font-size:.68rem}
+.hw-tbl td{border-top:1px solid #eef2f6;padding:4px 6px}
+.hw-tbl td.n{text-align:right;font-weight:800;color:var(--navy);white-space:nowrap}
+.hw-sec{font-size:.72rem;font-weight:800;color:#486581;margin:8px 0 2px;display:flex;justify-content:space-between;align-items:center;gap:6px}
+.hw-sec button{width:auto;min-height:0;margin:0;padding:3px 8px;font-size:.68rem;border-radius:8px;background:#eef4f8;color:var(--navy)}
+.grace-pick{display:flex;flex-wrap:wrap;align-items:center;gap:6px;font-size:.8rem;font-weight:700;color:#486581;margin:0 0 10px}
+.grace-pick select{width:auto;min-height:36px;padding:4px 8px;border-radius:9px;font-weight:800;color:var(--navy)}
 </style>
 </head>
 <body>
@@ -207,7 +223,19 @@ th{background:#edf4fa;color:#486581;font-weight:750;white-space:nowrap}
       <section class="panel" id="accPanel">
         <div class="panel-title"><div><small>SORUMLULUK TAKİBİ</small><h2>Aksayan İşler</h2></div></div>
         <p class="hint" id="accLine">Yükleniyor…</p>
+        <label class="grace-pick">Ödev / Kontrol sayımı: güncel konudan
+          <select id="mzGrace" aria-label="Güncel konudan kaç konu öncesine kadar sayılsın">
+            <option value="0">0 (güncel konu dahil)</option><option value="1">1</option><option value="2">2</option>
+            <option value="3">3</option><option value="4">4</option><option value="5">5</option>
+          </select> öncesine kadar</label>
         <div id="accTiles" class="acc-tiles"></div>
+      </section>
+
+      <!-- Aksayan Ödev Kontrol: öğretmen başına Öğrenci Ödev / Öğretmen Kontrol (güncel konudan 2 öncesine kadar) -->
+      <button type="button" class="group-toggle" id="btnHwAcc" aria-expanded="false">Aksayan Ödev Kontrol <span class="gt-arrow">▾</span></button>
+      <section class="panel" id="hwAccPanel" hidden>
+        <p class="hint" id="hwAccLine"></p>
+        <div id="hwAccBody"></div>
       </section>
 
       <section class="panel">
@@ -698,6 +726,43 @@ th{background:#edf4fa;color:#486581;font-weight:750;white-space:nowrap}
     if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
+  // ── Ödev/Kontrol sayım payı: müdür seçer (0 = güncel konu dahil; 2 = güncel konudan 2 öncesine kadar) ──
+  // Özet her satırı konu sırasıyla taşır; seçilen paya göre sayılar burada yeniden hesaplanır.
+  var MZ_GRACE_KEY = 'vizyon_mudur_konu_payi';
+  function mzGrace(s) {
+    var v = null;
+    try { v = localStorage.getItem(MZ_GRACE_KEY); } catch (e) {}
+    if (v !== null && v !== '' && isFinite(Number(v))) return Math.max(0, Number(v));
+    var th = (s && s.thresholds) || {};
+    return th.grace == null ? 2 : Number(th.grace);
+  }
+  function subjLimit(x, g) { return x.topic_pos == null ? Infinity : Math.max(0, x.topic_pos - g); }
+  function hasIdx(rows, len) { return (rows || []).length === 0 || (rows[0] || []).length >= len; }
+  /** Seçilen paya göre ders sayıları (özet yeni biçimde değilse sunucunun sayıları). */
+  function graceCounts(t, x, g) {
+    var det = (t.details || {})[x.cat] || {}, lim = subjLimit(x, g);
+    if (!x._srv) x._srv = { control: x.control, homework: x.homework, control_oldest: x.control_oldest };
+    if (!det.control_topics || !hasIdx(det.control_topics, 5) || !hasIdx(det.homework_topics, 4)) return x._srv;
+    var out = { control: 0, homework: 0, control_oldest: 0 };
+    det.control_topics.forEach(function (r) { if (r[4] != null && r[4] < lim) { out.control += r[2]; out.control_oldest = Math.max(out.control_oldest, r[3]); } });
+    (det.homework_topics || []).forEach(function (r) { if (r[3] != null && r[3] < lim) out.homework += r[2]; });
+    return out;
+  }
+  function applyGrace(s) {
+    var g = mzGrace(s);
+    (s.teachers || []).forEach(function (t) {
+      t.subjects.forEach(function (x) { var c = graceCounts(t, x, g); x.control = c.control; x.homework = c.homework; x.control_oldest = c.control_oldest; });
+    });
+    if ($('mzGrace') && $('mzGrace').value !== String(g)) $('mzGrace').value = String(g);
+    return g;
+  }
+  /** Ayrıntı satırları: seçilen paya göre süzülür, sıra sütunu gösterilmez. */
+  function graceRows(rows, x, g, width) {
+    if (!hasIdx(rows, width + 1)) return rows || [];
+    var lim = subjLimit(x, g);
+    return (rows || []).filter(function (r) { var i = r[width]; return i != null && i < lim; }).map(function (r) { return r.slice(0, width); });
+  }
+
   var TILES = [
     { key: 'red', label: 'Kırmızı uyarılı öğretmen' },
     { key: 'untreated', label: 'Takipsiz eksik kazanım' },
@@ -721,7 +786,7 @@ th{background:#edf4fa;color:#486581;font-weight:750;white-space:nowrap}
       $('accTiles').innerHTML = ''; $('accBody').innerHTML = '';
       return;
     }
-    var s = acc.snapshot, th = s.thresholds || {}, v = tileValues(s);
+    var s = acc.snapshot, th = s.thresholds || {}, grace = applyGrace(s), v = tileValues(s);
     if ($('countStudents').textContent === '—') {
       $('countStudents').textContent = s.counts.students; $('countClasses').textContent = s.counts.classes;
       $('countTeachers').textContent = s.counts.teachers; $('countSubjects').textContent = s.counts.subjects;
@@ -733,8 +798,8 @@ th{background:#edf4fa;color:#486581;font-weight:750;white-space:nowrap}
       homework: v.homework ? 'amber' : 'green',
       guidance: v.guidance ? 'amber' : 'green', late: v.late ? 'amber' : 'green' };
     var notes = { red: (s.teachers || []).length + ' öğretmenden', untreated: th.untreated + '+ gündür ödev/kontrol yok',
-      control: 'ödevi girilmiş, bitmiş konular' + (v.current ? ' · ' + v.current + ' işleniyor' : ''),
-      homework: 'bitmiş konularda ödev de kontrol de yok', guidance: 'öğretmen kısmı tamam', late: 'son okul günlerinde' };
+      control: 'ödevi girilmiş · güncel konudan ' + grace + ' öncesine kadar',
+      homework: 'ödev de kontrol de yok · güncel konudan ' + grace + ' öncesine kadar', guidance: 'öğretmen kısmı tamam', late: 'son okul günlerinde' };
     $('accTiles').innerHTML = TILES.map(function (t) {
       return '<button type="button" class="tile ' + levels[t.key] + '" data-tile="' + t.key + '"><b>' + escapeHtml(v[t.key]) + '</b><span>' +
         escapeHtml(t.label) + '</span><small>' + escapeHtml(notes[t.key]) + '</small></button>';
@@ -743,6 +808,7 @@ th{background:#edf4fa;color:#486581;font-weight:750;white-space:nowrap}
       b.onclick = function () { openTile(s, b.getAttribute('data-tile')); };
     });
     renderAccTeachers(s);
+    renderHwAcc();
   }
 
   // ── kutucuk ayrıntısı (alttan açılan sayfa) ──
@@ -785,8 +851,8 @@ th{background:#edf4fa;color:#486581;font-weight:750;white-space:nowrap}
       }).join('') : '<p class="hint ok">Yok.</p>';
       var titles = { control: 'Öğretmen Kontrol bekleyen ödevler', homework: 'Öğrenci Ödev girilmemiş konular', untreated: 'Takipsiz eksik kazanımlar' };
       var lines = {
-        control: 'Güncel konudan önceki (bitmiş) konularda Öğrenci Ödev girilmiş, Öğretmen Kontrol girilmemiş. Kırmızı: ' + th.control + ' günden eski.',
-        homework: 'Güncel konudan önceki (bitmiş) konularda ne Öğrenci Ödev ne Öğretmen Kontrol girilmiş (öğrenci × konu).',
+        control: 'Güncel konudan ' + mzGrace(s) + ' öncesine kadar olan konularda Öğrenci Ödev girilmiş, Öğretmen Kontrol girilmemiş. Kırmızı: ' + th.control + ' günden eski.',
+        homework: 'Güncel konudan ' + mzGrace(s) + ' öncesine kadar olan konularda ne Öğrenci Ödev ne Öğretmen Kontrol girilmiş (öğrenci × konu).',
         untreated: 'KKT\'den ' + th.untreated + '+ gün geçmiş, ne ödev ne kontrol girilmiş eksik ana kazanımlar.' };
       sheet('AKSAYAN İŞ', titles[key], lines[key], html);
       Array.prototype.forEach.call($('sheetBody').querySelectorAll('[data-uid]'), function (b) {
@@ -839,7 +905,7 @@ th{background:#edf4fa;color:#486581;font-weight:750;white-space:nowrap}
           return '<div class="subj"><h4>' + escapeHtml(subjName(x)) + ' <small>' + escapeHtml(x.classes.join(', ')) + ' · ' + x.students + ' öğrenci</small></h4>' +
             '<div class="stats">' +
             '<div class="stat ' + topicLvl + '">Güncel konu<b>' + (x.topic_days === null ? 'girilmemiş' : x.topic_days + ' gün önce') + '</b>' + escapeHtml(x.topic || '') + '</div>' +
-            '<button type="button" class="stat ' + (x.homework ? 'amber' : '') + '" data-det="homework" data-uid="' + escapeHtml(t.uid) + '" data-cat="' + escapeHtml(x.cat) + '">Öğrenci Ödev girilmemiş<b>' + (x.homework || 0) + '</b>bitmiş konular</button>' +
+            '<button type="button" class="stat ' + (x.homework ? 'amber' : '') + '" data-det="homework" data-uid="' + escapeHtml(t.uid) + '" data-cat="' + escapeHtml(x.cat) + '">Öğrenci Ödev girilmemiş<b>' + (x.homework || 0) + '</b>sayılan konular</button>' +
             '<button type="button" class="stat ' + ctrlLvl + '" data-det="control" data-uid="' + escapeHtml(t.uid) + '" data-cat="' + escapeHtml(x.cat) + '">Öğretmen Kontrol bekleyen<b>' + x.control + '</b>' +
               (x.control ? 'en eski ' + x.control_oldest + ' gün' : '') + (x.control_current ? ' · ' + x.control_current + ' işleniyor' : '') + '</button>' +
             '<button type="button" class="stat ' + (x.untreated ? 'red' : '') + '" data-det="untreated" data-uid="' + escapeHtml(t.uid) + '" data-cat="' + escapeHtml(x.cat) + '">Takipsiz eksik<b>' + x.untreated + ' / ' + x.deficient + '</b>' + th.untreated + '+ gün</button>' +
@@ -860,16 +926,90 @@ th{background:#edf4fa;color:#486581;font-weight:750;white-space:nowrap}
       b.onclick = function () { openAccDetail(s, b.getAttribute('data-uid'), b.getAttribute('data-cat'), b.getAttribute('data-det')); };
     });
   }
+  // ── Aksayan Ödev Kontrol: öğretmen başına Öğrenci Ödev girilmemiş / Öğretmen Kontrol bekleyen ──
+  // Sayım: güncel konu p. sıradaysa yalnız ilk (p − pay) konu (özet MudurOzet.js; pay varsayılan 2).
+  var hwAccOpen = {}, hwAccShown = false;
+  function hwTeacherTotals(t) {
+    var hw = 0, ctl = 0;
+    t.subjects.forEach(function (x) { hw += x.homework || 0; ctl += x.control || 0; });
+    return { hw: hw, ctl: ctl };
+  }
+  function hwWindowText(x, grace) {
+    if (x.topic_pos == null) return 'Güncel konu girilmemiş: Öğrenci Ödev sayılmadı; Kontrol bütün konularda sayıldı.';
+    var n = Math.max(0, x.topic_pos - grace);
+    if (!n) return 'Güncel konu ' + x.topic_pos + '. konu (' + (x.topic || '') + ') · bu payla henüz sayılacak konu yok.';
+    return 'Güncel konu ' + x.topic_pos + '. konu (' + (x.topic || '') + ') · sayılan: ilk ' + n + ' konu';
+  }
+  function hwTopicTable(rows, withAge) {
+    if (!rows || !rows.length) return '<p class="hint ok" style="margin:2px 0 6px">Yok.</p>';
+    return '<table class="hw-tbl"><thead><tr><th>Konu</th><th>Sınıf</th><th style="text-align:right">Öğrenci</th>' +
+      (withAge ? '<th style="text-align:right">En eski</th>' : '') + '</tr></thead><tbody>' + rows.map(function (r) {
+        return '<tr><td>' + escapeHtml(r[1]) + '</td><td>' + escapeHtml(r[0]) + '</td><td class="n">' + escapeHtml(r[2]) + '</td>' +
+          (withAge ? '<td class="n">' + escapeHtml(r[3]) + ' gün</td>' : '') + '</tr>';
+      }).join('') + '</tbody></table>';
+  }
+  function renderHwAcc() {
+    var panel = $('hwAccPanel');
+    if (!panel || panel.hidden) return;
+    if (!acc || !acc.ready) { $('hwAccLine').textContent = (acc && acc.message) || 'Özet hazır değil.'; $('hwAccBody').innerHTML = ''; return; }
+    var s = acc.snapshot, th = s.thresholds || {}, grace = applyGrace(s);
+    var list = (s.teachers || []).map(function (t) { return { t: t, v: hwTeacherTotals(t) }; })
+      .sort(function (a, b) { return (b.v.hw + b.v.ctl) - (a.v.hw + a.v.ctl) || a.t.name.localeCompare(b.t.name, 'tr'); });
+    var shown = hwAccShown ? list : list.filter(function (r) { return r.v.hw + r.v.ctl; });
+    $('hwAccLine').innerHTML = 'Her öğretmen için <b>güncel konudan ' + escapeHtml(grace) + ' öncesine kadar</b> olan konular sayılır ' +
+      '(ör. 5. konudaysa ilk ' + Math.max(0, 5 - grace) + ' konu; payı «Aksayan İşler»deki seçimden değiştirin). Öğretmene dokunun: ders, konu ve sınıf ayrıntısı.';
+    var html = '<label class="toggle"><input type="checkbox" id="hwAccAll"' + (hwAccShown ? ' checked' : '') + '> Aksaklığı olmayanları da göster (' +
+      shown.length + ' / ' + list.length + ')</label>';
+    html += shown.length ? shown.map(function (r) {
+      var t = r.t, open = !!hwAccOpen[t.uid], body = '';
+      if (open) {
+        body = '<div class="pbody">' + t.subjects.map(function (x) {
+          var det = (t.details || {})[x.cat] || {};
+          return '<div class="subj"><h4>' + escapeHtml(subjName(x)) + ' <small>' + escapeHtml(x.classes.join(', ')) + '</small></h4>' +
+            '<p class="hw-win">' + escapeHtml(hwWindowText(x, grace)) + '</p>' +
+            '<div class="hw-sec"><span>Öğrenci Ödev girilmemiş · ' + (x.homework || 0) + '</span>' +
+              (x.homework ? '<button type="button" data-hwdet="homework" data-uid="' + escapeHtml(t.uid) + '" data-cat="' + escapeHtml(x.cat) + '">Öğrenci listesi</button>' : '') + '</div>' +
+            hwTopicTable(graceRows(det.homework_topics, x, grace, 3), false) +
+            '<div class="hw-sec"><span>Öğretmen Kontrol bekleyen · ' + (x.control || 0) + (x.control ? ' · en eski ' + x.control_oldest + ' gün' : '') + '</span>' +
+              (x.control ? '<button type="button" data-hwdet="control" data-uid="' + escapeHtml(t.uid) + '" data-cat="' + escapeHtml(x.cat) + '">Öğrenci listesi</button>' : '') + '</div>' +
+            hwTopicTable(graceRows(det.control_topics, x, grace, 4), true) + '</div>';
+        }).join('') + '</div>';
+      }
+      var lvl = r.v.ctl && t.subjects.some(function (x) { return x.control && x.control_oldest > th.control; }) ? 'red' : (r.v.hw + r.v.ctl ? 'amber' : 'green');
+      return '<div class="person"><button type="button" data-hwp="' + escapeHtml(t.uid) + '"><span><b>' + escapeHtml(t.name) + '</b><small>' +
+        escapeHtml(t.subjects.map(function (x) { return subjName(x); }).join(', ')) + '</small></span><span class="hw-badges">' +
+        '<span class="num-badge ' + (r.v.hw ? 'amber' : 'green') + '">Ödev ' + r.v.hw + '</span>' +
+        '<span class="num-badge ' + (r.v.ctl ? lvl : 'green') + '">Kontrol ' + r.v.ctl + '</span></span></button>' + body + '</div>';
+    }).join('') : '<p class="hint ok">Aksayan ödev / kontrol yok.</p>';
+    $('hwAccBody').innerHTML = html;
+    $('hwAccAll').onchange = function () { hwAccShown = this.checked; renderHwAcc(); };
+    Array.prototype.forEach.call($('hwAccBody').querySelectorAll('[data-hwp]'), function (b) {
+      b.onclick = function () { var u = b.getAttribute('data-hwp'); hwAccOpen[u] = !hwAccOpen[u]; renderHwAcc(); };
+    });
+    Array.prototype.forEach.call($('hwAccBody').querySelectorAll('[data-hwdet]'), function (b) {
+      b.onclick = function () { openAccDetail(s, b.getAttribute('data-uid'), b.getAttribute('data-cat'), b.getAttribute('data-hwdet')); };
+    });
+  }
+  function toggleHwAcc() {
+    var panel = $('hwAccPanel'), btn = $('btnHwAcc');
+    if (!panel || !btn) return;
+    panel.hidden = !panel.hidden;
+    btn.setAttribute('aria-expanded', panel.hidden ? 'false' : 'true');
+    var arrow = btn.querySelector('.gt-arrow'); if (arrow) arrow.textContent = panel.hidden ? '▾' : '▴';
+    renderHwAcc();
+  }
+
   function openAccDetail(s, uid, cat, kind) {
     var t = (s.teachers || []).filter(function (x) { return x.uid === uid; })[0];
     if (!t) return;
     var det = (t.details || {})[cat] || {}, subj = t.subjects.filter(function (x) { return x.cat === cat; })[0] || {};
-    var title = t.name + ' · ' + (subj.label ? subjName(subj) : cat);
+    var title = t.name + ' · ' + (subj.label ? subjName(subj) : cat), g = mzGrace(s);
+    var win = 'güncel konudan ' + g + ' öncesine kadar';
     openMetric(kind === 'untreated'
       ? { title: title, subtitle: 'TAKİPSİZ EKSİK KAZANIM (ödev de kontrol de yok)', headers: ['Sınıf', 'Öğrenci', 'Ana kazanım', 'KKT\'den bu yana (gün)'], rows: det.untreated || [] }
       : kind === 'homework'
-        ? { title: title, subtitle: 'ÖĞRENCİ ÖDEV GİRİLMEMİŞ (bitmiş konular; kontrol de yok)', headers: ['Sınıf', 'Öğrenci', 'Konu'], rows: det.homework || [] }
-        : { title: title, subtitle: 'ÖĞRETMEN KONTROL BEKLEYEN (ödevi girilmiş, bitmiş konular)', headers: ['Sınıf', 'Öğrenci', 'Konu', 'Ödevden bu yana (gün)'], rows: det.control || [] });
+        ? { title: title, subtitle: 'ÖĞRENCİ ÖDEV GİRİLMEMİŞ (' + win + '; kontrol de yok)', headers: ['Sınıf', 'Öğrenci', 'Konu'], rows: graceRows(det.homework, subj, g, 3) }
+        : { title: title, subtitle: 'ÖĞRETMEN KONTROL BEKLEYEN (ödevi girilmiş, ' + win + ')', headers: ['Sınıf', 'Öğrenci', 'Konu', 'Ödevden bu yana (gün)'], rows: graceRows(det.control, subj, g, 4) });
   }
 
   // ───────────── Devamsızlık / geç gelenler (Devam.js) ─────────────
@@ -1001,6 +1141,11 @@ th{background:#edf4fa;color:#486581;font-weight:750;white-space:nowrap}
   $('btnLogin').onclick = function () { run(this, login); };
   $('btnRefresh').onclick = function () { run(this, function () { return openDashboard({ manual: true }); }); };
   $('btnStudents').onclick = function () { $('studentModal').hidden = false; renderStudents(); };
+  if ($('btnHwAcc')) $('btnHwAcc').onclick = toggleHwAcc;
+  if ($('mzGrace')) $('mzGrace').onchange = function () {
+    try { localStorage.setItem(MZ_GRACE_KEY, this.value); } catch (e) {}
+    renderAcc();
+  };
   $('btnAttendance').onclick = function () {
     $('attModal').hidden = false; $('attEnter').hidden = true;
     run(null, loadAttendance);
