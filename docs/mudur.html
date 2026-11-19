@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="tr" data-vz-app="VizyonEdu Müdür">
 <head>
-<meta name="vz-build" content="1722aaa546a6">
+<meta name="vz-build" content="7fe0561f0dd9">
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#173f67">
@@ -173,6 +173,7 @@ th{background:#edf4fa;color:#486581;font-weight:750;white-space:nowrap}
 .hw-eksik{font-size:.7rem;font-weight:700;color:var(--muted);align-self:center}
 .hw-tbl tr[data-hwrow]{cursor:pointer}
 .hw-tbl tr[data-hwrow]:active td{background:#e6f0f8}
+.hint.warn{color:#9a5b00;background:#fff6e5;border-radius:10px;padding:8px 10px}
 </style>
 </head>
 <body>
@@ -935,21 +936,35 @@ th{background:#edf4fa;color:#486581;font-weight:750;white-space:nowrap}
     t.subjects.forEach(function (x) { hw += x.homework || 0; ctl += x.control || 0; });
     return { hw: hw, ctl: ctl };
   }
-  function hwTopicTable(rows, kind, uid, cat) {
-    return '<table class="hw-tbl"><thead><tr><th>Konu</th><th>Sınıf</th><th style="text-align:right">Öğrenci</th>' +
+  /** Kazanım başına (sınıflar birleşik): [kazanım, eksik öğrenci, en eski gün]. */
+  function hwByTopic(rows, kind) {
+    var map = {}, out = [];
+    (rows || []).forEach(function (r) {
+      var k = r[1], e = map[k];
+      if (!e) { e = map[k] = [k, 0, 0]; out.push(e); }
+      e[1] += Number(r[2]) || 0;
+      if (kind === 'control') e[2] = Math.max(e[2], Number(r[3]) || 0);
+    });
+    return out;
+  }
+  function hwTopicTable(rows, kind, uid, cat, total) {
+    return '<table class="hw-tbl"><thead><tr><th>Kazanım</th><th style="text-align:right">Eksik öğrenci</th>' +
       (kind === 'control' ? '<th style="text-align:right">En eski</th>' : '') + '</tr></thead><tbody>' + rows.map(function (r) {
-        return '<tr data-hwrow="' + kind + '" data-uid="' + escapeHtml(uid) + '" data-cat="' + escapeHtml(cat) + '" data-cls="' + escapeHtml(r[0]) +
-          '" data-topic="' + escapeHtml(r[1]) + '" data-n="' + escapeHtml(r[2]) + '"><td>' + escapeHtml(r[1]) + '</td><td>' + escapeHtml(r[0]) + '</td><td class="n">' + escapeHtml(r[2]) + ' ›</td>' +
-          (kind === 'control' ? '<td class="n">' + escapeHtml(r[3]) + ' gün</td>' : '') + '</tr>';
+        return '<tr data-hwrow="' + kind + '" data-uid="' + escapeHtml(uid) + '" data-cat="' + escapeHtml(cat) +
+          '" data-topic="' + escapeHtml(r[0]) + '" data-n="' + escapeHtml(r[1]) + '"><td>' + escapeHtml(r[0]) + '</td><td class="n">' +
+          escapeHtml(r[1]) + (total ? ' / ' + escapeHtml(total) : '') + ' ›</td>' +
+          (kind === 'control' ? '<td class="n">' + escapeHtml(r[2]) + ' gün</td>' : '') + '</tr>';
       }).join('') + '</tbody></table>';
   }
   function hwSubjectHtml(t, x, grace) {
     if (!x.homework && !x.control) return '';
     var det = (t.details || {})[x.cat] || {};
     var pos = x.topic_pos == null ? 'güncel konu girilmemiş' : 'güncel konu ' + x.topic_pos + '.' + (x.topic ? ' (' + x.topic + ')' : '');
-    var html = '<div class="subj"><h4>' + escapeHtml(subjName(x)) + ' <small>' + escapeHtml(pos) + '</small></h4>';
-    if (x.homework) html += '<div class="hw-sec">Ödev eksik · ' + x.homework + '</div>' + hwTopicTable(graceRows(det.homework_topics, x, grace, 3), 'homework', t.uid, x.cat);
-    if (x.control) html += '<div class="hw-sec">Kontrol eksik · ' + x.control + '</div>' + hwTopicTable(graceRows(det.control_topics, x, grace, 4), 'control', t.uid, x.cat);
+    var html = '<div class="subj"><h4>' + escapeHtml(subjName(x)) + ' <small>' + escapeHtml(x.students ? x.students + ' öğrenci · ' : '') + escapeHtml(pos) + '</small></h4>';
+    if (x.homework) html += '<div class="hw-sec">Ödev eksik · ' + x.homework + '</div>' +
+      hwTopicTable(hwByTopic(graceRows(det.homework_topics, x, grace, 3), 'homework'), 'homework', t.uid, x.cat, x.students);
+    if (x.control) html += '<div class="hw-sec">Kontrol eksik · ' + x.control + '</div>' +
+      hwTopicTable(hwByTopic(graceRows(det.control_topics, x, grace, 4), 'control'), 'control', t.uid, x.cat, x.students);
     return html + '</div>';
   }
   function renderHwAcc() {
@@ -959,7 +974,10 @@ th{background:#edf4fa;color:#486581;font-weight:750;white-space:nowrap}
     var s = acc.snapshot, grace = applyGrace(s);
     var list = (s.teachers || []).map(function (t) { return { t: t, v: hwTeacherTotals(t) }; })
       .sort(function (a, b) { return (b.v.hw + b.v.ctl) - (a.v.hw + a.v.ctl) || a.t.name.localeCompare(b.t.name, 'tr'); });
-    $('hwAccBody').innerHTML = list.length ? list.map(function (r) {
+    // Eski biçim özet: konu sırası yok, seçim sayıları değiştiremez → yenilenmesi gerektiğini söyle
+    var old = !(Number(s.fmt) >= 2) ? '<p class="hint warn">Özet eski biçimde: sayılar seçime göre değişmez, kazanım listesi boş görünür. ' +
+      'Özet yenilenince (en geç 30 dk) düzelir.</p>' : '';
+    $('hwAccBody').innerHTML = old + (list.length ? list.map(function (r) {
       var t = r.t, body = '';
       if (hwAccOpen[t.uid]) {
         body = '<div class="pbody">' + (r.v.hw + r.v.ctl
@@ -970,28 +988,29 @@ th{background:#edf4fa;color:#486581;font-weight:750;white-space:nowrap}
         '<span class="num-badge ' + (r.v.hw ? 'amber' : 'green') + '">Ödev ' + r.v.hw + '</span>' +
         '<span class="num-badge ' + (r.v.ctl ? 'amber' : 'green') + '">Kontrol ' + r.v.ctl + '</span>' +
         '<span class="hw-eksik">eksik</span></span></button>' + body + '</div>';
-    }).join('') : '<p class="hint">Öğretmen yok.</p>';
+    }).join('') : '<p class="hint">Öğretmen yok.</p>');
     Array.prototype.forEach.call($('hwAccBody').querySelectorAll('[data-hwp]'), function (b) {
       b.onclick = function () { var u = b.getAttribute('data-hwp'); hwAccOpen[u] = !hwAccOpen[u]; renderHwAcc(); };
     });
     Array.prototype.forEach.call($('hwAccBody').querySelectorAll('[data-hwrow]'), function (tr) {
       tr.onclick = function () {
         openHwStudents(s, tr.getAttribute('data-uid'), tr.getAttribute('data-cat'), tr.getAttribute('data-hwrow'),
-          tr.getAttribute('data-cls'), tr.getAttribute('data-topic'), Number(tr.getAttribute('data-n')));
+          tr.getAttribute('data-topic'), Number(tr.getAttribute('data-n')));
       };
     });
   }
-  /** Bir konu + sınıfta eksik olan öğrenciler. */
-  function openHwStudents(s, uid, cat, kind, cls, topic, n) {
+  /** Bir kazanımda eksiği olan öğrenciler (bütün sınıflar; sınıf sırasıyla). */
+  function openHwStudents(s, uid, cat, kind, topic, n) {
     var t = (s.teachers || []).filter(function (x) { return x.uid === uid; })[0];
     if (!t) return;
     var det = (t.details || {})[cat] || {}, x = t.subjects.filter(function (y) { return y.cat === cat; })[0] || {}, g = mzGrace(s);
     var rows = graceRows(kind === 'control' ? det.control : det.homework, x, g, kind === 'control' ? 4 : 3)
-      .filter(function (r) { return r[0] === cls && r[2] === topic; })
-      .map(function (r) { return kind === 'control' ? [r[1], r[3]] : [r[1]]; });
-    openMetric({ title: t.name + ' · ' + subjName(x), subtitle: (kind === 'control' ? 'KONTROL EKSİK' : 'ÖDEV EKSİK') + ' · ' + cls + ' · ' + topic,
-      headers: kind === 'control' ? ['Öğrenci', 'Ödevden bu yana (gün)'] : ['Öğrenci'], rows: rows });
-    if (n > rows.length) $('detailSubtitle').textContent += ' · listede ' + rows.length + ' / ' + n + ' öğrenci (özet sınırı)';
+      .filter(function (r) { return r[2] === topic; })
+      .sort(function (a, b) { return String(a[0]).localeCompare(String(b[0]), 'tr') || String(a[1]).localeCompare(String(b[1]), 'tr'); })
+      .map(function (r) { return kind === 'control' ? [r[1], r[0], r[3]] : [r[1], r[0]]; });
+    openMetric({ title: topic, subtitle: t.name + ' · ' + subjName(x) + ' · ' + (kind === 'control' ? 'KONTROL EKSİK' : 'ÖDEV EKSİK') + ' · ' + n + ' öğrenci',
+      headers: kind === 'control' ? ['Öğrenci', 'Sınıf', 'Ödevden bu yana (gün)'] : ['Öğrenci', 'Sınıf'], rows: rows });
+    if (n > rows.length) $('detailSubtitle').textContent += ' · listede ' + rows.length + ' (özet sınırı)';
   }
   function toggleHwAcc() {
     var panel = $('hwAccPanel'), btn = $('btnHwAcc');
