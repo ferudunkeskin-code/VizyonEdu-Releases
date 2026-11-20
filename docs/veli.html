@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="tr" data-vz-app="VizyonEdu Veli">
 <head>
-<meta name="vz-build" content="8fa2cbee3c73">
+<meta name="vz-build" content="d206b060b0bf">
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
   <meta name="theme-color" content="#173d62">
@@ -218,6 +218,7 @@ body.land .ex-table-wrap{display:block}
 .ans.bad{background:#fdeaea;border-color:#f0a8a8;color:#991b1b}
 .ans.blank{background:#f1f2f4;border-color:#cfd3da;color:#555}
 .ans.void{background:#fff8e1;border-color:#e6d28a;color:#7a5b00}
+.mark.g{color:#b42318}.tk.g{color:#b42318;font-weight:900}
 </style>
 </head>
 <body>
@@ -766,7 +767,7 @@ body.land .ex-table-wrap{display:block}
     html += '<div class="done"><strong>%' + esc(g.percent) + ' tamamlandı</strong>' + (from ? '<em>' + esc(from) + '</em>' : '') + '</div>';
     if (g.tasks && g.tasks.length) {
       html += '<div class="tasks"><h4>Bu kazanım için yapılan ek çalışmalar</h4>' + g.tasks.map(function (t) {
-        return '<div class="task"><span class="st ' + (t.done ? 'ok' : 'wip') + '">' + (t.done ? 'Tamam' : '%' + esc(t.percent)) + '</span>' +
+        return '<div class="task"><span class="st ' + (t.done ? 'ok' : 'wip') + '">' + (t.done ? 'Tamam' : t.gy ? 'Görüşüldü yapmıyor' : '%' + esc(t.percent)) + '</span>' +
           '<div>' + esc(t.title) + '<small>' + esc([t.by, t.value].filter(Boolean).join(' · ')) + '</small></div></div>';
       }).join('') + '</div>';
     }
@@ -784,7 +785,7 @@ body.land .ex-table-wrap{display:block}
       if (def.length && !(d.student && d.student.guest)) {
         var rd = reportDate(d);
         html += '<p class="src">' + (k.src === 'live'
-          ? 'Ödev, Kontrol ve Rehberlik anlık · Aylar Sonra ' + (rd ? 'son rapordan (' + esc(rd) + ')' : 'henüz raporda yok')
+          ? 'Rehberlik ve Öğretmen anlık · Aylar Sonra ' + (rd ? 'son rapordan (' + esc(rd) + ')' : 'henüz raporda yok')
           : 'Bütün bileşenler son rapordan' + (rd ? ' (' + esc(rd) + ')' : '')) + '</p>';
       }
     } else {
@@ -801,12 +802,15 @@ body.land .ex-table-wrap{display:block}
   function mark(v) {
     v = String(v || '').trim();
     if (!v) return '<span class="mark n">—</span>';
+    // «%0 GY …»: öğrenciyle görüşüldü, ödevi yapmıyor (kırmızı)
+    if (/^%0\s+GY\b/i.test(v)) return '<span class="mark g" title="Öğrenciyle görüşüldü, yapmıyor (tarih ve parafı)"><b class="tk">!</b>' +
+      esc('Görüşüldü yapmıyor' + v.replace(/^%0\s+GY/i, '')) + '</span>';
     var part = /^%\s*\d+/.test(v) && !/^%\s*100\b/.test(v);
     return '<span class="mark ' + (part ? 'p' : 'y') + '" title="' + (part ? 'Kısmen yapıldı' : 'Yapıldı') +
       ' (tarih ve öğretmen parafı)"><b class="tk">✔</b>' + esc(v) + '</span>';
   }
   var MARK_NOTE = '<p class="muted sm marknote"><b class="tk y">✔</b> yapıldı / kontrol edildi (yanında tarih ve öğretmen parafı) · ' +
-    '<b class="tk p">✔</b> %… kısmen · <b class="tk n">—</b> henüz yok</p>';
+    '<b class="tk p">✔</b> %… kısmen · <b class="tk g">!</b> görüşüldü, yapmıyor · <b class="tk n">—</b> henüz yok</p>';
   function renderGeneral(d) {
     var card = $('generalCard');
     // Misafir öğrenci: güncel konu, ödev ve öğretmen çalışması bölümü yok.
@@ -820,7 +824,7 @@ body.land .ex-table-wrap{display:block}
         '<div style="text-align:right">' + esc(t.topic) + '<small>' + esc(t.date || '') + '</small></div></div>';
     }).join('') + '</div>' : '<p class="muted sm">Güncel konu girilmemiş.</p>';
     // Veli «Ödev / Kontrol»u anlamıyordu: kimin yaptığı başlıkta yazar (iki satır; konu sütunu daralmasın).
-    var HW_HEAD = '<span class="h">Öğrenci<br>Ödev</span><span class="h">Öğretmen<br>Kontrol</span>';
+    var HW_HEAD = '<span class="h">Rehberlik</span><span class="h">Öğretmen</span>';
     html += '<div class="sec">DERS DERS ÖĞRENCİ ÖDEV · ÖĞRETMEN KONTROL · EK GÖREV</div>';
     if ((g.homework || []).length) html += MARK_NOTE;
     html += (g.homework || []).length ? g.homework.map(function (c, i) {
@@ -842,9 +846,9 @@ body.land .ex-table-wrap{display:block}
           return '<span>' + esc(String(t.title || '').replace(/^Rehberlik ek çalışma · /, '')) + '</span>' + mark(t.h) + mark(t.ok);
         }).join('') + '</div>';
       }
-      var sum = c.topic_count + ' konu · ' + c.homework_count + ' ödev' + ((c.tasks || []).length ? ' · ' + c.tasks.length + ' ek görev' : '');
+      var sum = c.topic_count + ' konu · ' + c.homework_count + ' rehberlik işareti' + ((c.tasks || []).length ? ' · ' + c.tasks.length + ' ek görev' : '');
       return '<details class="acc"' + (i === 0 ? ' open' : '') + '><summary>' + esc(c.label) + ' <span class="muted sm">' + esc(sum) + '</span></summary><div class="body">' + b + '</div></details>';
-    }).join('') : '<p class="muted sm">Henüz ödev veya kontrol işareti yok.</p>';
+    }).join('') : '<p class="muted sm">Henüz Rehberlik veya Öğretmen işareti yok.</p>';
     html += '<div class="sec">ÖĞRETMEN–ÖĞRENCİ ÇALIŞMASI</div>';
     var acts = g.activities || [], shown = ui.actMore ? acts : acts.slice(0, 8);
     html += acts.length ? '<div class="list">' + shown.map(function (a) {
