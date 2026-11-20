@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="tr" data-vz-app="VizyonEdu Veli">
 <head>
-<meta name="vz-build" content="d206b060b0bf">
+<meta name="vz-build" content="2ebe27e5e3af">
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
   <meta name="theme-color" content="#173d62">
@@ -219,6 +219,11 @@ body.land .ex-table-wrap{display:block}
 .ans.blank{background:#f1f2f4;border-color:#cfd3da;color:#555}
 .ans.void{background:#fff8e1;border-color:#e6d28a;color:#7a5b00}
 .mark.g{color:#b42318}.tk.g{color:#b42318;font-weight:900}
+/* Soruya dokununca kazanımı */
+.ans.has-g{cursor:pointer}
+.ans.sel{outline:2px solid #1d4ed8;outline-offset:1px}
+.ans-gain{margin:6px 0 2px;padding:6px 8px;border-radius:6px;background:#eff6ff;border:1px solid #bfdbfe;color:#1e3a8a;font-size:.85rem;line-height:1.35}
+.ans-gain[hidden]{display:none}
 </style>
 </head>
 <body>
@@ -647,13 +652,38 @@ body.land .ex-table-wrap{display:block}
     function p(n) { return (n < 10 ? '0' : '') + n; }
     return p(d.getDate()) + '.' + p(d.getMonth() + 1) + '.' + d.getFullYear();
   }
-  function answerBox(no, res, key, ans) {
+  // Soruya dokununca kazanımı: sheet.gl (tekrarsız metinler) + sheet.gi (soru başına sıra, -1 yok).
+  function sheetGain(s, i) {
+    var gi = s && s.gi, gl = s && s.gl;
+    if (!Array.isArray(gi) || !Array.isArray(gl)) return '';
+    var k = Number(gi[i]);
+    return k >= 0 && k < gl.length ? String(gl[k] || '') : '';
+  }
+  function answerBox(no, res, key, ans, gain) {
     var cls = res === 'D' ? 'ok' : res === 'Y' ? 'bad' : res === 'B' ? 'blank' : 'void';
     var mine = res === 'B' ? '–' : (ans && ans !== '-' ? ans : (res === 'D' ? key : res === 'Y' ? '✗' : '–'));
     if (res === 'İ') mine = 'İ';
     var right = (res === 'Y' || res === 'B') && key && key !== '?' ? '<em>' + esc(key) + '</em>' : '';
     var tip = res === 'D' ? 'doğru' : res === 'Y' ? 'yanlış' : res === 'B' ? 'boş' : res === 'İ' ? 'iptal' : '';
-    return '<span class="ans ' + cls + '" title="' + no + '. soru: ' + tip + '"><small>' + no + '</small><b>' + esc(mine) + '</b>' + right + '</span>';
+    var g = gain ? ' data-gt="' + esc(gain) + '" data-no="' + no + '" role="button" tabindex="0"' : '';
+    return '<span class="ans ' + cls + (gain ? ' has-g' : '') + '" title="' + no + '. soru: ' + tip + '"' + g + '><small>' + no + '</small><b>' + esc(mine) + '</b>' + right + '</span>';
+  }
+  /** Cevap kutusuna dokununca altında o sorunun kazanımı yazar; aynı kutuya yeniden dokununca kapanır. */
+  function bindAnswerGains(root) {
+    Array.prototype.forEach.call(root.querySelectorAll('.ans[data-gt]'), function (b) {
+      function show() {
+        var sub = b.closest('.ans-sub'), line = sub && sub.querySelector('.ans-gain');
+        if (!line) return;
+        var was = b.classList.contains('sel');
+        Array.prototype.forEach.call(sub.querySelectorAll('.ans.sel'), function (x) { x.classList.remove('sel'); });
+        if (was) { line.hidden = true; return; }
+        b.classList.add('sel');
+        line.textContent = b.getAttribute('data-no') + '. soru: ' + b.getAttribute('data-gt');
+        line.hidden = false;
+      }
+      b.addEventListener('click', show);
+      b.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); show(); } });
+    });
   }
   function answersHtml(ex, id) {
     var list = ex.answers || [];
@@ -669,10 +699,13 @@ body.land .ex-table-wrap{display:block}
       '<span class="ans blank"><b>–</b><em>C</em></span> boş</p>';
     list.forEach(function (s) {
       var res = String(s.res || ''), key = String(s.key || ''), ans = String(s.ans || ''), boxes = '';
-      for (var i = 0; i < res.length; i++) boxes += answerBox(i + 1, res.charAt(i), key.charAt(i), ans.charAt(i));
-      html += '<div class="ans-sub"><div class="ans-h">' + esc(s.name) + '</div><div class="ans-grid">' + boxes + '</div></div>';
+      for (var i = 0; i < res.length; i++) boxes += answerBox(i + 1, res.charAt(i), key.charAt(i), ans.charAt(i), sheetGain(s, i));
+      html += '<div class="ans-sub"><div class="ans-h">' + esc(s.name) + '</div><div class="ans-grid">' + boxes + '</div>' +
+        (Array.isArray(s.gl) && s.gl.length ? '<p class="ans-gain" hidden></p>' : '') + '</div>';
     });
-    return html + '<p class="muted sm">Numaralar kendi kitapçığınızdaki soru numaralarıdır.</p></div>';
+    var anyGain = list.some(function (s) { return Array.isArray(s.gl) && s.gl.length; });
+    return html + '<p class="muted sm">Numaralar kendi kitapçığınızdaki soru numaralarıdır.' +
+      (anyGain ? ' Sorunun kazanımını görmek için cevabına dokunun.' : '') + '</p></div>';
   }
   // Eksik kazanımları göster / gizle: varsayılan açık; tercih bu cihazda hatırlanır.
   var GAPS_KEY = 'vizyon_veli_eksik_kazanim_gizli';
@@ -721,6 +754,7 @@ body.land .ex-table-wrap{display:block}
         rerender();
       });
     });
+    bindAnswerGains(card);
   }
 
   function renderExams(d) {
