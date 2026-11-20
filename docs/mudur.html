@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="tr" data-vz-app="VizyonEdu Müdür">
 <head>
-<meta name="vz-build" content="ff659adbe6ac">
+<meta name="vz-build" content="e50483502ce9">
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#173f67">
@@ -178,6 +178,15 @@ th{background:#edf4fa;color:#486581;font-weight:750;white-space:nowrap}
 .hw-tbl td[data-hwrow]:active{background:#e6f0f8}
 .hw-tbl td.z{color:#b8c3cf;font-weight:600}
 .hw-tbl tr.sum td{font-weight:800;border-top:2px solid #d5e0ea;background:#f7fafc}
+#stuCtlSearch{margin:0 0 10px}
+.hw-tbl tr.cur td{background:#eef6ff;font-weight:800}
+.hw-tbl td.v{text-align:center;white-space:nowrap;font-size:.72rem;color:#14532d;font-weight:700}
+.hw-tbl td.v.p{color:#9a5b00}
+.hw-tbl td.v.g{color:#b42318}
+.hw-tbl td.v.z{color:#b8c3cf;font-weight:600}
+.hw-tbl tr.task td{font-style:italic;background:#fbfaf6}
+.stu-sum{font-size:.72rem;color:var(--muted);font-weight:700}
+
 </style>
 </head>
 <body>
@@ -251,6 +260,14 @@ th{background:#edf4fa;color:#486581;font-weight:750;white-space:nowrap}
               <option value="full">%100 olanlar</option>
             </select></label>
           <div id="hwAccBody"></div>
+        </div>
+        <!-- 2) Öğrenci Kontrol: öğrencinin dersleri, ana kazanımlar ve Rehberlik / Öğretmen hücreleri -->
+        <button type="button" class="group-toggle" id="btnStuCtl" aria-expanded="false">Öğrenci Kontrol <span class="gt-arrow">▾</span></button>
+        <div class="hw-panel" id="stuCtlPanel" hidden>
+          <label class="grace-pick">Sınıf
+            <select id="stuCtlClass" aria-label="Sınıf"><option value="">— sınıf seçin —</option></select></label>
+          <input id="stuCtlSearch" type="search" placeholder="ya da öğrenci adı / numarası…" aria-label="Öğrenci ara">
+          <div id="stuCtlBody"></div>
         </div>
         <div id="accTiles" class="acc-tiles"></div>
       </section>
@@ -583,6 +600,7 @@ th{background:#edf4fa;color:#486581;font-weight:750;white-space:nowrap}
 
   function render(data) {
     $('updatedAt').textContent = formatDate(data.generated_at);
+    try { if ($('stuCtlPanel') && !$('stuCtlPanel').hidden) renderStuCtl(); } catch (ignoreStu) {}
     if (data.counts) {
       $('countStudents').textContent = data.counts.students;
       $('countClasses').textContent = data.counts.classes;
@@ -1059,6 +1077,98 @@ th{background:#edf4fa;color:#486581;font-weight:750;white-space:nowrap}
     openMetric({ title: top[0], subtitle: t.name + ' · ' + subjName(x) + ' · ' + (kind === 'h' ? 'REHBERLİK' : 'ÖĞRETMEN') + ' · ' +
       LV_NAMES[level].toLocaleUpperCase('tr') + ' · ' + rows.length + ' öğrenci', headers: ['Öğrenci', 'Sınıf', 'İşaret'], rows: rows });
   }
+  // ── Öğrenci Kontrol: masaüstü «Öğrenci Bazlı Rehberlik Takip» gibi; sınıf seç → öğrenci → ders ders tablo ──
+  var stuCtlOpen = {}, stuCtlData = {}, stuCtlBusy = {};
+  function stuCtlStudents() {
+    return ((snapshot && snapshot.students) || []).slice().sort(function (a, b) {
+      return String(a.class_code || '').localeCompare(String(b.class_code || ''), 'tr', { numeric: true }) ||
+        String(a.student_name || '').localeCompare(String(b.student_name || ''), 'tr');
+    });
+  }
+  function stuCtlFillClasses() {
+    var sel = $('stuCtlClass'); if (!sel) return;
+    var have = {}, cur = sel.value;
+    stuCtlStudents().forEach(function (st) { if (st.class_code) have[st.class_code] = true; });
+    var list = Object.keys(have).sort(function (a, b) { return a.localeCompare(b, 'tr', { numeric: true }); });
+    sel.innerHTML = '<option value="">— sınıf seçin —</option>' + list.map(function (c) {
+      return '<option value="' + escapeHtml(c) + '">' + escapeHtml(c) + '</option>'; }).join('');
+    if (cur && have[cur]) sel.value = cur;
+  }
+  /** Hücre yazısı: «%0 GY …» Görüşüldü yapmıyor (kırmızı), «%30 …» kısmi (turuncu), boş «—». */
+  function stuCtlCell(v) {
+    v = String(v || '').trim();
+    if (!v) return '<td class="v z">—</td>';
+    if (/^%0\s+GY\b/i.test(v)) return '<td class="v g" title="Görüşüldü, yapmıyor">GY' + escapeHtml(v.replace(/^%0\s+GY/i, '')) + '</td>';
+    var part = /^%\s*\d+/.test(v) && !/^%\s*100\b/.test(v);
+    return '<td class="v' + (part ? ' p' : '') + '">' + escapeHtml(v) + '</td>';
+  }
+  function stuCtlHtml(d) {
+    if (!d) return '<p class="hint">Yükleniyor…</p>';
+    if (d.error) return '<p class="hint warn">' + escapeHtml(d.error) + '</p>';
+    if (!(d.subjects || []).length) return '<p class="hint">' + escapeHtml(d.message || 'Ders bulunamadı.') + '</p>';
+    var w = d.weights || {};
+    return '<p class="hint" style="margin:2px 0 6px">Aldığı dersler: ' + escapeHtml(d.subjects.map(function (x) { return x.label; }).join(', ')) + '</p>' +
+      d.subjects.map(function (x) {
+        var n = x.rows.length;
+        var head = '<h4>' + escapeHtml(x.label) + ' <small>' + escapeHtml(x.current_pos ? 'güncel konu ' + x.current_pos + '. (' + x.current + ')' : 'güncel konu girilmemiş') +
+          '</small></h4><div class="stu-sum">Rehberlik ' + x.h_done + ' / ' + n + ' · Öğretmen ' + x.ok_done + ' / ' + n + '</div>';
+        var body = x.rows.map(function (r) {
+          return '<tr' + (r.current ? ' class="cur"' : '') + '><td>' + escapeHtml(r.topic) + (r.current ? ' ◀' : '') + '</td>' + stuCtlCell(r.h) + stuCtlCell(r.ok) + '</tr>';
+        }).join('') + (x.tasks || []).map(function (t) {
+          return '<tr class="task"><td>Ek görev: ' + escapeHtml(t.title) + (t.by ? ' <small>(' + escapeHtml(t.by) + ')</small>' : '') + '</td>' + stuCtlCell(t.h) + stuCtlCell(t.ok) + '</tr>';
+        }).join('');
+        return '<div class="subj">' + head + '<table class="hw-tbl"><thead><tr><th>Ana Kazanım</th><th style="text-align:center">Reh. %' +
+          escapeHtml(w.reh == null ? 40 : w.reh) + '</th><th style="text-align:center">Öğrt. %' + escapeHtml(w.ogrt == null ? 40 : w.ogrt) +
+          '</th></tr></thead><tbody>' + (body || '<tr><td colspan="3" class="hint">Ana kazanım listesi yok.</td></tr>') + '</tbody></table></div>';
+      }).join('');
+  }
+  function renderStuCtl() {
+    var panel = $('stuCtlPanel');
+    if (!panel || panel.hidden) return;
+    stuCtlFillClasses();
+    var cls = $('stuCtlClass').value, q = String($('stuCtlSearch').value || '').trim().toLocaleLowerCase('tr');
+    var all = stuCtlStudents();
+    if (!all.length) { $('stuCtlBody').innerHTML = '<p class="hint">Öğrenci listesi yükleniyor…</p>'; return; }
+    var list = all.filter(function (st) {
+      if (q) return String(st.student_name || '').toLocaleLowerCase('tr').indexOf(q) >= 0 || String(st.student_no || '').indexOf(q) >= 0;
+      return cls && st.class_code === cls;
+    });
+    if (!cls && !q) { $('stuCtlBody').innerHTML = '<p class="hint">Bir sınıf seçin ya da öğrenci arayın.</p>'; return; }
+    $('stuCtlBody').innerHTML = list.length ? list.slice(0, 80).map(function (st) {
+      var no = String(st.student_no), open = !!stuCtlOpen[no];
+      return '<div class="person"><button type="button" data-stu="' + escapeHtml(no) + '"><span><b>' + escapeHtml(st.student_name || no) +
+        '</b><small>' + escapeHtml((st.class_code || '') + ' · No ' + no) + '</small></span><span class="gt-arrow">' + (open ? '▴' : '▾') + '</span></button>' +
+        (open ? '<div class="pbody">' + stuCtlHtml(stuCtlData[no]) + '</div>' : '') + '</div>';
+    }).join('') : '<p class="hint">Öğrenci bulunamadı.</p>';
+    Array.prototype.forEach.call($('stuCtlBody').querySelectorAll('[data-stu]'), function (b) {
+      b.onclick = function () {
+        var no = b.getAttribute('data-stu');
+        stuCtlOpen[no] = !stuCtlOpen[no];
+        renderStuCtl();
+        if (stuCtlOpen[no] && !stuCtlData[no]) loadStuCtl(no);
+      };
+    });
+  }
+  async function loadStuCtl(no) {
+    if (stuCtlBusy[no]) return;
+    stuCtlBusy[no] = true;
+    try {
+      stuCtlData[no] = await api({ action: 'manager_student_control', user_id: activeManager.user_id, student_no: no });
+    } catch (e) {
+      if (isAuthError(e)) { sessionLost(); return; }
+      stuCtlData[no] = { error: 'Alınamadı: ' + (e.message || e) };
+    } finally { stuCtlBusy[no] = false; }
+    renderStuCtl();
+  }
+  function toggleStuCtl() {
+    var panel = $('stuCtlPanel'), btn = $('btnStuCtl');
+    if (!panel || !btn) return;
+    panel.hidden = !panel.hidden;
+    btn.setAttribute('aria-expanded', panel.hidden ? 'false' : 'true');
+    var arrow = btn.querySelector('.gt-arrow'); if (arrow) arrow.textContent = panel.hidden ? '▾' : '▴';
+    renderStuCtl();
+  }
+
   function toggleHwAcc() {
     var panel = $('hwAccPanel'), btn = $('btnHwAcc');
     if (!panel || !btn) return;
@@ -1211,6 +1321,9 @@ th{background:#edf4fa;color:#486581;font-weight:750;white-space:nowrap}
   $('btnRefresh').onclick = function () { run(this, function () { return openDashboard({ manual: true }); }); };
   $('btnStudents').onclick = function () { $('studentModal').hidden = false; renderStudents(); };
   if ($('btnHwAcc')) $('btnHwAcc').onclick = toggleHwAcc;
+  if ($('btnStuCtl')) $('btnStuCtl').onclick = toggleStuCtl;
+  if ($('stuCtlClass')) $('stuCtlClass').onchange = function () { $('stuCtlSearch').value = ''; renderStuCtl(); };
+  if ($('stuCtlSearch')) $('stuCtlSearch').oninput = renderStuCtl;
   if ($('mzLevel')) $('mzLevel').onchange = function () {
     try { localStorage.setItem(MZ_LEVEL_KEY, this.value); } catch (e) {}
     renderHwAcc();
