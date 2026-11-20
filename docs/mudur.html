@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="tr" data-vz-app="VizyonEdu Müdür">
 <head>
-<meta name="vz-build" content="ce496002c48a">
+<meta name="vz-build" content="f8186f5ec5ae">
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#173f67">
@@ -261,6 +261,7 @@ th{background:#edf4fa;color:#486581;font-weight:750;white-space:nowrap}
           <label class="grace-pick">Sınıf
             <select id="stuCtlClass" aria-label="Sınıf"><option value="">— sınıf seçin —</option></select></label>
           <input id="stuCtlSearch" type="search" placeholder="ya da öğrenci adı / numarası…" aria-label="Öğrenci ara">
+          <p class="hint" id="stuCtlProg" aria-live="polite"></p>
           <div id="stuCtlBody"></div>
         </div>
         <!-- 3) Öğretmen–Öğrenci Çalışma: öğretmenlerin girdiği çalışmalar (son 60 güne kadar) -->
@@ -961,16 +962,76 @@ th{background:#edf4fa;color:#486581;font-weight:750;white-space:nowrap}
       };
     });
   }
+  // Cihazda saklama: aynı öğrenci 20 dk içinde yeniden açılırsa beklemeden gelir.
+  var STU_CTL_TTL = 20 * 60000;
+  function stuCtlKey(no) { return 'msc|' + (activeManager && activeManager.user_id) + '|' + no; }
+  function stuCtlFresh(no) { var d = stuCtlData[no]; return !!(d && !d.error && Date.now() - Number(d._at || 0) < STU_CTL_TTL); }
+  function stuCtlStore(no, data) {
+    if (!data) return;
+    data._at = data._at || Date.now();
+    stuCtlData[no] = data;
+    if (!data.error) kvSet(stuCtlKey(no), data);
+  }
   async function loadStuCtl(no) {
     if (stuCtlBusy[no]) return;
     stuCtlBusy[no] = true;
     try {
-      stuCtlData[no] = await api({ action: 'manager_student_control', user_id: activeManager.user_id, student_no: no });
+      var saved = await kvGet(stuCtlKey(no));
+      if (saved && Date.now() - Number(saved._at || 0) < STU_CTL_TTL) { stuCtlData[no] = saved; renderStuCtl(); return; }
+      stuCtlStore(no, await api({ action: 'manager_student_control', user_id: activeManager.user_id, student_no: no }));
     } catch (e) {
       if (isAuthError(e)) { sessionLost(); return; }
       stuCtlData[no] = { error: 'Alınamadı: ' + (e.message || e) };
     } finally { stuCtlBusy[no] = false; }
     renderStuCtl();
+  }
+  /**
+   * Sınıf seçilince o sınıfın bütün öğrencileri arka planda (6'şar, aynı anda 2 istek) yüklenir; müdür bir öğrenciye
+   * bakarken diğerleri hazırlanır. Sınıf değişirse eski sıra bırakılır, yeni sınıf başlar.
+   */
+  var stuCtlGen = 0;
+  async function prefetchClass(cls) {
+    var gen = ++stuCtlGen;
+    if (!cls || !activeManager) { stuCtlProgress('', 0, 0); return; }
+    var nos = stuCtlStudents().filter(function (st) { return st.class_code === cls; }).map(function (st) { return String(st.student_no); });
+    var total = nos.length, done = 0, queue = [];
+    for (var i = 0; i < nos.length; i++) {
+      if (gen !== stuCtlGen) return;
+      if (stuCtlFresh(nos[i])) { done++; continue; }
+      var saved = await kvGet(stuCtlKey(nos[i]));
+      if (saved && Date.now() - Number(saved._at || 0) < STU_CTL_TTL) { stuCtlData[nos[i]] = saved; done++; continue; }
+      queue.push(nos[i]);
+    }
+    if (gen !== stuCtlGen) return;
+    stuCtlProgress(cls, done, total);
+    async function worker() {
+      while (queue.length && gen === stuCtlGen) {
+        var chunk = queue.splice(0, 6).filter(function (n) { return !stuCtlFresh(n) && !stuCtlBusy[n]; });
+        if (!chunk.length) continue;
+        chunk.forEach(function (n) { stuCtlBusy[n] = true; });
+        var res = null;
+        try {
+          res = await api({ action: 'manager_student_control', user_id: activeManager.user_id, student_nos: chunk });
+        } catch (e) {
+          if (isAuthError(e)) { sessionLost(); return; }
+        } finally { chunk.forEach(function (n) { stuCtlBusy[n] = false; }); }
+        var reopen = false;
+        chunk.forEach(function (n) {
+          var item = res && res.items && res.items[n];
+          if (item && item.ok !== false) { stuCtlStore(n, item); if (stuCtlOpen[n]) reopen = true; }
+          done++;
+        });
+        if (gen !== stuCtlGen) return;
+        stuCtlProgress(cls, done, total);
+        if (reopen) renderStuCtl();
+      }
+    }
+    await Promise.all([worker(), worker()]);
+  }
+  function stuCtlProgress(cls, done, total) {
+    var el = $('stuCtlProg'); if (!el) return;
+    el.textContent = !cls || !total ? '' : done >= total ? cls + ': ' + total + ' öğrencinin tablosu hazır.' :
+      cls + ': arka planda hazırlanıyor… ' + done + ' / ' + total;
   }
   function toggleStuCtl() {
     var panel = $('stuCtlPanel'), btn = $('btnStuCtl');
@@ -979,6 +1040,7 @@ th{background:#edf4fa;color:#486581;font-weight:750;white-space:nowrap}
     btn.setAttribute('aria-expanded', panel.hidden ? 'false' : 'true');
     var arrow = btn.querySelector('.gt-arrow'); if (arrow) arrow.textContent = panel.hidden ? '▾' : '▴';
     renderStuCtl();
+    if (!panel.hidden && $('stuCtlClass').value) prefetchClass($('stuCtlClass').value);
   }
 
   function toggleHwAcc() {
@@ -1126,7 +1188,10 @@ th{background:#edf4fa;color:#486581;font-weight:750;white-space:nowrap}
   };
   if ($('btnHwAcc')) $('btnHwAcc').onclick = toggleHwAcc;
   if ($('btnStuCtl')) $('btnStuCtl').onclick = toggleStuCtl;
-  if ($('stuCtlClass')) $('stuCtlClass').onchange = function () { $('stuCtlSearch').value = ''; renderStuCtl(); };
+  if ($('stuCtlClass')) $('stuCtlClass').onchange = function () {
+    $('stuCtlSearch').value = ''; renderStuCtl();
+    prefetchClass(this.value).catch(function () {});
+  };
   if ($('stuCtlSearch')) $('stuCtlSearch').oninput = renderStuCtl;
   if ($('mzLevel')) $('mzLevel').onchange = function () {
     try { localStorage.setItem(MZ_LEVEL_KEY, this.value); } catch (e) {}
