@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="tr" data-vz-app="VizyonEdu Müdür">
 <head>
-<meta name="vz-build" content="e50483502ce9">
+<meta name="vz-build" content="2d45dcab1d30">
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#173f67">
@@ -1023,7 +1023,7 @@ th{background:#edf4fa;color:#486581;font-weight:750;white-space:nowrap}
     }
     return '<div class="subj">' + head + '<table class="hw-tbl"><thead><tr><th>Kazanım</th><th style="text-align:right">Rehberlik</th>' +
       '<th style="text-align:right">Öğretmen</th></tr></thead><tbody>' + c.rows.map(function (r) {
-        return '<tr><td>' + escapeHtml(r.name) + '</td>' + cell('h', r.h, r) + cell('ok', r.ok, r) + '</tr>';
+        return '<tr><td>' + escapeHtml((r.i + 1) + '. ' + r.name) + '</td>' + cell('h', r.h, r) + cell('ok', r.ok, r) + '</tr>';
       }).join('') + '<tr class="sum"><td>Toplam</td><td class="n">' + c.h + '</td><td class="n">' + c.ok + '</td></tr></tbody></table></div>';
   }
   function renderHwAcc() {
@@ -1074,7 +1074,7 @@ th{background:#edf4fa;color:#486581;font-weight:750;white-space:nowrap}
       if (lvMatch(c, level)) rows.push([st[1], st[0], LV_TEXT[c] || c]);
     });
     rows.sort(function (a, b) { return String(a[1]).localeCompare(String(b[1]), 'tr', { numeric: true }) || String(a[0]).localeCompare(String(b[0]), 'tr'); });
-    openMetric({ title: top[0], subtitle: t.name + ' · ' + subjName(x) + ' · ' + (kind === 'h' ? 'REHBERLİK' : 'ÖĞRETMEN') + ' · ' +
+    openMetric({ title: (top[1] + 1) + '. ' + top[0], subtitle: t.name + ' · ' + subjName(x) + ' · ' + (kind === 'h' ? 'REHBERLİK' : 'ÖĞRETMEN') + ' · ' +
       LV_NAMES[level].toLocaleUpperCase('tr') + ' · ' + rows.length + ' öğrenci', headers: ['Öğrenci', 'Sınıf', 'İşaret'], rows: rows });
   }
   // ── Öğrenci Kontrol: masaüstü «Öğrenci Bazlı Rehberlik Takip» gibi; sınıf seç → öğrenci → ders ders tablo ──
@@ -1113,7 +1113,7 @@ th{background:#edf4fa;color:#486581;font-weight:750;white-space:nowrap}
         var head = '<h4>' + escapeHtml(x.label) + ' <small>' + escapeHtml(x.current_pos ? 'güncel konu ' + x.current_pos + '. (' + x.current + ')' : 'güncel konu girilmemiş') +
           '</small></h4><div class="stu-sum">Rehberlik ' + x.h_done + ' / ' + n + ' · Öğretmen ' + x.ok_done + ' / ' + n + '</div>';
         var body = x.rows.map(function (r) {
-          return '<tr' + (r.current ? ' class="cur"' : '') + '><td>' + escapeHtml(r.topic) + (r.current ? ' ◀' : '') + '</td>' + stuCtlCell(r.h) + stuCtlCell(r.ok) + '</tr>';
+          return '<tr' + (r.current ? ' class="cur"' : '') + '><td>' + escapeHtml((r.no ? r.no + '. ' : '') + r.topic) + (r.current ? ' ◀' : '') + '</td>' + stuCtlCell(r.h) + stuCtlCell(r.ok) + '</tr>';
         }).join('') + (x.tasks || []).map(function (t) {
           return '<tr class="task"><td>Ek görev: ' + escapeHtml(t.title) + (t.by ? ' <small>(' + escapeHtml(t.by) + ')</small>' : '') + '</td>' + stuCtlCell(t.h) + stuCtlCell(t.ok) + '</tr>';
         }).join('');
