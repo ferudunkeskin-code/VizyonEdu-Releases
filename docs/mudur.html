@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="tr" data-vz-app="VizyonEdu Müdür">
 <head>
-<meta name="vz-build" content="2d45dcab1d30">
+<meta name="vz-build" content="ce496002c48a">
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#173f67">
@@ -145,6 +145,7 @@ th{background:#edf4fa;color:#486581;font-weight:750;white-space:nowrap}
 .att-card small{display:block;color:var(--muted);font-size:.72rem}
 .att-type{display:inline-block;font-size:.68rem;font-weight:800;border-radius:6px;padding:1px 6px;margin-right:4px;background:var(--amber-bg);color:var(--amber)}
 .att-type.absent_day{background:var(--red-bg);color:var(--red)}
+.att-type.absent_first{background:#fde8e1;color:#a63d1a}
 .att-card .row-actions a,.att-card .row-actions button{display:inline-flex;align-items:center;width:auto;min-height:32px;padding:6px 10px;font-size:.76rem;margin:0;border-radius:8px;text-decoration:none}
 .wa{background:#1f9d55;color:#fff;border:0;font-weight:700}
 .wa-done{background:var(--green-bg);color:var(--green);border:1px solid #bfe3cc;font-weight:700}
@@ -231,16 +232,9 @@ th{background:#edf4fa;color:#486581;font-weight:750;white-space:nowrap}
 
       <p class="hint bg-sync" id="bgSync" hidden aria-live="polite"></p>
 
-      <section class="metric-grid" aria-label="Kurum özeti">
-        <article class="metric blue"><span>Öğrenci</span><strong id="countStudents">—</strong></article>
-        <article class="metric green"><span>Sınıf</span><strong id="countClasses">—</strong></article>
-        <article class="metric orange"><span>Öğretmen</span><strong id="countTeachers">—</strong></article>
-        <article class="metric purple"><span>Ders</span><strong id="countSubjects">—</strong></article>
-      </section>
-
       <!-- Sorumluluk Takibi: hazır özet (MudurOzet.js) -->
       <section class="panel" id="accPanel">
-        <div class="panel-title"><div><small>SORUMLULUK TAKİBİ</small><h2>Aksayan İşler</h2></div></div>
+        <div class="panel-title"><div><small>MÜDÜR TAKİBİ</small><h2>Takip</h2></div></div>
         <p class="hint" id="accLine">Yükleniyor…</p>
         <!-- Her aksayan iş ayrı düğme. 1) Ödev Kontrol: öğretmen başına eksik Ödev / Kontrol sayısı -->
         <button type="button" class="group-toggle" id="btnHwAcc" aria-expanded="false">Ödev Kontrol <span class="gt-arrow">▾</span></button>
@@ -269,67 +263,45 @@ th{background:#edf4fa;color:#486581;font-weight:750;white-space:nowrap}
           <input id="stuCtlSearch" type="search" placeholder="ya da öğrenci adı / numarası…" aria-label="Öğrenci ara">
           <div id="stuCtlBody"></div>
         </div>
-        <div id="accTiles" class="acc-tiles"></div>
+        <!-- 3) Öğretmen–Öğrenci Çalışma: öğretmenlerin girdiği çalışmalar (son 60 güne kadar) -->
+        <button type="button" class="group-toggle" id="btnTrack" aria-expanded="false">Öğretmen–Öğrenci Çalışma <span class="gt-arrow">▾</span></button>
+        <div class="hw-panel" id="trackPanel" hidden>
+          <label class="grace-pick">Dönem
+            <select id="trackDays" aria-label="Dönem">
+              <option value="7">Son 7 gün</option><option value="14" selected>Son 14 gün</option>
+              <option value="30">Son 30 gün</option><option value="60">Son 60 gün</option>
+            </select></label>
+          <div id="trackBody"></div>
+        </div>
+        <!-- 4) Devamsızlık: günün gelmeyen / zamanında gelmeyen listesi, veliye WhatsApp -->
+        <button type="button" class="group-toggle" id="btnAtt" aria-expanded="false">Devamsızlık <span class="gt-arrow">▾</span></button>
+        <div class="hw-panel" id="attPanel" hidden>
+          <p class="hint" id="attLine"></p>
+          <div class="att-bar">
+            <input id="attDate" type="date">
+            <button type="button" id="attReload" class="secondary">Yenile</button>
+            <button type="button" id="attEnterBtn">+ Zamanında Gelmeyen Gir</button>
+          </div>
+          <div id="attEnter" class="att-enter" hidden>
+            <label>Sınıf <select id="attClass"><option value="">— sınıf seçin —</option></select></label>
+            <p class="hint" id="attClassLine"></p>
+            <div id="attStudents" class="att-students"></div>
+            <div class="row-actions"><button type="button" id="attSave">Kaydet</button><button type="button" id="attCancel" class="secondary">Vazgeç</button></div>
+          </div>
+          <div id="attBody"></div>
+        </div>
       </section>
-
-      <section class="panel">
-        <div class="panel-title"><div><small>ÖĞRETMENLER</small><h2>Öğretmen Bazında</h2></div></div>
-        <div id="accBody"></div>
-      </section>
-
-      <button type="button" id="btnAttendance" class="report-btn"><span>📋</span><b>Devamsızlık / Derse Zamanında Gelmeyenler</b><small>Günün listesi · veliye WhatsApp bildirimi · öğretmen yerine kayıt girişi</small></button>
-      <button type="button" id="btnStudents" class="report-btn"><span>👤</span><b>Öğrenci Ara</b><small>Öğrencinin kayıtlarını görüntüle</small></button>
 
       <p class="safe-note" id="systemStatus">Bu portal yalnız «derse zamanında gelmedi» kaydı ve «veliye bildirildi» işareti yazar; başka kayıt eklemez, değiştirmez veya silmez.</p>
       <button id="btnLogout" type="button" class="logout secondary">Oturumu Kapat</button>
     </div>
   </main>
 
-  <div class="modal" id="sheetModal" hidden>
-    <div class="modal-sheet">
-      <div class="modal-head"><div><small id="sheetSubtitle">AKSAYAN İŞ</small><h2 id="sheetTitle">—</h2><p id="sheetLine"></p></div><button type="button" class="close" data-close="sheetModal">×</button></div>
-      <div id="sheetBody"></div>
-    </div>
-  </div>
-
   <div class="modal" id="detailModal" hidden>
     <div class="modal-sheet">
       <div class="modal-head"><div><small id="detailSubtitle">AYRINTI</small><h2 id="detailTitle">—</h2></div><button type="button" class="close" data-close="detailModal">×</button></div>
       <div class="table-wrap"><table><thead id="detailHead"></thead><tbody id="detailBody"></tbody></table></div>
       <p class="empty" id="detailEmpty" hidden>Kayıt bulunamadı.</p>
-    </div>
-  </div>
-
-  <div class="modal" id="attModal" hidden>
-    <div class="modal-sheet">
-      <div class="modal-head"><div><small>DEVAMSIZLIK</small><h2 id="attTitle">Zamanında Gelmeyenler ve Gelmeyenler</h2><p id="attLine"></p></div><button type="button" class="close" data-close="attModal">×</button></div>
-      <div class="att-bar">
-        <input id="attDate" type="date">
-        <button type="button" id="attReload" class="secondary">Yenile</button>
-        <button type="button" id="attEnterBtn">+ Zamanında Gelmeyen Gir</button>
-      </div>
-      <div id="attEnter" class="att-enter" hidden>
-        <label>Sınıf <select id="attClass"><option value="">— sınıf seçin —</option></select></label>
-        <p class="hint" id="attClassLine"></p>
-        <div id="attStudents" class="att-students"></div>
-        <div class="row-actions"><button type="button" id="attSave">Kaydet</button><button type="button" id="attCancel" class="secondary">Vazgeç</button></div>
-      </div>
-      <div id="attBody"></div>
-    </div>
-  </div>
-
-  <div class="modal" id="studentModal" hidden>
-    <div class="modal-sheet">
-      <div class="modal-head"><div><small>RAPOR</small><h2>Öğrenci Genel Durumu</h2></div><button type="button" class="close" data-close="studentModal">×</button></div>
-      <input id="studentSearch" type="search" placeholder="Öğrenci adı, numarası veya sınıfı…">
-      <div id="studentList" class="student-list"></div>
-    </div>
-  </div>
-
-  <div class="modal" id="studentDetailModal" hidden>
-    <div class="modal-sheet">
-      <div class="modal-head"><div><small>ÖĞRENCİ</small><h2 id="studentDetailTitle">—</h2><p id="studentDetailLine">—</p></div><button type="button" class="close" data-close="studentDetailModal">×</button></div>
-      <div id="studentDetailRows" class="timeline"></div>
     </div>
   </div>
 
@@ -601,12 +573,6 @@ th{background:#edf4fa;color:#486581;font-weight:750;white-space:nowrap}
   function render(data) {
     $('updatedAt').textContent = formatDate(data.generated_at);
     try { if ($('stuCtlPanel') && !$('stuCtlPanel').hidden) renderStuCtl(); } catch (ignoreStu) {}
-    if (data.counts) {
-      $('countStudents').textContent = data.counts.students;
-      $('countClasses').textContent = data.counts.classes;
-      $('countTeachers').textContent = data.counts.teachers;
-      $('countSubjects').textContent = data.counts.subjects;
-    }
     data.cached_at = data.cached_at || Date.now();
   }
 
@@ -655,64 +621,6 @@ th{background:#edf4fa;color:#486581;font-weight:750;white-space:nowrap}
     loadManagers().then(function () { if (activeManager && managers[activeManager.user_id]) $('managerId').value = activeManager.user_id; }).catch(function () {});
   }
 
-  function renderStudents() {
-    var q = String(($('studentSearch') && $('studentSearch').value) || '').trim().toLowerCase();
-    var list = (snapshot && snapshot.students) || [];
-    var box = $('studentList');
-    box.innerHTML = '';
-    list.filter(function (s) {
-      if (!q) return true;
-      return (
-        String(s.student_name || '').toLowerCase().indexOf(q) >= 0 ||
-        String(s.student_no || '').toLowerCase().indexOf(q) >= 0 ||
-        String(s.class_code || '').toLowerCase().indexOf(q) >= 0
-      );
-    }).slice(0, 200).forEach(function (s) {
-      var btn = document.createElement('button');
-      btn.type = 'button';
-      btn.className = 'student-row';
-      btn.innerHTML =
-        '<strong>' + escapeHtml(s.student_name || '—') + '</strong>' +
-        '<span>' + escapeHtml(s.class_code || '') + ' · No ' + escapeHtml(s.student_no || '') + '</span>';
-      btn.onclick = function () { openStudentDetail(s); };
-      box.appendChild(btn);
-    });
-  }
-
-  async function openStudentDetail(student) {
-    $('studentDetailTitle').textContent = student.student_name || student.student_no;
-    $('studentDetailLine').textContent =
-      (student.class_code || '') + ' · No ' + (student.student_no || '');
-    var dKey = 'det|' + activeManager.user_id + '|' + student.student_no;
-    function paint(rows, note) {
-      if (!rows.length) { $('studentDetailRows').innerHTML = '<p class="empty">Kayıt yok.</p>'; return; }
-      $('studentDetailRows').innerHTML = (note ? '<p class="hint">' + escapeHtml(note) + '</p>' : '') + rows.map(function (r) {
-        return '<article class="timeline-item">' +
-          '<small>' + escapeHtml(r.channel || '') + ' · ' + escapeHtml(r.subject_code || '') + '</small>' +
-          '<strong>' + escapeHtml(r.description || '') + '</strong>' +
-          '<p>' + escapeHtml(r.value || '') + '</p>' +
-          '<span>' + escapeHtml(formatDate(r.updated_at)) + '</span>' +
-          '</article>';
-      }).join('');
-    }
-    $('studentDetailRows').innerHTML = '<p>Yükleniyor…</p>';
-    $('studentDetailModal').hidden = false;
-    var cached = await kvGet(dKey), shown = false;
-    if (cached && cached.rows) { paint(cached.rows, 'Hafızadan gösteriliyor · arkaplanda güncelleniyor…'); shown = true; }
-    try {
-      var data = await api({
-        action: 'manager_student_detail',
-        user_id: activeManager.user_id,
-        student_no: student.student_no
-      });
-      var rows = data.rows || [];
-      kvSet(dKey, { savedAt: Date.now(), rows: rows });
-      paint(rows, '');
-    } catch (e) {
-      if (!shown) $('studentDetailRows').innerHTML = '<p class="empty">' + escapeHtml(e.message || e) + '</p>';
-    }
-  }
-
   // ───────────── Sorumluluk Takibi (sunucudaki hazır özet: MudurOzet.js) ─────────────
   // ───────────── Aksayan İşler (sunucudaki hazır özet: MudurOzet.js) ─────────────
   var acc = null, accOnlyFlagged = true, accOpen = {};
@@ -751,16 +659,6 @@ th{background:#edf4fa;color:#486581;font-weight:750;white-space:nowrap}
   }
   function subjName(x) { var lv = levelOf(x); return x.label + (lv ? ' · ' + lv : ''); }
   // Kırmızı uyarı kartından «Öğretmen Bazında» listesine: öğretmeni açar ve oraya kaydırır.
-  function goTeacher(uid) {
-    $('sheetModal').hidden = true;
-    accOpen[uid] = true;
-    var t = ((acc && acc.snapshot && acc.snapshot.teachers) || []).filter(function (x) { return x.uid === uid; })[0];
-    if (t && t.status === 'green') accOnlyFlagged = false;
-    renderAcc();
-    var el = $('accBody').querySelector('[data-person="' + (window.CSS && CSS.escape ? CSS.escape(uid) : uid) + '"]');
-    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }
-
   // ── Ödev/Kontrol sayım payı: müdür seçer (0 = güncel konu dahil; 2 = güncel konudan 2 öncesine kadar) ──
   // Özet her satırı konu sırasıyla taşır; seçilen paya göre sayılar burada yeniden hesaplanır.
   var MZ_GRACE_KEY = 'vizyon_mudur_konu_payi';
@@ -798,165 +696,79 @@ th{background:#edf4fa;color:#486581;font-weight:750;white-space:nowrap}
     return (rows || []).filter(function (r) { var i = r[width]; return i != null && i < lim; }).map(function (r) { return r.slice(0, width); });
   }
 
-  var TILES = [
-    { key: 'red', label: 'Kırmızı uyarılı öğretmen' },
-    { key: 'untreated', label: 'Takipsiz eksik kazanım' },
-    { key: 'late', label: 'İlk ders kaydı eksik sınıf' }
-  ];
-  function tileValues(s) {
-    var v = { untreated: 0, control: 0, current: 0, homework: 0 };
-    eachSubject(s, function (t, x) { v.untreated += x.untreated || 0; v.control += x.control || 0; v.current += x.control_current || 0; v.homework += x.homework || 0; });
-    v.red = s.counts.red_teachers;
-    v.guidance = (s.guidance || {}).total_pending || 0;
-    v.late = ((s.late || {}).classes || []).length;
-    return v;
-  }
+  // Sayfada yalnız dört düğme var: Ödev Kontrol, Öğrenci Kontrol, Öğretmen–Öğrenci Çalışma, Devamsızlık.
   function renderAcc() {
     if (!acc) return;
     if (!acc.ready) {
       $('accLine').textContent = acc.message || 'Özet hazır değil.';
-      $('accTiles').innerHTML = ''; $('accBody').innerHTML = '';
+      renderHwAcc(); renderTrack();
       return;
     }
-    var s = acc.snapshot, th = s.thresholds || {}, grace = applyGrace(s), v = tileValues(s);
-    if ($('countStudents').textContent === '—') {
-      $('countStudents').textContent = s.counts.students; $('countClasses').textContent = s.counts.classes;
-      $('countTeachers').textContent = s.counts.teachers; $('countSubjects').textContent = s.counts.subjects;
-    }
-    $('accLine').innerHTML = 'Özet: <b>' + escapeHtml(formatDate(s.built_at)) + '</b> · ' + escapeHtml(s.kkt_filter || '') +
+    var s = acc.snapshot;
+    applyGrace(s);
+    $('accLine').innerHTML = 'Özet: <b>' + escapeHtml(formatDate(s.built_at)) + '</b>' +
       (acc.stale ? ' · <span style="color:var(--red)">özet 3 saatten eski</span>' : '');
-    var levels = { red: v.red ? 'red' : 'green', untreated: v.untreated ? 'red' : 'green', control: v.control ? 'amber' : 'green',
-      homework: v.homework ? 'amber' : 'green',
-      guidance: v.guidance ? 'amber' : 'green', late: v.late ? 'amber' : 'green' };
-    var notes = { red: (s.teachers || []).length + ' öğretmenden', untreated: th.untreated + '+ gündür ödev/kontrol yok',
-      control: 'ödevi girilmiş · güncel konudan ' + grace + ' öncesine kadar',
-      homework: 'ödev de kontrol de yok · güncel konudan ' + grace + ' öncesine kadar', guidance: 'öğretmen kısmı tamam', late: 'son okul günlerinde' };
-    $('accTiles').innerHTML = TILES.map(function (t) {
-      return '<button type="button" class="tile ' + levels[t.key] + '" data-tile="' + t.key + '"><b>' + escapeHtml(v[t.key]) + '</b><span>' +
-        escapeHtml(t.label) + '</span><small>' + escapeHtml(notes[t.key]) + '</small></button>';
-    }).join('');
-    Array.prototype.forEach.call($('accTiles').querySelectorAll('[data-tile]'), function (b) {
-      b.onclick = function () { openTile(s, b.getAttribute('data-tile')); };
-    });
-    renderAccTeachers(s);
     renderHwAcc();
+    renderTrack();
   }
 
-  // ── kutucuk ayrıntısı (alttan açılan sayfa) ──
-  function sheet(subtitle, title, line, html) {
-    $('sheetSubtitle').textContent = subtitle; $('sheetTitle').textContent = title; $('sheetLine').textContent = line || '';
-    $('sheetBody').innerHTML = html;
-    $('sheetModal').hidden = false;
+  // ── Öğretmen–Öğrenci Çalışma: öğretmen başına çalışma sayısı; öğretmene dokununca kayıtlar ──
+  // Özet satırı: [tarih, sınıf, öğrenci, ders, çalışma, öğretmen adı, kimlik] (son 60 gün)
+  var trackOpen = {};
+  function trackDays() { var v = Number(($('trackDays') || {}).value || 14); return isFinite(v) && v > 0 ? v : 14; }
+  function trackRows(s, days) {
+    var since = Date.now() - days * 86400000;
+    return ((s && s.track_list) || []).filter(function (r) { var t = Date.parse(r[0]); return isFinite(t) && t >= since; });
   }
-  function rowItem(attrs, main, small, badge, level) {
-    return '<button type="button" class="it-btn"' + attrs + '><span><b>' + escapeHtml(main) + '</b>' + (small ? '<small>' + escapeHtml(small) + '</small>' : '') +
-      '</span><span class="num-badge ' + (level || 'amber') + '">' + escapeHtml(badge) + '</span></button>';
+  function trackDate(iso) {
+    var d = new Date(iso);
+    return isNaN(d) ? String(iso || '').slice(0, 10) : d.toLocaleDateString('tr-TR', { day: '2-digit', month: '2-digit' }) +
+      ' ' + d.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
   }
-  function openTile(s, key) {
-    var th = s.thresholds || {}, html = '', rows = [];
-    if (key === 'red') {
-      var red = (s.teachers || []).filter(function (t) { return t.status === 'red'; });
-      html = red.length ? red.map(function (t) {
-        var flags = [];
-        t.subjects.forEach(function (x) {
-          x.flags.forEach(function (f) { if (f[0] === 'red' || f[0] === 'amber') flags.push([f[0], subjName(x) + ' — ' + f[1]]); });
-        });
-        flags.sort(function (a, b) { return (a[0] === 'red' ? 0 : 1) - (b[0] === 'red' ? 0 : 1); });
-        return '<button type="button" class="sheet-card go-teacher" data-go="' + escapeHtml(t.uid) + '"><b>' + escapeHtml(t.name) +
-          '</b> <small>· öğretmen ayrıntısı ›</small><ul class="flags">' +
-          flags.map(function (f) { return '<li class="' + f[0] + '">' + escapeHtml(f[1]) + '</li>'; }).join('') + '</ul></button>';
-      }).join('') : '<p class="hint ok">Kırmızı uyarılı öğretmen yok.</p>';
-      sheet('AKSAYAN İŞ', 'Kırmızı uyarılı öğretmenler', red.length + ' öğretmen · kırmızı ve sarı uyarılar · karta dokunun: Öğretmen Bazında ayrıntı', html);
-      Array.prototype.forEach.call($('sheetBody').querySelectorAll('[data-go]'), function (b) {
-        b.onclick = function () { goTeacher(b.getAttribute('data-go')); };
-      });
-      return;
-    }
-    if (key === 'untreated' || key === 'control' || key === 'homework') {
-      eachSubject(s, function (t, x) { if (x[key]) rows.push({ t: t, x: x }); });
-      rows.sort(function (a, b) { return b.x[key] - a.x[key]; });
-      html = rows.length ? rows.map(function (r) {
-        var small = r.x.classes.join(', ') + (key === 'control' ? ' · en eski ' + dayText(r.x.control_oldest) : '');
-        var level = key === 'untreated' || (key === 'control' && r.x.control_oldest > th.control) ? 'red' : 'amber';
-        return rowItem(' data-uid="' + escapeHtml(r.t.uid) + '" data-cat="' + escapeHtml(r.x.cat) + '"', r.t.name + ' · ' + subjName(r.x), small, r.x[key], level);
-      }).join('') : '<p class="hint ok">Yok.</p>';
-      var titles = { control: 'Öğretmen işareti bekleyen', homework: 'Rehberlik işareti girilmemiş', untreated: 'Takipsiz eksik kazanımlar' };
-      var lines = {
-        control: 'Güncel konudan ' + mzGrace(s) + ' öncesine kadar olan konularda Rehberlik girilmiş, Öğretmen girilmemiş. Kırmızı: ' + th.control + ' günden eski.',
-        homework: 'Güncel konudan ' + mzGrace(s) + ' öncesine kadar olan konularda ne Rehberlik ne Öğretmen girilmiş (öğrenci × konu).',
-        untreated: 'KKT\'den ' + th.untreated + '+ gün geçmiş, ne ödev ne kontrol girilmiş eksik ana kazanımlar.' };
-      sheet('AKSAYAN İŞ', titles[key], lines[key], html);
-      Array.prototype.forEach.call($('sheetBody').querySelectorAll('[data-uid]'), function (b) {
-        b.onclick = function () { openAccDetail(s, b.getAttribute('data-uid'), b.getAttribute('data-cat'), key); };
-      });
-      return;
-    }
-    if (key === 'guidance') {
-      var g = s.guidance || {};
-      html = (g.pending || []).length ? g.pending.map(function (p, i) {
-        return rowItem(' data-g="' + i + '"', p.cls, 'en eski ' + dayText(p.oldest), p.count, 'amber');
-      }).join('') : '<p class="hint ok">Onay bekleyen yok.</p>';
-      // Rehberler çoğunlukla Öğrenci Ödev ve ek görev doldurur; yalnız onay saymak «0» gösteriyordu.
-      html += '<div class="sec">REHBER ÖĞRETMENLER · son 14 günde girilen işler</div><div class="simple-list">' + (g.users || []).map(function (u) {
-        var parts = [(u.homework14 || 0) + ' öğrenci ödev', (u.tasks14 || 0) + ' ek görev'];
-        if (u.approvals14) parts.push(u.approvals14 + ' onay');
-        var any = u.work14 != null ? u.work14 : u.approvals14;   // eski özet (yeni alanlar yok) de okunur
-        return '<div class="it"><div>' + escapeHtml(u.name) + '</div><span class="num-badge ' + (any ? 'green' : 'amber') + '">' +
-          escapeHtml(u.work14 != null ? parts.join(' · ') : u.approvals14 + ' onay') + '</span></div>';
-      }).join('') + '</div>';
-      sheet('AKSAYAN İŞ', 'Rehberlik onayı bekleyenler', 'Öğretmen kısmı (ödev + kontrol) tamam, rehberlik onayı girilmemiş eksik kazanımlar.', html);
-      Array.prototype.forEach.call($('sheetBody').querySelectorAll('[data-g]'), function (b) {
-        b.onclick = function () {
-          var p = g.pending[Number(b.getAttribute('data-g'))];
-          openMetric({ title: 'Rehberlik onayı bekleyen · ' + p.cls, subtitle: 'ÖĞRETMEN KISMI TAMAM', headers: ['Öğrenci', 'Ana kazanım', 'Bekleyen (gün)'], rows: p.rows || [] });
-        };
-      });
-      return;
-    }
-    var L = s.late || {}, days = L.school_days || [];
-    html = (L.classes || []).length ? '<div class="simple-list">' + L.classes.map(function (c) {
-      return '<div class="it"><div>' + escapeHtml(c.cls) + '<small>' + escapeHtml(c.days.map(function (d) { var p = d.split('-'); return Number(p[2]) + '.' + p[1]; }).join(', ')) +
-        '</small></div><span class="num-badge ' + (c.missing >= 3 ? 'red' : 'amber') + '">' + c.missing + ' gün</span></div>';
-    }).join('') + '</div>' : '<p class="hint ok">Bütün sınıflar her gün kayıt girmiş.</p>';
-    sheet('AKSAYAN İŞ', 'İlk ders kaydı eksik sınıflar', 'Son ' + days.length + ' okul gününde «Derse Zamanında Gelmeyenler» kaydı girilmeyen günler.', html);
+  function renderTrack() {
+    var panel = $('trackPanel');
+    if (!panel || panel.hidden) return;
+    if (!acc || !acc.ready) { $('trackBody').innerHTML = '<p class="hint">' + escapeHtml((acc && acc.message) || 'Özet hazır değil.') + '</p>'; return; }
+    var s = acc.snapshot;
+    if (!s.track_list) { $('trackBody').innerHTML = '<p class="hint warn">Özet eski biçimde; yenilenince (en geç 30 dk) görünür.</p>'; return; }
+    var days = trackDays(), rows = trackRows(s, days), by = {};
+    (s.teachers || []).forEach(function (t) { by[t.uid] = { key: t.uid, name: t.name, rows: [] }; });
+    rows.forEach(function (r) {
+      var key = r[6] || ('ad:' + r[5]);
+      (by[key] = by[key] || { key: key, name: r[5] || 'Bilinmeyen öğretmen', rows: [] }).rows.push(r);
+    });
+    var list = Object.keys(by).map(function (k) { return by[k]; }).sort(function (a, b) {
+      return b.rows.length - a.rows.length || String(a.name).localeCompare(String(b.name), 'tr');
+    });
+    $('trackBody').innerHTML = '<p class="hint" style="margin:0 0 6px">Son ' + days + ' gün · ' + rows.length + ' çalışma kaydı</p>' +
+      list.map(function (g) {
+        var students = {};
+        g.rows.forEach(function (r) { students[r[1] + '|' + r[2]] = true; });
+        var body = '';
+        if (trackOpen[g.key]) {
+          body = '<div class="pbody">' + (g.rows.length ? '<table class="hw-tbl"><thead><tr><th>Tarih</th><th>Öğrenci</th><th>Ders</th><th>Çalışma</th></tr></thead><tbody>' +
+            g.rows.map(function (r) {
+              return '<tr><td>' + escapeHtml(trackDate(r[0])) + '</td><td>' + escapeHtml(r[2]) + ' <small>' + escapeHtml(r[1]) + '</small></td><td>' +
+                escapeHtml(String(r[3] || '').replace(/_/g, ' ')) + '</td><td>' + escapeHtml(r[4]) + '</td></tr>';
+            }).join('') + '</tbody></table>' : '<p class="hint" style="margin:4px 0">Bu dönemde çalışma kaydı yok.</p>') + '</div>';
+        }
+        return '<div class="person"><button type="button" data-trk="' + escapeHtml(g.key) + '"><span><b>' + escapeHtml(g.name) + '</b></span><span class="hw-badges">' +
+          '<span class="num-badge ' + (g.rows.length ? 'green' : 'amber') + '">' + g.rows.length + ' çalışma</span>' +
+          '<span class="hw-eksik">' + Object.keys(students).length + ' öğrenci</span></span></button>' + body + '</div>';
+      }).join('');
+    Array.prototype.forEach.call($('trackBody').querySelectorAll('[data-trk]'), function (b) {
+      b.onclick = function () { var k = b.getAttribute('data-trk'); trackOpen[k] = !trackOpen[k]; renderTrack(); };
+    });
+  }
+  function togglePanel(panelId, btnId, onOpen) {
+    var panel = $(panelId), btn = $(btnId);
+    if (!panel || !btn) return;
+    panel.hidden = !panel.hidden;
+    btn.setAttribute('aria-expanded', panel.hidden ? 'false' : 'true');
+    var arrow = btn.querySelector('.gt-arrow'); if (arrow) arrow.textContent = panel.hidden ? '▾' : '▴';
+    if (!panel.hidden && onOpen) onOpen();
   }
 
-  function renderAccTeachers(s) {
-    var th = s.thresholds || {};
-    var flagged = (s.teachers || []).filter(function (t) { return t.status !== 'green'; }).length;
-    var list = (s.teachers || []).filter(function (t) { return !accOnlyFlagged || t.status !== 'green'; });
-    var html = '<label class="toggle"><input type="checkbox" id="accOnly"' + (accOnlyFlagged ? ' checked' : '') + '> Yalnız uyarısı olanlar (' +
-      flagged + ' / ' + (s.teachers || []).length + ')</label>';
-    html += list.length ? list.map(function (t) {
-      var open = !!accOpen[t.uid], body = '';
-      if (open) {
-        body = '<div class="pbody">' + t.subjects.map(function (x) {
-          var topicLvl = x.topic_days === null || x.topic_days > th.topic ? 'red' : '';
-          var ctrlLvl = x.control ? (x.control_oldest > th.control ? 'red' : 'amber') : '';
-          return '<div class="subj"><h4>' + escapeHtml(subjName(x)) + ' <small>' + escapeHtml(x.classes.join(', ')) + ' · ' + x.students + ' öğrenci</small></h4>' +
-            '<div class="stats">' +
-            '<div class="stat ' + topicLvl + '">Güncel konu<b>' + (x.topic_days === null ? 'girilmemiş' : x.topic_days + ' gün önce') + '</b>' + escapeHtml(x.topic || '') + '</div>' +
-            '<button type="button" class="stat ' + (x.homework ? 'amber' : '') + '" data-det="homework" data-uid="' + escapeHtml(t.uid) + '" data-cat="' + escapeHtml(x.cat) + '">Rehberlik girilmemiş<b>' + (x.homework || 0) + '</b>sayılan konular</button>' +
-            '<button type="button" class="stat ' + ctrlLvl + '" data-det="control" data-uid="' + escapeHtml(t.uid) + '" data-cat="' + escapeHtml(x.cat) + '">Öğretmen bekleyen<b>' + x.control + '</b>' +
-              (x.control ? 'en eski ' + x.control_oldest + ' gün' : '') + (x.control_current ? ' · ' + x.control_current + ' işleniyor' : '') + '</button>' +
-            '<button type="button" class="stat ' + (x.untreated ? 'red' : '') + '" data-det="untreated" data-uid="' + escapeHtml(t.uid) + '" data-cat="' + escapeHtml(x.cat) + '">Takipsiz eksik<b>' + x.untreated + ' / ' + x.deficient + '</b>' + th.untreated + '+ gün</button>' +
-            '<div class="stat ' + (!x.tracks && x.students ? 'amber' : '') + '">Öğrenci çalışması<b>' + x.tracks + '</b>son ' + th.tracks + ' gün</div>' +
-            '<div class="stat">Ek görev<b>' + x.tasks30 + '</b>son 30 gün</div></div></div>';
-        }).join('') + '</div>';
-      }
-      var sub = t.subjects.map(function (x) { return subjName(x); }).join(', ');
-      return '<div class="person"><button type="button" data-person="' + escapeHtml(t.uid) + '"><span style="display:flex;align-items:center;gap:6px"><i class="dot ' + cls(t.status) + '"></i><span><b>' + escapeHtml(t.name) + '</b><small>' + escapeHtml(sub) + '</small></span></span>' +
-        '<span class="num-badge ' + cls(t.status) + '">' + (t.red ? t.red + ' kırmızı' : t.amber ? t.amber + ' uyarı' : 'yolunda') + '</span></button>' + body + '</div>';
-    }).join('') : '<p class="hint ok">Uyarısı olan öğretmen yok.</p>';
-    $('accBody').innerHTML = html;
-    $('accOnly').onchange = function () { accOnlyFlagged = this.checked; renderAcc(); };
-    Array.prototype.forEach.call($('accBody').querySelectorAll('[data-person]'), function (b) {
-      b.onclick = function () { var u = b.getAttribute('data-person'); accOpen[u] = !accOpen[u]; renderAcc(); };
-    });
-    Array.prototype.forEach.call($('accBody').querySelectorAll('[data-det]'), function (b) {
-      b.onclick = function () { openAccDetail(s, b.getAttribute('data-uid'), b.getAttribute('data-cat'), b.getAttribute('data-det')); };
-    });
-  }
   // ── Ödev Kontrol düğmesi: öğretmen başına Rehberlik (H) / Öğretmen (Ok) işaretleri ──
   // İki seçim: pay (güncel konudan kaç konu öncesine kadar) ve düzey (işlem yok … %100). Sütunlar birbirinden bağımsız sayılır.
   // Özet (fmt ≥ 3) her öğrenci × konu için düzey kodu taşır: '-' yok · 'g' Görüşüldü yapmıyor · '1' %10 · '3' · '5' · '7' · 'T' tamam.
@@ -1178,19 +990,6 @@ th{background:#edf4fa;color:#486581;font-weight:750;white-space:nowrap}
     renderHwAcc();
   }
 
-  function openAccDetail(s, uid, cat, kind) {
-    var t = (s.teachers || []).filter(function (x) { return x.uid === uid; })[0];
-    if (!t) return;
-    var det = (t.details || {})[cat] || {}, subj = t.subjects.filter(function (x) { return x.cat === cat; })[0] || {};
-    var title = t.name + ' · ' + (subj.label ? subjName(subj) : cat), g = mzGrace(s);
-    var win = 'güncel konudan ' + g + ' öncesine kadar';
-    openMetric(kind === 'untreated'
-      ? { title: title, subtitle: 'TAKİPSİZ EKSİK KAZANIM (ödev de kontrol de yok)', headers: ['Sınıf', 'Öğrenci', 'Ana kazanım', 'KKT\'den bu yana (gün)'], rows: det.untreated || [] }
-      : kind === 'homework'
-        ? { title: title, subtitle: 'REHBERLİK GİRİLMEMİŞ (' + win + '; Öğretmen de yok)', headers: ['Sınıf', 'Öğrenci', 'Konu'], rows: graceRows(det.homework, subj, g, 3) }
-        : { title: title, subtitle: 'ÖĞRETMEN BEKLEYEN (Rehberlik girilmiş, ' + win + ')', headers: ['Sınıf', 'Öğrenci', 'Konu', 'Rehberlikten bu yana (gün)'], rows: graceRows(det.control, subj, g, 4) });
-  }
-
   // ───────────── Devamsızlık / geç gelenler (Devam.js) ─────────────
   var ATT_MONTHS = ['Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran', 'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık'];
   var ATT_DAYS = ['Pazar', 'Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma', 'Cumartesi'];
@@ -1216,6 +1015,7 @@ th{background:#edf4fa;color:#486581;font-weight:750;white-space:nowrap}
     var target = lesson ? lesson + ' dersine' : 'derse';
     var body;
     if (item.type === 'absent_day') body = when + ' kursa gelmemiştir. ' + ATT_CONTACT;
+    else if (item.type === 'absent_first') body = when + ' birinci derse katılmamıştır. ' + ATT_CONTACT;
     else if (item.type === 'absent_lesson') body = when + ' ' + target + ' katılmamıştır. ' + ATT_CONTACT;
     else body = when + ' ' + target + ' zamanında gelmemiştir' + (time ? ' (yoklama saati ' + time + ')' : '') + '. Bilgilerinize sunarız.';
     return (pname ? 'Sayın ' + pname + ',' : 'Sayın Veli,') + ' ' + who + ' ' + body + ' — ' + (inst || ATT_INST);
@@ -1319,7 +1119,11 @@ th{background:#edf4fa;color:#486581;font-weight:750;white-space:nowrap}
   $('btnLoadManagers').onclick = function () { run(this, loadManagers); };
   $('btnLogin').onclick = function () { run(this, login); };
   $('btnRefresh').onclick = function () { run(this, function () { return openDashboard({ manual: true }); }); };
-  $('btnStudents').onclick = function () { $('studentModal').hidden = false; renderStudents(); };
+  if ($('btnTrack')) $('btnTrack').onclick = function () { togglePanel('trackPanel', 'btnTrack', renderTrack); };
+  if ($('trackDays')) $('trackDays').onchange = renderTrack;
+  if ($('btnAtt')) $('btnAtt').onclick = function () {
+    togglePanel('attPanel', 'btnAtt', function () { $('attEnter').hidden = true; run(null, loadAttendance); });
+  };
   if ($('btnHwAcc')) $('btnHwAcc').onclick = toggleHwAcc;
   if ($('btnStuCtl')) $('btnStuCtl').onclick = toggleStuCtl;
   if ($('stuCtlClass')) $('stuCtlClass').onchange = function () { $('stuCtlSearch').value = ''; renderStuCtl(); };
@@ -1332,17 +1136,12 @@ th{background:#edf4fa;color:#486581;font-weight:750;white-space:nowrap}
     try { localStorage.setItem(MZ_GRACE_KEY, this.value); } catch (e) {}
     renderAcc();
   };
-  $('btnAttendance').onclick = function () {
-    $('attModal').hidden = false; $('attEnter').hidden = true;
-    run(null, loadAttendance);
-  };
   $('attReload').onclick = function () { run(this, loadAttendance); };
   $('attDate').onchange = function () { $('attEnter').hidden = true; run(null, loadAttendance); };
   $('attEnterBtn').onclick = function () { if (att) openLateEntry(); };
   $('attClass').onchange = fillLateStudents;
   $('attSave').onclick = function () { run(this, saveLate); };
   $('attCancel').onclick = function () { $('attEnter').hidden = true; };
-  $('studentSearch').oninput = renderStudents;
   $('btnLogout').onclick = logout;
   Array.prototype.forEach.call(document.querySelectorAll('[data-close]'), function (button) {
     button.onclick = function () { $(button.getAttribute('data-close')).hidden = true; };
