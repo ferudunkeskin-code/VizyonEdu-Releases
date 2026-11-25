@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="tr" data-vz-app="VizyonEdu Öğretmen">
 <head>
-<meta name="vz-build" content="64e35e971418">
+<meta name="vz-build" content="f2f867c20a2b">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -19,7 +19,8 @@
 <script>
 (function(){
   'use strict';
-  var active=null;
+  var active=null,NS='vzf:';
+  try{if(navigator.storage && navigator.storage.persist)navigator.storage.persist().catch(function(){});}catch(ignore){}
   function allowed(origin){return /^https:\/\/(script\.google\.com|[a-z0-9-]+\.googleusercontent\.com)$/i.test(origin);}
   function packageFile(bytes,originalName,format){
     var stem=String(originalName||'paket.vzep').replace(/\.vzep$/i,'').replace(/[^0-9A-Za-zÇĞİÖŞÜçğıöşü_.-]+/g,'_').slice(0,160);
@@ -43,6 +44,22 @@
       var frame=document.getElementById('app');if(!frame)return;
       var url=new URL(frame.getAttribute('data-base')||frame.src);frame.setAttribute('data-base',url.href);url.searchParams.set('r',String(Date.now()));
       setTimeout(function(){frame.src=url.href;},60);return;
+    }
+    // Kalıcı kayıt köprüsü: iPhone çerçeve içindeki kayıtları uygulama kapanınca siler; kopyası burada
+    // (github.io, kalıcı) «vzf:» önekiyle tutulur. Program açılışta ister, her yazımında gönderir.
+    if(d.type==='vizyonedu-store-get'){
+      var items={};
+      try{for(var i=0;i<localStorage.length;i++){var k=localStorage.key(i);if(k && k.indexOf(NS)===0)items[k.slice(NS.length)]=localStorage.getItem(k);}}catch(ignore){}
+      reply({type:'vizyonedu-store-snapshot',items:items,version:1});return;
+    }
+    if(d.type==='vizyonedu-store-put'){
+      try{
+        if(d.clear){var old=[];for(var j=0;j<localStorage.length;j++){var ok=localStorage.key(j);if(ok && ok.indexOf(NS)===0)old.push(ok);}old.forEach(function(x){localStorage.removeItem(x);});}
+        (Array.isArray(d.del)?d.del:[]).forEach(function(x){localStorage.removeItem(NS+String(x));});
+        var set=d.set && typeof d.set==='object'?d.set:{};
+        Object.keys(set).forEach(function(x){try{localStorage.setItem(NS+x,String(set[x]));}catch(full){/* alan dolu: eski kopya kalır */}});
+      }catch(ignore){}
+      return;
     }
     if(d.type!=='vizyonedu-share')return;
     var bytes;
