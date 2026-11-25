@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="tr" data-vz-app="VizyonEdu Veli">
 <head>
-<meta name="vz-build" content="7fe55c7f5f32">
+<meta name="vz-build" content="2efa4beb30c4">
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
   <meta name="theme-color" content="#173d62">
@@ -243,7 +243,13 @@ body.land .ex-table-wrap{display:block}
 .ga-pct{margin-left:auto;font-weight:800;color:var(--amber);font-size:.82rem;font-variant-numeric:tabular-nums}
 .ga-pct.hi{color:var(--green)}.ga-pct.lo{color:var(--red)}.ga-pct.none{color:#b8c3cf}
 .ga-head .ga-pct{margin-left:0}
-@media (prefers-color-scheme: dark){.ga-course,.ga-head{background:transparent}.ga-head.on{background:#ffffff10}}
+.ga-head{flex-wrap:wrap}
+.ga-now{flex-basis:100%;font-size:.72rem;font-weight:700;color:#8a4b00}
+.ga-row.cur{background:#fff8e6;border-left:4px solid #f2a93b;opacity:1}
+.ga-row.next{opacity:.3}
+.ga-tag{display:inline-block;margin-left:4px;padding:1px 7px;border-radius:999px;background:#f2a93b;color:#fff;font-size:.64rem;font-weight:800;vertical-align:1px}
+.ga-note{font-style:italic;font-size:.74rem}
+@media (prefers-color-scheme: dark){.ga-course,.ga-head{background:transparent}.ga-head.on{background:#ffffff10}.ga-row.cur{background:#3a2a10}}
 </style>
 </head>
 <body>
@@ -877,12 +883,18 @@ body.land .ex-table-wrap{display:block}
         '<span class="ga-title">' + esc(c.label) + (c.own ? '' : ' <small>(başka sınıfın dersi)</small>') + '</span>' +
         '<span class="ga-sum">' + (asked ? (c.tot.k[0] ? 'KKT ' + c.tot.k[0] : '') + (c.tot.k[0] && c.tot.e[0] ? ' · ' : '') +
           (c.tot.e[0] ? 'Sınav ' + c.tot.e[0] : '') + ' soru' : 'henüz soru yok') + '</span>' + gaPct(c.pct) +
-        '<span class="ga-arrow">' + (open ? '▾' : '▸') + '</span></button>';
+        '<span class="ga-arrow">' + (open ? '▾' : '▸') + '</span>' +
+        (c.cur ? '<span class="ga-now">Güncel: ' + c.cur.n + '. ' + esc(c.cur.main) + '</span>' : '') + '</button>';
       if (!open) return '<div class="ga-course">' + head + '</div>';
       var rows = c.rows.map(function (r) {
-        var empty = !r.k[0] && !r.e[0];
-        return '<div class="ga-row' + (empty ? ' empty' : '') + '"><div class="ga-name">' + (r.n ? r.n + '. ' : '— ') + esc(r.main) + '</div>' +
-          '<div class="ga-cells">' + gaCell('KKT', r.k) + gaCell('Sınav', r.e) + gaPct(r.pct) + '</div></div>';
+        var empty = !r.k[0] && !r.e[0], cls = 'ga-row' + (empty ? ' empty' : '') + (r.at === 'cur' ? ' cur' : '') +
+          (empty && r.at === 'next' ? ' next' : '');
+        // Soru çıkmamış kazanım: güncel konudan önceyse «işlendi», sonraysa «henüz işlenmedi».
+        var note = empty && r.at === 'done' ? 'işlendi, soru çıkmadı' : empty && r.at === 'next' ? 'henüz işlenmedi' : '';
+        return '<div class="' + cls + '"><div class="ga-name">' + (r.at === 'cur' ? '▶ ' : '') + (r.n ? r.n + '. ' : '— ') + esc(r.main) +
+          (r.at === 'cur' ? ' <span class="ga-tag">Güncel konu</span>' : '') + '</div>' +
+          '<div class="ga-cells">' + (note ? '<span class="ga-note">' + note + '</span>' : gaCell('KKT', r.k) + gaCell('Sınav', r.e)) +
+          gaPct(r.pct) + '</div></div>';
       }).join('');
       return '<div class="ga-course">' + head + '<div class="ga-rows">' + rows + '</div></div>';
     }).join('');
